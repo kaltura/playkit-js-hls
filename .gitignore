@@ -39,5 +39,3 @@ jspm_packages
 dist/
 .idea/
 flow-typed/
-src/
-test/
