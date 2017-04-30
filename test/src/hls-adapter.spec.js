@@ -1,4 +1,5 @@
 import playkit from 'playkit-js';
+//eslint-disable-next-line no-unused-vars
 import HlsAdapter from '../../src/hls-adapter.js'
 
 describe('HlsAdapter', function () {
