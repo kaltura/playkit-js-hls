@@ -4,7 +4,7 @@ import HlsAdapter from '../../src/hls-adapter.js'
 describe('HlsAdapter', function () {
   this.timeout(4000);
 
-  it.only('should play hls stream - preload none', (done) => {
+  it('should play hls stream - preload none', (done) => {
     let player = playkit({
       sources: [{
         mimetype: "application/x-mpegurl",
@@ -13,8 +13,8 @@ describe('HlsAdapter', function () {
     });
     let video = document.getElementsByTagName("video")[0];
     video.onplaying = function () {
-      // player.destroy();
-      // done();
+      player.destroy();
+      done();
     };
     player.load();
     player.play();
@@ -30,8 +30,8 @@ describe('HlsAdapter', function () {
     });
     let video = document.getElementsByTagName("video")[0];
     video.onplaying = function () {
-      // player.destroy();
-      // done();
+      player.destroy();
+      done();
     };
     player.load();
     player.play();
