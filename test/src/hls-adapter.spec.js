@@ -21,7 +21,7 @@ describe('HlsAdapter', function () {
     player.play();
   });
 
-  it('should play hls stream - preload none', (done) => {
+  it('should play hls stream - preload auto', (done) => {
     let player = playkit({
       preload: "auto",
       sources: [{
