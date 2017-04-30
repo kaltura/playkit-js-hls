@@ -1,20 +1,20 @@
 import playkit from 'playkit-js';
-import HlsAdapter from '../../src/hls.js'
+import HlsAdapter from '../../src/hls-adapter.js'
 
 describe('HlsAdapter', function () {
   this.timeout(4000);
 
-  it('should play hls stream - preload none', (done) => {
+  it.only('should play hls stream - preload none', (done) => {
     let player = playkit({
       sources: [{
         mimetype: "application/x-mpegurl",
-        url: "http://www.streambox.fr/playlists/test_001/stream.m3u8"
+        url: "https://wowzaec2demo.streamlock.net/vod-multitrack/_definst_/smil:ElephantsDream/ElephantsDream.smil/playlist.m3u8"
       }]
     });
     let video = document.getElementsByTagName("video")[0];
     video.onplaying = function () {
-      player.destroy();
-      done();
+      // player.destroy();
+      // done();
     };
     player.load();
     player.play();
@@ -30,8 +30,8 @@ describe('HlsAdapter', function () {
     });
     let video = document.getElementsByTagName("video")[0];
     video.onplaying = function () {
-      player.destroy();
-      done();
+      // player.destroy();
+      // done();
     };
     player.load();
     player.play();
