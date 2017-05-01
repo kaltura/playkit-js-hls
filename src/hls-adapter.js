@@ -8,7 +8,7 @@ import {registerMediaSourceAdapter} from 'playkit-js'
  */
 export default class HlsAdapter implements IMediaSourceAdapter {
   /**
-   * The name of Adapter
+   * The name of the adapter
    * @member {string} _name
    * @static
    * @private
