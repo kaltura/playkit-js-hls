@@ -111,7 +111,7 @@ export default class HlsAdapter implements IMediaSourceAdapter {
     this._hls.on(Hlsjs.Events.MANIFEST_LOADED, this._onManifestLoaded.bind(this));
   }
 
-  _onManifestLoaded(event: any, data: any): void {
+  _onManifestLoaded(event: string, data: any): void {
     if (data.audioTracks) {
       let audioTracks = data.audioTracks;
       for (let i = 0; i < audioTracks.length; i++) {
