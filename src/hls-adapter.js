@@ -2,6 +2,12 @@
 import Hlsjs from 'hls.js'
 import {registerMediaSourceAdapter} from 'playkit-js'
 
+// TODO: Remove
+import AudioTrack from '../flow-typed/audio-track'
+import VideoTrack from '../flow-typed/video-track'
+import TextTrack from '../flow-typed/text-track'
+import Track from '../flow-typed/track'
+
 /**
  * Adapter of hls.js lib for hls content
  * @classdesc
@@ -103,7 +109,7 @@ export default class HlsAdapter implements IMediaSourceAdapter {
     this._engine = engine;
     this._config = config;
     this._source = source.url;
-    this._hls = new Hlsjs();
+    this._hls = new Hlsjs(this._config);
     this._addBindings();
   }
 
@@ -112,24 +118,103 @@ export default class HlsAdapter implements IMediaSourceAdapter {
   }
 
   _onManifestLoaded(event: string, data: any): void {
-    if (data.audioTracks) {
-      let audioTracks = data.audioTracks;
-      for (let i = 0; i < audioTracks.length; i++) {
+    this._parseTracks(data);
+  }
+
+  _parseTracks(data: any): void {
+    let audioTracks = HlsAdapter._parseAudioTracks(data.audioTracks || []);
+    let videoTracks = HlsAdapter._parseVideoTracks(data.levels || []);
+    let textTracks = HlsAdapter._parseTextTracks(data.subtitles || []);
+    let tracks = audioTracks.concat(videoTracks).concat(textTracks);
+    // TODO: Set tracks on the player somehow
+  }
+
+  static _parseAudioTracks(hlsAudioTracks: Object): Array<AudioTrack> {
+    let audioTracks = [];
+    if (hlsAudioTracks) {
+      for (let i = 0; i < hlsAudioTracks.length; i++) {
         // Create audio tracks
+        let trackDetails = {
+          id: hlsAudioTracks[i].id,
+          active: hlsAudioTracks[i].default,
+          name: hlsAudioTracks[i].name,
+          language: hlsAudioTracks[i].lang
+        };
+        audioTracks.push(new AudioTrack(trackDetails));
       }
     }
-    if (data.levels) {
-      let videoTracks = data.levels;
-      for (let i = 0; i < videoTracks.length; i++) {
+    return audioTracks;
+  }
+
+  static _parseVideoTracks(hlsVideoTracks: Object): Array<VideoTrack> {
+    let videoTracks = [];
+    if (hlsVideoTracks) {
+      for (let i = 0; i < hlsVideoTracks.length; i++) {
         // Create video tracks
+        let trackDetails = {
+          id: hlsVideoTracks[i].id ? hlsVideoTracks[i].id : i,
+          active: hlsVideoTracks[i].default,
+          name: hlsVideoTracks[i].name,
+          width: hlsVideoTracks[i].width,
+          height: hlsVideoTracks[i].height,
+          bitrate: hlsVideoTracks[i].bitrate
+        };
+        videoTracks.push(new VideoTrack(trackDetails));
       }
     }
-    if (data.subtitles) {
-      let textTracks = data.subtitles;
-      for (let i = 0; i < textTracks.length; i++) {
+    return videoTracks;
+  }
+
+  static _parseTextTracks(hlsTextTracks: Object): Array<TextTrack> {
+    // TODO: Do we need to check for textTracks on the video element?
+    let textTracks = [];
+    if (hlsTextTracks) {
+      for (let i = 0; i < hlsTextTracks.length; i++) {
         // Create text tracks
+        let trackDetails = {
+          id: hlsTextTracks[i].id,
+          active: hlsTextTracks[i].default,
+          name: hlsTextTracks[i].name,
+          language: hlsTextTracks[i].lang
+        };
+        textTracks.push(new TextTrack(trackDetails));
       }
     }
+    return textTracks;
+  }
+
+  selectTrack(track: Track): void {
+    if (track instanceof AudioTrack) {
+      this._selectAudioTrack(track);
+    } else if (track instanceof VideoTrack) {
+      this._selectVideoTrack(track);
+    } else if (track instanceof TextTrack) {
+      this._selectTextTrack(track);
+    }
+  }
+
+  _selectAudioTrack(audioTrack: AudioTrack): void {
+    this._hls.audioTrack = audioTrack.id;
+    // TODO: Set the current active audio track to false and the new active audio track to true
+  }
+
+  _selectVideoTrack(videoTrack: VideoTrack): void {
+    this._hls.nextLevel = videoTrack.id;
+    // TODO: Set the current active video track to false and the new active video track to true
+  }
+
+  _selectTextTrack(textTrack: TextTrack): void {
+    let vidElementTextTracks = this._engine.getVideoElement().textTracks;
+    if (vidElementTextTracks) {
+      for (let i = 0; i < vidElementTextTracks.length; i++) {
+        if (i === textTrack.id) {
+          vidElementTextTracks[i].mode = "showing";
+        } else {
+          vidElementTextTracks[i].mode = "hidden";
+        }
+      }
+    }
+    // TODO: Set the current active text track to false and the new active text track to true
   }
 
   /**
