@@ -5,7 +5,9 @@ const path = require("path");
 
 module.exports = {
   context: __dirname + "/src",
-  entry: "hls.js",
+  entry: {
+    "playkit-js-hls": "hls-adapter.js"
+  },
   output: {
     path: __dirname + "/dist",
     filename: '[name].js'
