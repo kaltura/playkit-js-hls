@@ -143,7 +143,7 @@ export default class HlsAdapter implements IMediaSourceAdapter {
   }
 
   /**
-   * Destroying the _msPlayer
+   * Destroying the hls adapter
    * @function destroy
    * @override
    */
