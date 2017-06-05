@@ -1,12 +1,8 @@
 //@flow
 import Hlsjs from 'hls.js'
 import {registerMediaSourceAdapter} from 'playkit-js'
-
-// TODO: Remove
-import AudioTrack from '../flow-typed/audio-track'
-import VideoTrack from '../flow-typed/video-track'
-import TextTrack from '../flow-typed/text-track'
-import Track from '../flow-typed/track'
+import {Track, VideoTrack, AudioTrack, TextTrack} from 'playkit-js'
+import {LoggerFactory} from 'playkit-js'
 
 /**
  * Adapter of hls.js lib for hls content
@@ -14,217 +10,281 @@ import Track from '../flow-typed/track'
  */
 export default class HlsAdapter implements IMediaSourceAdapter {
   /**
-   * The name of the adapter
+   * The name of the adapter.
    * @member {string} _name
    * @static
    * @private
    */
   static _name: string = 'HlsAdapter';
-
   /**
-   * The supported mime type by the HlsAdapter
-   * @member {string} _hlsMimeType
+   * The adapter logger.
+   * @member {any} _logger
    * @static
    * @private
    */
-  static _hlsMimeType: string = 'application/x-mpegurl';
-
+  static _logger = LoggerFactory.getLogger(HlsAdapter._name);
   /**
-   * The adapter config
+   * The supported mime types by the hls adapter.
+   * @member {Array<string>} _hlsMimeType
+   * @static
+   * @private
+   */
+  static _hlsMimeTypes: Array<string> = [
+    'application/x-mpegurl',
+    'application/vnd.apple.mpegurl',
+    'audio/mpegurl',
+    'audio/x-mpegurl',
+    'video/x-mpegurl',
+    'video/mpegurl',
+    'application/mpegurl'
+  ];
+  /**
+   * The adapter config.
    * @member {Object} _config
    * @private
    */
   _config: Object;
-
   /**
-   * The owning engine
-   * @member {IEngine} _engine
+   * The video element.
+   * @member {HTMLVideoElement} _videoElement
    * @private
    */
-  _engine: IEngine;
-
+  _videoElement: HTMLVideoElement;
   /**
-   * The source url
-   * @member {string} _source
+   * The source object.
+   * @member {Source} _sourceObj
    * @private
    */
-  _source: string;
-
+  _sourceObj: ?Source;
   /**
-   * The hls player instance
+   * The hls player instance.
    * @member {any} _hls
    * @private
    */
   _hls: any;
+  /**
+   * The load promise
+   * @member {Promise<Object>} - _loadPromise
+   * @type {Promise<Object>}
+   * @private
+   */
+  _loadPromise: Promise<Object> | null;
 
   /**
-   * Getter for the adapter name
-   * @returns {string} - The adapter name
+   * Getter for the adapter name.
+   * @returns {string} - The adapter name.
    */
   static get name(): string {
     return HlsAdapter._name;
   }
 
   /**
-   * Checks if HlsAdapter can play a given mime type
+   * Checks if hls adapter can play a given mime type.
    * @function canPlayType
-   * @param {string} mimeType - The mime type to check
-   * @returns {boolean} - Whether the native adapter can play a specific mime type
+   * @param {string} mimeType - The mime type to check.
+   * @returns {boolean} - Whether the hls adapter can play a specific mime type.
    * @static
    */
   static canPlayType(mimeType: string): boolean {
-    return (mimeType === HlsAdapter._hlsMimeType);
+    let canHlsPlayType = HlsAdapter._hlsMimeTypes.includes(mimeType);
+    HlsAdapter._logger.debug('canPlayType result for mimeType:' + mimeType + ' is ' + canHlsPlayType.toString());
+    return canHlsPlayType;
   }
 
   /**
-   * Factory method to create media source adapter
+   * Factory method to create media source adapter.
    * @function createAdapter
-   * @param {IEngine} engine - The video engine that the media source adapter work with
-   * @param {Object} source - The source Object
-   * @param {Object} config - The media source adapter configuration
-   * @returns {IMediaSourceAdapter} - New instance of the run time media source adapter
+   * @param {HTMLVideoElement} videoElement - The video element which will bind to the hls adapter.
+   * @param {Object} source - The source Object.
+   * @param {Object} config - The media source adapter configuration.
+   * @returns {IMediaSourceAdapter} - New instance of the run time media source adapter.
    * @static
    */
-  static createAdapter(engine: IEngine, source: Object, config: Object): IMediaSourceAdapter {
-    return new this(engine, source, config);
+  static createAdapter(videoElement: HTMLVideoElement, source: Object, config: Object): IMediaSourceAdapter {
+    HlsAdapter._logger.debug('Creating adapter');
+    return new this(videoElement, source, config);
   }
 
   /**
-   * Checks if the HlsAdapter is supported
+   * Checks if the hls adapter is supported.
    * @function isSupported
-   * @returns {boolean} -
+   * @returns {boolean} - Whether hls is supported.
    * @static
    */
   static isSupported(): boolean {
-    return Hlsjs.isSupported();
+    let isHlsSupported = Hlsjs.isSupported();
+    HlsAdapter._logger.debug('isSupported:' + isHlsSupported);
+    return isHlsSupported;
   }
 
   /**
    * @constructor
-   * @param {IEngine} engine - The video element which bind to DashAdapter
+   * @param {HTMLVideoElement} videoElement - The video element which will bind to the hls adapter
    * @param {Object} source - The source object
    * @param {Object} config - The media source adapter configuration
    */
-  constructor(engine: IEngine, source: Object, config: Object) {
-    this._engine = engine;
+  constructor(videoElement: HTMLVideoElement, source: Source, config: Object) {
+    this._videoElement = videoElement;
     this._config = config;
-    this._source = source.url;
-    this._hls = new Hlsjs(this._config);
-    this._addBindings();
+    this._sourceObj = source;
+    this._hls = new Hlsjs({debug: true});
   }
 
-  _addBindings(): void {
-    this._hls.on(Hlsjs.Events.MANIFEST_LOADED, this._onManifestLoaded.bind(this));
+  /**
+   * Parse the hls tracks into player tracks.
+   * @param data - The event data.
+   * @returns {Array<Track>} - The parsed tracks.
+   * @private
+   */
+  _parseTracks(data: any): Array<Track> {
+    let audioTracks = this._parseAudioTracks(data.audioTracks || []);
+    let videoTracks = this._parseVideoTracks(data.levels || []);
+    let textTracks = this._parseTextTracks(this._videoElement.textTracks || []);
+    return audioTracks.concat(videoTracks).concat(textTracks);
   }
 
-  _onManifestLoaded(event: string, data: any): void {
-    this._parseTracks(data);
-  }
-
-  _parseTracks(data: any): void {
-    let audioTracks = HlsAdapter._parseAudioTracks(data.audioTracks || []);
-    let videoTracks = HlsAdapter._parseVideoTracks(data.levels || []);
-    let textTracks = HlsAdapter._parseTextTracks(data.subtitles || []);
-    let tracks = audioTracks.concat(videoTracks).concat(textTracks);
-    // TODO: Set tracks on the player somehow
-  }
-
-  static _parseAudioTracks(hlsAudioTracks: Object): Array<AudioTrack> {
+  /**
+   * Parse hls audio tracks into player audio tracks.
+   * @param hlsAudioTracks - The hls audio tracks.
+   * @returns {Array<AudioTrack>} - The parsed audio tracks.
+   * @private
+   */
+  _parseAudioTracks(hlsAudioTracks: Array<Object>): Array<AudioTrack> {
     let audioTracks = [];
-    if (hlsAudioTracks) {
-      for (let i = 0; i < hlsAudioTracks.length; i++) {
-        // Create audio tracks
-        let trackDetails = {
-          id: hlsAudioTracks[i].id,
-          active: hlsAudioTracks[i].default,
-          name: hlsAudioTracks[i].name,
-          language: hlsAudioTracks[i].lang
-        };
-        audioTracks.push(new AudioTrack(trackDetails));
-      }
+    for (let i = 0; i < hlsAudioTracks.length; i++) {
+      // Create audio tracks
+      let settings = {
+        id: hlsAudioTracks[i].id,
+        active: this._hls.audioTrack === hlsAudioTracks[i].id,
+        label: hlsAudioTracks[i].name,
+        language: hlsAudioTracks[i].lang,
+        index: i
+      };
+      audioTracks.push(new AudioTrack(settings));
     }
     return audioTracks;
   }
 
-  static _parseVideoTracks(hlsVideoTracks: Object): Array<VideoTrack> {
+  /**
+   * Parse hls video tracks into player video tracks.
+   * @param hlsVideoTracks - The hls video tracks.
+   * @returns {Array<VideoTrack>} - The parsed video tracks.
+   * @private
+   */
+  _parseVideoTracks(hlsVideoTracks: Array<Object>): Array<VideoTrack> {
     let videoTracks = [];
-    if (hlsVideoTracks) {
-      for (let i = 0; i < hlsVideoTracks.length; i++) {
-        // Create video tracks
-        let trackDetails = {
-          id: hlsVideoTracks[i].id ? hlsVideoTracks[i].id : i,
-          active: hlsVideoTracks[i].default,
-          name: hlsVideoTracks[i].name,
-          width: hlsVideoTracks[i].width,
-          height: hlsVideoTracks[i].height,
-          bitrate: hlsVideoTracks[i].bitrate
-        };
-        videoTracks.push(new VideoTrack(trackDetails));
-      }
+    for (let i = 0; i < hlsVideoTracks.length; i++) {
+      // Create video tracks
+      let settings = {
+        id: hlsVideoTracks[i].bitrate,
+        active: this._hls.startLevel === i,
+        label: hlsVideoTracks[i].bitrate,
+        index: i
+      };
+      videoTracks.push(new VideoTrack(settings));
     }
     return videoTracks;
   }
 
-  static _parseTextTracks(hlsTextTracks: Object): Array<TextTrack> {
-    // TODO: Do we need to check for textTracks on the video element?
+  /**
+   * Parse native video tag text tracks into player text tracks.
+   * @param vidTextTracks - The native video tag text tracks.
+   * @returns {Array<TextTrack>} - The parsed text tracks.
+   * @private
+   */
+  _parseTextTracks(vidTextTracks: Array<Object>): Array<TextTrack> {
     let textTracks = [];
-    if (hlsTextTracks) {
-      for (let i = 0; i < hlsTextTracks.length; i++) {
-        // Create text tracks
-        let trackDetails = {
-          id: hlsTextTracks[i].id,
-          active: hlsTextTracks[i].default,
-          name: hlsTextTracks[i].name,
-          language: hlsTextTracks[i].lang
-        };
-        textTracks.push(new TextTrack(trackDetails));
-      }
+    for (let i = 0; i < vidTextTracks.length; i++) {
+      // Create text tracks
+      let settings = {
+        id: i,
+        active: vidTextTracks[i].mode === 'showing',
+        label: vidTextTracks[i].label,
+        kind: vidTextTracks[i].kind,
+        language: vidTextTracks[i].language,
+        index: i
+      };
+      textTracks.push(new TextTrack(settings));
     }
     return textTracks;
   }
 
-  selectTrack(track: Track): void {
-    if (track instanceof AudioTrack) {
-      this._selectAudioTrack(track);
-    } else if (track instanceof VideoTrack) {
-      this._selectVideoTrack(track);
-    } else if (track instanceof TextTrack) {
-      this._selectTextTrack(track);
+  /**
+   * Select an audio track.
+   * @function selectAudioTrack
+   * @param {AudioTrack} audioTrack - the audio track to select.
+   * @returns {boolean} - success
+   * @public
+   */
+  selectAudioTrack(audioTrack: AudioTrack): boolean {
+    if (audioTrack && audioTrack instanceof AudioTrack && this._hls.audioTracks) {
+      this._hls.audioTrack = audioTrack.id;
+      return true;
     }
+    return false;
   }
 
-  _selectAudioTrack(audioTrack: AudioTrack): void {
-    this._hls.audioTrack = audioTrack.id;
-    // TODO: Set the current active audio track to false and the new active audio track to true
-  }
-
-  _selectVideoTrack(videoTrack: VideoTrack): void {
-    this._hls.nextLevel = videoTrack.id;
-    // TODO: Set the current active video track to false and the new active video track to true
-  }
-
-  _selectTextTrack(textTrack: TextTrack): void {
-    let vidElementTextTracks = this._engine.getVideoElement().textTracks;
-    if (vidElementTextTracks) {
-      for (let i = 0; i < vidElementTextTracks.length; i++) {
-        if (i === textTrack.id) {
-          vidElementTextTracks[i].mode = "showing";
-        } else {
-          vidElementTextTracks[i].mode = "hidden";
-        }
-      }
+  /**
+   * Select a video track.
+   * @function selectVideoTrack
+   * @param {VideoTrack} videoTrack - the track to select.
+   * @returns {boolean} - success
+   * @public
+   */
+  selectVideoTrack(videoTrack: VideoTrack): boolean {
+    if (videoTrack && videoTrack instanceof VideoTrack && this._hls.levels) {
+      this._hls.nextLevel = videoTrack.index;
+      return true;
     }
-    // TODO: Set the current active text track to false and the new active text track to true
+    return false;
+  }
+
+  /**
+   * Select a text track.
+   * @function selectTextTrack
+   * @param {TextTrack} textTrack - the track to select.
+   * @returns {boolean} - success
+   * @public
+   */
+  selectTextTrack(textTrack: TextTrack): boolean {
+    if (textTrack && textTrack instanceof TextTrack && this._videoElement.textTracks) {
+      this._disableAllTextTracks();
+      this._videoElement.textTracks[textTrack.id].mode = 'showing';
+      return true;
+    }
+    return false;
+  }
+
+  /**
+   * Disables all the video tag text tracks.
+   * @returns {void}
+   * @private
+   */
+  _disableAllTextTracks() {
+    let vidTextTracks = this._videoElement.textTracks;
+    for (let i = 0; i < vidTextTracks.length; i++) {
+      vidTextTracks[i].mode = 'hidden';
+    }
   }
 
   /**
    * Load the video source
    * @function load
+   * @returns {Promise<Object>} - The loaded data
    * @override
    */
-  load(): void {
-    this._hls.loadSource(this._source);
-    this._hls.attachMedia(this._engine.getVideoElement());
+  load(): Promise<Object> {
+    if (!this._loadPromise) {
+      this._loadPromise = new Promise((resolve, reject) => {
+        this._hls.loadSource(this._sourceObj.url);
+        this._hls.attachMedia(this._videoElement);
+        this._hls.on(Hlsjs.Events.MANIFEST_LOADED, (event: string, data: any) => {
+          let parsedTracks = this._parseTracks(data);
+          resolve({tracks: parsedTracks});
+        });
+      });
+    }
+    return this._loadPromise;
   }
 
   /**
@@ -233,12 +293,28 @@ export default class HlsAdapter implements IMediaSourceAdapter {
    * @override
    */
   destroy(): void {
+    HlsAdapter._logger.debug('destroy');
     this._hls.detachMedia();
     this._hls.destroy();
+    this._loadPromise = null;
+    this._sourceObj = null;
+  }
+
+  /**
+   * Getter for the src that the adapter plays on the video element.
+   * In case the adapter preformed a load it will return the manifest url.
+   * @public
+   * @returns {string} - The src url.
+   */
+  get src(): string {
+    if (this._loadPromise != null) {
+      return this._sourceObj.url;
+    }
+    return "";
   }
 }
 
-// Register HlsAdapter to the media source adapter manager
+// Register hls adapter to the media source adapter provider.
 if (HlsAdapter.isSupported()) {
   registerMediaSourceAdapter(HlsAdapter);
 }

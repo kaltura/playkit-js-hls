@@ -1,25 +1,96 @@
-import playkit from 'playkit-js';
+import playkit from 'playkit-js'
+import sources from './hls-sources.json'
+import {Track, VideoTrack, AudioTrack, TextTrack} from 'playkit-js'
 //eslint-disable-next-line no-unused-vars
 import HlsAdapter from '../../src/hls-adapter.js'
 
 describe('HlsAdapter', function () {
   this.timeout(4000);
+  let tracks;
+  let videoTracks = [];
+  let textTracks = [];
+  let audioTracks = [];
+  let player;
+
+  function displayTracksOnScreen() {
+    tracks = player.getTracks();
+    videoTracks = [];
+    textTracks = [];
+    audioTracks = [];
+    tracks.filter((track) => {
+      if (track instanceof AudioTrack) {
+        audioTracks.push(track);
+      } else if (track instanceof VideoTrack) {
+        videoTracks.push(track);
+      } else if (track instanceof TextTrack) {
+        textTracks.push(track);
+      }
+    });
+    createVideoTrackButtons(videoTracks);
+    createAudioTrackButtons(audioTracks);
+    createTextTrackButtons(textTracks);
+  }
+
+  function createTitle(title) {
+    let header = document.createElement("header");
+    let h4 = document.createElement("h4");
+    h4.textContent = title;
+    header.appendChild(h4);
+    document.body.appendChild(header);
+  }
+
+  function createElement(track) {
+    let element = document.createElement("BUTTON");
+    element.innerText = track.label;
+    element.id = track.index;
+    document.body.appendChild(element);
+    return element;
+  }
+
+  function createVideoTrackButtons(videoTracks) {
+    createTitle("Video Tracks");
+    for (let i = 0; i < videoTracks.length; i++) {
+      let element = createElement(videoTracks[i]);
+      element.onclick = function () {
+        player.selectTrack(videoTracks[i]);
+      };
+    }
+  }
+
+  function createAudioTrackButtons(audioTracks) {
+    createTitle("Audio Tracks");
+    for (let i = 0; i < audioTracks.length; i++) {
+      let element = createElement(audioTracks[i]);
+      element.onclick = function () {
+        player.selectTrack(audioTracks[i]);
+      };
+    }
+  }
+
+  function createTextTrackButtons(textTracks) {
+    createTitle("Text Tracks");
+    for (let i = 0; i < textTracks.length; i++) {
+      let element = createElement(textTracks[i]);
+      element.onclick = function () {
+        player.selectTrack(textTracks[i]);
+      };
+    }
+  }
 
   it.only('should play hls stream - preload none', () => {
-    let player = playkit({
-      sources: [{
-        mimetype: "application/x-mpegurl",
-        // url: "https://wowzaec2demo.streamlock.net/vod-multitrack/_definst_/smil:ElephantsDream/ElephantsDream.smil/playlist.m3u8"
-        // url: "https://tungsten.aaplimg.com/VOD/bipbop_adv_example_v2/master.m3u8"
-        url: "http://cdnbakmi.kaltura.com/p/243342/sp/24334200/playManifest/entryId/0_uka1msg4/flavorIds/1_vqhfu6uy,1_80sohj7p/format/applehttp/protocol/http/a.m3u8"
-      }]
+    player = playkit({
+      sources: [
+        sources.multi_subtitles
+      ]
     });
     let video = document.getElementsByTagName("video")[0];
     video.onplaying = function () {
       // done();
     };
-    player.load();
-    player.play();
+    player.load().then(() => {
+      displayTracksOnScreen();
+      player.play();
+    });
   });
 
   it('should play hls stream - preload auto', (done) => {
