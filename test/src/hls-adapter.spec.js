@@ -66,7 +66,7 @@ describe('HlsAdapter Instance - Unit', function () {
   beforeEach(function () {
     sandbox = sinon.sandbox.create();
     video = document.createElement('video');
-    sourceObj = hls_sources.multi_audio_multi_subtitles;
+    sourceObj = hls_sources.ElephantsDream;
     config = {};
     hlsAdapterInstance = HlsAdapter.createAdapter(video, sourceObj, config);
   });
@@ -90,7 +90,7 @@ describe('HlsAdapter Instance - Unit', function () {
   it('should load the adapter', function (done) {
     hlsAdapterInstance.load().then((/* data */) => {
       hlsAdapterInstance._playerTracks.should.be.array;
-      hlsAdapterInstance.src.should.equal(hls_sources.multi_audio_multi_subtitles.url);
+      hlsAdapterInstance.src.should.equal(hls_sources.ElephantsDream.url);
       done();
     });
   });
@@ -220,7 +220,7 @@ describe('HlsAdapter Instance - Integration', function () {
     sandbox = sinon.sandbox.create();
     player = playkit({
       sources: [
-        hls_sources.multi_audio_multi_subtitles
+        hls_sources.ElephantsDream
       ]
     });
   });
@@ -241,7 +241,7 @@ describe('HlsAdapter Instance - Integration', function () {
         let videoTracks = player.getTracks(player.Track.VIDEO);
         let audioTracks = player.getTracks(player.Track.AUDIO);
         let textTracks = player.getTracks(player.Track.TEXT);
-        player.src.should.equal(hls_sources.multi_audio_multi_subtitles.url);
+        player.src.should.equal(hls_sources.ElephantsDream.url);
         tracks.length.should.equal(14);
         videoTracks.length.should.equal(4);
         audioTracks.length.should.equal(3);
@@ -307,7 +307,7 @@ describe.skip('HlsAdapter [debugging and testing manually (skip)]', function (do
   it('should play hls stream', () => {
     player = playkit({
       sources: [
-        hls_sources.multi_audio_multi_subtitles
+        hls_sources.ElephantsDream
       ]
     });
     player.load().then(() => {

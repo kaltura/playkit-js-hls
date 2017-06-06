@@ -152,6 +152,7 @@ export default class HlsAdapter extends FakeEventTarget implements IMediaSourceA
    * @returns {void}
    */
   _addBindings(): void {
+    this._hls.on(Hlsjs.Events.ERROR, this._onError.bind(this));
     this._hls.on(Hlsjs.Events.LEVEL_SWITCHED, this._onLevelSwitched.bind(this));
     this._hls.on(Hlsjs.Events.AUDIO_TRACK_SWITCHED, this._onAudioTrackSwitched.bind(this));
   }
@@ -239,7 +240,7 @@ export default class HlsAdapter extends FakeEventTarget implements IMediaSourceA
       let settings = {
         id: i,
         active: this._hls.startLevel === i,
-        label: hlsVideoTracks[i].bitrate,
+        label: this._generateVideoTrackLabel(hlsVideoTracks[i].name),
         bandwidth: hlsVideoTracks[i].bitrate,
         language: '',
         index: i
@@ -247,6 +248,31 @@ export default class HlsAdapter extends FakeEventTarget implements IMediaSourceA
       videoTracks.push(new VideoTrack(settings));
     }
     return videoTracks;
+  }
+
+  /**
+   * Generate a human readable label for quality levels.
+   * @param {string} hlsLevelName - The name from the manifest.
+   * @returns {string} - The generated name.
+   * @private
+   */
+  _generateVideoTrackLabel(hlsLevelName: string): string {
+    switch (hlsLevelName) {
+      case('1080'):
+        return 'HD 1080p';
+      case('720'):
+        return 'HD 720p';
+      case('480'):
+        return 'SD 480p';
+      case('380'):
+        return 'LD 380p';
+      case('360'):
+        return 'LD 360p';
+      case('240'):
+        return 'LD 240p';
+      default:
+        return hlsLevelName;
+    }
   }
 
   /**
@@ -365,12 +391,60 @@ export default class HlsAdapter extends FakeEventTarget implements IMediaSourceA
   /**
    * Disables all the video tag text tracks.
    * @returns {void}
-   * @privateh
+   * @private
    */
   _disableAllTextTracks() {
     let vidTextTracks = this._videoElement.textTracks;
     for (let i = 0; i < vidTextTracks.length; i++) {
       vidTextTracks[i].mode = 'hidden';
+    }
+  }
+
+  /**
+   * Handles hls errors.
+   * @param {string} event - The event name.
+   * @param {any} data - The event data object.
+   * @private
+   * @returns {void}
+   */
+  _onError(event: string, data: any): void {
+    let errorType = data.type;
+    let errorDetails = data.details;
+    let errorFatal = data.fatal;
+    if (errorFatal) {
+      switch (errorType) {
+        case Hlsjs.ErrorTypes.NETWORK_ERROR:
+          HlsAdapter._logger.error("fatal network error encountered, try to recover");
+          this._hls.startLoad();
+          break;
+        case Hlsjs.ErrorTypes.MEDIA_ERROR:
+          HlsAdapter._logger.error("fatal media error encountered, try to recover");
+          this._hls.recoverMediaError();
+          break;
+        default:
+          HlsAdapter._logger.error("fatal error, cannot recover");
+          this.destroy();
+          break;
+      }
+    } else {
+      switch (errorDetails) {
+        case Hlsjs.ErrorDetails.MANIFEST_LOAD_ERROR:
+        case Hlsjs.ErrorDetails.MANIFEST_LOAD_TIMEOUT:
+        case Hlsjs.ErrorDetails.MANIFEST_PARSING_ERROR:
+        case Hlsjs.ErrorDetails.LEVEL_LOAD_ERROR:
+        case Hlsjs.ErrorDetails.LEVEL_LOAD_TIMEOUT:
+        case Hlsjs.ErrorDetails.LEVEL_SWITCH_ERROR:
+        case Hlsjs.ErrorDetails.FRAG_LOAD_ERROR:
+        case Hlsjs.ErrorDetails.FRAG_LOOP_LOADING_ERROR:
+        case Hlsjs.ErrorDetails.FRAG_LOAD_TIMEOUT:
+        case Hlsjs.ErrorDetails.FRAG_PARSING_ERROR:
+        case Hlsjs.ErrorDetails.BUFFER_APPEND_ERROR:
+        case Hlsjs.ErrorDetails.BUFFER_APPENDING_ERROR:
+          HlsAdapter._logger.error(errorType, errorDetails);
+          break;
+        default:
+          break;
+      }
     }
   }
 
