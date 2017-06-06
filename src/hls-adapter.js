@@ -149,6 +149,7 @@ export default class HlsAdapter extends FakeEventTarget implements IMediaSourceA
    * Adds the required bindings with hls.js.
    * @function _addBindings
    * @private
+   * @returns {void}
    */
   _addBindings(): void {
     this._hls.on(Hlsjs.Events.LEVEL_SWITCHED, this._onLevelSwitched.bind(this));

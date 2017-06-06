@@ -312,12 +312,14 @@ describe.skip('HlsAdapter [debugging and testing manually (skip)]', function () 
     });
     player.load().then(() => {
       displayTracksOnScreen();
-      player.addEventListener(player.Event.VIDEO_TRACK_CHANGED, (event) => {
-      });
-      player.addEventListener(player.Event.TEXT_TRACK_CHANGED, (event) => {
-      });
-      player.addEventListener(player.Event.AUDIO_TRACK_CHANGED, (event) => {
-      });
+      /*
+       player.addEventListener(player.Event.VIDEO_TRACK_CHANGED, (event) => {
+       });
+       player.addEventListener(player.Event.TEXT_TRACK_CHANGED, (event) => {
+       });
+       player.addEventListener(player.Event.AUDIO_TRACK_CHANGED, (event) => {
+       });
+       */
       player.play();
     });
   });
