@@ -142,6 +142,17 @@ export default class HlsAdapter extends FakeEventTarget implements IMediaSourceA
     this._config = config;
     this._sourceObj = source;
     this._hls = new Hlsjs(this._config);
+    this._addBindings();
+  }
+
+  /**
+   * Adds the required bindings with hls.js.
+   * @function _addBindings
+   * @private
+   */
+  _addBindings(): void {
+    this._hls.on(Hlsjs.Events.LEVEL_SWITCHED, this._onLevelSwitched.bind(this));
+    this._hls.on(Hlsjs.Events.AUDIO_TRACK_SWITCHED, this._onAudioTrackSwitched.bind(this));
   }
 
   /**
@@ -263,47 +274,44 @@ export default class HlsAdapter extends FakeEventTarget implements IMediaSourceA
    * Select an audio track.
    * @function selectAudioTrack
    * @param {AudioTrack} audioTrack - the audio track to select.
-   * @returns {boolean} - success
+   * @returns {void}
    * @public
    */
-  selectAudioTrack(audioTrack: AudioTrack): boolean {
-    if (audioTrack && audioTrack instanceof AudioTrack && this._hls.audioTracks) {
+  selectAudioTrack(audioTrack: AudioTrack): void {
+    if (audioTrack && audioTrack instanceof AudioTrack && !audioTrack.active && this._hls.audioTracks) {
       this._hls.audioTrack = audioTrack.id;
-      return true;
     }
-    return false;
   }
 
   /**
    * Select a video track.
    * @function selectVideoTrack
    * @param {VideoTrack} videoTrack - the track to select.
-   * @returns {boolean} - success
+   * @returns {void}
    * @public
    */
-  selectVideoTrack(videoTrack: VideoTrack): boolean {
-    this._hls.off(Hlsjs.Events.LEVEL_SWITCHED, this._onLevelSwitched);
-    if (videoTrack && videoTrack instanceof VideoTrack && this._hls.levels) {
+  selectVideoTrack(videoTrack: VideoTrack): void {
+    if (videoTrack && videoTrack instanceof VideoTrack && !videoTrack.active && this._hls.levels) {
       this._hls.nextLevel = videoTrack.index;
-      return true;
     }
-    return false;
   }
 
   /**
    * Select a text track.
    * @function selectTextTrack
    * @param {TextTrack} textTrack - the track to select.
-   * @returns {boolean} - success
+   * @returns {void}
    * @public
    */
-  selectTextTrack(textTrack: TextTrack): boolean {
-    if (textTrack && textTrack instanceof TextTrack && this._videoElement.textTracks) {
+  selectTextTrack(textTrack: TextTrack): void {
+    if (textTrack && textTrack instanceof TextTrack && !textTrack.active && this._videoElement.textTracks) {
       this._disableAllTextTracks();
       this._videoElement.textTracks[textTrack.id].mode = 'showing';
-      return true;
+      let fakeEvent = new FakeEvent(CustomEvents.TEXT_TRACK_CHANGED, {
+        selectedTextTrack: textTrack
+      });
+      this.dispatchEvent(fakeEvent);
     }
-    return false;
   }
 
   /**
@@ -313,13 +321,11 @@ export default class HlsAdapter extends FakeEventTarget implements IMediaSourceA
    * @public
    */
   enableAdaptiveBitrate(): void {
-    this._hls.on(Hlsjs.Events.LEVEL_SWITCHED, this._onLevelSwitched.bind(this));
     this._hls.nextLevel = -1;
   }
 
   /**
-   * If auto level enabled the method will extract the selected video
-   * track and trigger the 'videotrackchanged' event forward.
+   * Triggers on video track selection (auto or manually) the 'videotrackchanged' event forward.
    * @function _onLevelSwitched
    * @param {string} event - The event name.
    * @param {any} data - The event data object.
@@ -327,15 +333,31 @@ export default class HlsAdapter extends FakeEventTarget implements IMediaSourceA
    * @returns {void}
    */
   _onLevelSwitched(event: string, data: any): void {
-    if (this._hls.autoLevelEnabled) {
-      let videoTrack = this._playerTracks.find((track) => {
-        return (track instanceof VideoTrack && track.index === data.level);
-      });
-      let fakeEvent = new FakeEvent(CustomEvents.VIDEO_TRACK_CHANGED, {
-        selectedVideoTrack: videoTrack
-      });
-      this.dispatchEvent(fakeEvent);
-    }
+    let videoTrack = this._playerTracks.find((track) => {
+      return (track instanceof VideoTrack && track.index === data.level);
+    });
+    let fakeEvent = new FakeEvent(CustomEvents.VIDEO_TRACK_CHANGED, {
+      selectedVideoTrack: videoTrack
+    });
+    this.dispatchEvent(fakeEvent);
+  }
+
+  /**
+   * Triggers on audio track selection (auto or manually) the 'audiotrackchanged' event forward.
+   * @function _onAudioTrackSwitched
+   * @param {string} event - The event name.
+   * @param {any} data - The event data object.
+   * @private
+   * @returns {void}
+   */
+  _onAudioTrackSwitched(event: string, data: any): void {
+    let audioTrack = this._playerTracks.find((track) => {
+      return (track instanceof AudioTrack && track.id === data.id);
+    });
+    let fakeEvent = new FakeEvent(CustomEvents.AUDIO_TRACK_CHANGED, {
+      selectedAudioTrack: audioTrack
+    });
+    this.dispatchEvent(fakeEvent);
   }
 
   /**

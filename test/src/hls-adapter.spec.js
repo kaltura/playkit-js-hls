@@ -302,7 +302,7 @@ describe.skip('HlsAdapter [debugging and testing manually (skip)]', function () 
       }
     });
     TestUtils.createVideoTrackButtons(player, videoTracks);
-    TestUtils.crteAudioTrackButtons(player, audioTracks);
+    TestUtils.createAudioTrackButtons(player, audioTracks);
     TestUtils.createTextTrackButtons(player, textTracks);
   }
 
@@ -314,6 +314,12 @@ describe.skip('HlsAdapter [debugging and testing manually (skip)]', function () 
     });
     player.load().then(() => {
       displayTracksOnScreen();
+      player.addEventListener(player.Event.VIDEO_TRACK_CHANGED, (event) => {
+      });
+      player.addEventListener(player.Event.TEXT_TRACK_CHANGED, (event) => {
+      });
+      player.addEventListener(player.Event.AUDIO_TRACK_CHANGED, (event) => {
+      });
       player.play();
     });
   });
