@@ -236,9 +236,10 @@ export default class HlsAdapter extends FakeEventTarget implements IMediaSourceA
     for (let i = 0; i < hlsVideoTracks.length; i++) {
       // Create video tracks
       let settings = {
-        id: hlsVideoTracks[i].bitrate,
+        id: i,
         active: this._hls.startLevel === i,
         label: hlsVideoTracks[i].bitrate,
+        bandwidth: hlsVideoTracks[i].bitrate,
         language: '',
         index: i
       };

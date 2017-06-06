@@ -181,9 +181,7 @@ describe('HlsAdapter Instance - Unit', function () {
       destroy: function () {
       }
     };
-    let onSpier = sinon.spy(hlsAdapterInstance._hls, 'on');
     hlsAdapterInstance.enableAdaptiveBitrate();
-    onSpier.should.have.been.called;
     hlsAdapterInstance._hls.nextLevel.should.equal(-1);
   });
 
@@ -260,7 +258,7 @@ describe('HlsAdapter Instance - Integration', function () {
         });
         // Listen to playing event
         player.addEventListener(player.Event.PLAYING, (/* event */) => {
-          //TODO: play.enableAdaptiveBitrate()
+          //TODO: player.enableAdaptiveBitrate()
           done();
         });
         // Test select track api

@@ -24,28 +24,32 @@
   ],
   "videoTracks": [
     {
-      "_id": 2962000,
+      "_id": 0,
+      "_bandwidth": 2962000,
       "_active": false,
       "_label": 2962000,
       "_language": "",
       "_index": 0
     },
     {
-      "_id": 1427000,
+      "_id": 1,
+      "_bandwidth": 1427000,
       "_active": true,
       "_label": 1427000,
       "_language": "",
       "_index": 1
     },
     {
-      "_id": 688000,
+      "_id": 2,
+      "_bandwidth": 688000,
       "_active": false,
       "_label": 688000,
       "_language": "",
       "_index": 2
     },
     {
-      "_id": 331000,
+      "_id": 3,
+      "_bandwidth": 331000,
       "_active": false,
       "_label": 331000,
       "_language": "",
