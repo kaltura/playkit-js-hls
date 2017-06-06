@@ -3,12 +3,14 @@ import Hlsjs from 'hls.js'
 import {registerMediaSourceAdapter} from 'playkit-js'
 import {Track, VideoTrack, AudioTrack, TextTrack} from 'playkit-js'
 import {LoggerFactory} from 'playkit-js'
+import {FakeEventTarget, FakeEvent} from 'playkit-js'
+import {CustomEvents} from 'playkit-js'
 
 /**
  * Adapter of hls.js lib for hls content
  * @classdesc
  */
-export default class HlsAdapter implements IMediaSourceAdapter {
+export default class HlsAdapter extends FakeEventTarget implements IMediaSourceAdapter {
   /**
    * The name of the adapter.
    * @member {string} _name
@@ -68,7 +70,14 @@ export default class HlsAdapter implements IMediaSourceAdapter {
    * @type {Promise<Object>}
    * @private
    */
-  _loadPromise: Promise<Object> | null;
+  _loadPromise: ?Promise<Object>;
+  /**
+   * Reference to the player tracks.
+   * @member {Array<Track>} - _playerTracks
+   * @type {Array<Track>}
+   * @private
+   */
+  _playerTracks: Array<Track>;
 
   /**
    * Getter for the adapter name.
@@ -76,6 +85,10 @@ export default class HlsAdapter implements IMediaSourceAdapter {
    */
   static get name(): string {
     return HlsAdapter._name;
+  }
+
+  static set name(name: string): void {
+    // Do nothing. Just a workaround for flow issue with static getter in an inheritor. See: https://github.com/facebook/flow/issues/3008.
   }
 
   /**
@@ -101,7 +114,7 @@ export default class HlsAdapter implements IMediaSourceAdapter {
    * @static
    */
   static createAdapter(videoElement: HTMLVideoElement, source: Object, config: Object): IMediaSourceAdapter {
-    HlsAdapter._logger.debug('Creating adapter');
+    HlsAdapter._logger.debug('Creating adapter. Hls version: ' + Hlsjs.version);
     return new this(videoElement, source, config);
   }
 
@@ -124,10 +137,44 @@ export default class HlsAdapter implements IMediaSourceAdapter {
    * @param {Object} config - The media source adapter configuration
    */
   constructor(videoElement: HTMLVideoElement, source: Source, config: Object) {
+    super();
     this._videoElement = videoElement;
     this._config = config;
     this._sourceObj = source;
-    this._hls = new Hlsjs({debug: true});
+    this._hls = new Hlsjs(this._config);
+  }
+
+  /**
+   * Load the video source
+   * @function load
+   * @returns {Promise<Object>} - The loaded data
+   * @override
+   */
+  load(): Promise<Object> {
+    if (!this._loadPromise) {
+      this._loadPromise = new Promise((resolve, reject) => {
+        this._hls.on(Hlsjs.Events.MANIFEST_LOADED, (event: string, data: any) => {
+          this._playerTracks = this._parseTracks(data);
+          resolve({tracks: this._playerTracks});
+        });
+        this._hls.loadSource(this._sourceObj.url);
+        this._hls.attachMedia(this._videoElement);
+      });
+    }
+    return this._loadPromise;
+  }
+
+  /**
+   * Destroying the _msPlayer
+   * @function destroy
+   * @override
+   */
+  destroy(): void {
+    HlsAdapter._logger.debug('destroy');
+    this._loadPromise = null;
+    this._sourceObj = null;
+    this._hls.detachMedia();
+    this._hls.destroy();
   }
 
   /**
@@ -232,6 +279,7 @@ export default class HlsAdapter implements IMediaSourceAdapter {
    * @public
    */
   selectVideoTrack(videoTrack: VideoTrack): boolean {
+    this._hls.off(Hlsjs.Events.LEVEL_SWITCHED, this._onLevelSwitched);
     if (videoTrack && videoTrack instanceof VideoTrack && this._hls.levels) {
       this._hls.nextLevel = videoTrack.index;
       return true;
@@ -256,6 +304,37 @@ export default class HlsAdapter implements IMediaSourceAdapter {
   }
 
   /**
+   * Enables adaptive bitrate switching according to hls.js logic.
+   * @function enableAdaptiveBitrate
+   * @returns {void}
+   * @public
+   */
+  enableAdaptiveBitrate(): void {
+    this._hls.on(Hlsjs.Events.LEVEL_SWITCHED, this._onLevelSwitched.bind(this));
+    this._hls.nextLevel = -1;
+  }
+
+  /**
+   * If auto level enabled the method will extract the selected video
+   * track and trigger the 'videotrackchanged' event forward.
+   * @function _onLevelSwitched
+   * @param {string} event - The event name.
+   * @param {any} data - The event data object.
+   * @private
+   */
+  _onLevelSwitched(event: string, data: any): void {
+    if (this._hls.autoLevelEnabled) {
+      let videoTrack = this._playerTracks.find((track) => {
+        return (track instanceof VideoTrack && track.index === data.level);
+      });
+      let fakeEvent = new FakeEvent(CustomEvents.VIDEO_TRACK_CHANGED, {
+        selectedVideoTrack: videoTrack
+      });
+      this.dispatchEvent(fakeEvent);
+    }
+  }
+
+  /**
    * Disables all the video tag text tracks.
    * @returns {void}
    * @private
@@ -265,39 +344,6 @@ export default class HlsAdapter implements IMediaSourceAdapter {
     for (let i = 0; i < vidTextTracks.length; i++) {
       vidTextTracks[i].mode = 'hidden';
     }
-  }
-
-  /**
-   * Load the video source
-   * @function load
-   * @returns {Promise<Object>} - The loaded data
-   * @override
-   */
-  load(): Promise<Object> {
-    if (!this._loadPromise) {
-      this._loadPromise = new Promise((resolve, reject) => {
-        this._hls.loadSource(this._sourceObj.url);
-        this._hls.attachMedia(this._videoElement);
-        this._hls.on(Hlsjs.Events.MANIFEST_LOADED, (event: string, data: any) => {
-          let parsedTracks = this._parseTracks(data);
-          resolve({tracks: parsedTracks});
-        });
-      });
-    }
-    return this._loadPromise;
-  }
-
-  /**
-   * Destroying the _msPlayer
-   * @function destroy
-   * @override
-   */
-  destroy(): void {
-    HlsAdapter._logger.debug('destroy');
-    this._hls.detachMedia();
-    this._hls.destroy();
-    this._loadPromise = null;
-    this._sourceObj = null;
   }
 
   /**
