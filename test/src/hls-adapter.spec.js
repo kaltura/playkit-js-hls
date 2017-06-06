@@ -61,8 +61,10 @@ describe('HlsAdapter Instance - Unit', function () {
   let video;
   let sourceObj;
   let config;
+  let sandbox;
 
   beforeEach(function () {
+    sandbox = sinon.sandbox.create();
     video = document.createElement('video');
     sourceObj = hls_sources.multi_audio_multi_subtitles;
     config = {};
@@ -70,6 +72,7 @@ describe('HlsAdapter Instance - Unit', function () {
   });
 
   afterEach(function () {
+    sandbox.restore();
     hlsAdapterInstance.destroy();
     hlsAdapterInstance = null;
     video = null;
@@ -94,8 +97,8 @@ describe('HlsAdapter Instance - Unit', function () {
 
   it('should destroy the adapter', function (done) {
     hlsAdapterInstance.load().then((/* data */) => {
-      let detachMediaSpier = sinon.spy(hlsAdapterInstance._hls, 'detachMedia');
-      let destroySpier = sinon.spy(hlsAdapterInstance._hls, 'destroy');
+      let detachMediaSpier = sandbox.spy(hlsAdapterInstance._hls, 'detachMedia');
+      let destroySpier = sandbox.spy(hlsAdapterInstance._hls, 'destroy');
       hlsAdapterInstance.destroy();
       (hlsAdapterInstance._loadPromise === null).should.be.true;
       (hlsAdapterInstance._sourceObj === null).should.be.true;
@@ -198,7 +201,7 @@ describe('HlsAdapter Instance - Unit', function () {
     hlsAdapterInstance._playerTracks.find = function () {
       return hlsAdapterInstance._playerTracks[6];
     };
-    sinon.stub(hlsAdapterInstance, 'dispatchEvent').callsFake(function (event) {
+    sandbox.stub(hlsAdapterInstance, 'dispatchEvent').callsFake(function (event) {
       event.type.should.equal(CustomEvents.VIDEO_TRACK_CHANGED);
       event.payload.selectedVideoTrack.should.exists;
       event.payload.selectedVideoTrack.should.deep.equals(hlsAdapterInstance._playerTracks[6]);
@@ -210,9 +213,11 @@ describe('HlsAdapter Instance - Unit', function () {
 
 describe('HlsAdapter Instance - Integration', function () {
   let player;
+  let sandbox;
   this.timeout(10000);
 
   before(() => {
+    sandbox = sinon.sandbox.create();
     player = playkit({
       sources: [
         hls_sources.multi_audio_multi_subtitles
@@ -221,6 +226,7 @@ describe('HlsAdapter Instance - Integration', function () {
   });
 
   after(() => {
+    sandbox.restore();
     player.destroy();
     player = null;
     TestUtils.removeVideoElementsFromTestPage();
@@ -244,28 +250,22 @@ describe('HlsAdapter Instance - Integration', function () {
         player.addEventListener(player.Event.VIDEO_TRACK_CHANGED, (event) => {
           event.payload.selectedVideoTrack.should.exists;
           event.payload.selectedVideoTrack.active.should.be.true;
-          event.payload.selectedVideoTrack.index.should.be.equal(1);
+          event.payload.selectedVideoTrack.index.should.be.equal(0);
+          player.selectTrack(textTracks[0]);
         });
         player.addEventListener(player.Event.TEXT_TRACK_CHANGED, (event) => {
           event.payload.selectedTextTrack.should.exists;
           event.payload.selectedTextTrack.active.should.be.true;
-          event.payload.selectedTextTrack.index.should.be.equal(1);
+          event.payload.selectedTextTrack.index.should.be.equal(0);
+          player.selectTrack(audioTracks[0]);
         });
         player.addEventListener(player.Event.AUDIO_TRACK_CHANGED, (event) => {
           event.payload.selectedAudioTrack.should.exists;
           event.payload.selectedAudioTrack.active.should.be.true;
-          event.payload.selectedAudioTrack.index.should.be.equal(1);
-        });
-        // Listen to playing event
-        player.addEventListener(player.Event.PLAYING, (/* event */) => {
-          //TODO: player.enableAdaptiveBitrate()
+          event.payload.selectedAudioTrack.index.should.be.equal(0);
           done();
         });
-        // Test select track api
-        player.selectTrack(videoTracks[1]);
-        player.selectTrack(textTracks[1]);
-        player.selectTrack(audioTracks[1]);
-        player.play();
+        player.selectTrack(videoTracks[0]);
       } else {
         done();
       }
@@ -273,7 +273,7 @@ describe('HlsAdapter Instance - Integration', function () {
   });
 });
 
-describe.skip('HlsAdapter [debugging and testing manually (skip)]', function () {
+describe.skip('HlsAdapter [debugging and testing manually (skip)]', function (done) {
   this.timeout(10000);
   let tracks;
   let videoTracks = [];
@@ -307,7 +307,7 @@ describe.skip('HlsAdapter [debugging and testing manually (skip)]', function () 
   it('should play hls stream', () => {
     player = playkit({
       sources: [
-        hls_sources.multi_subtitles
+        hls_sources.multi_audio_multi_subtitles
       ]
     });
     player.load().then(() => {
@@ -320,6 +320,9 @@ describe.skip('HlsAdapter [debugging and testing manually (skip)]', function () 
        player.addEventListener(player.Event.AUDIO_TRACK_CHANGED, (event) => {
        });
        */
+      player.addEventListener(player.Event.PLAYING, (/* event */) => {
+        done();
+      });
       player.play();
     });
   });
