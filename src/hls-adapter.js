@@ -157,8 +157,10 @@ export default class HlsAdapter extends FakeEventTarget implements IMediaSourceA
           this._playerTracks = this._parseTracks(data);
           resolve({tracks: this._playerTracks});
         });
-        this._hls.loadSource(this._sourceObj.url);
-        this._hls.attachMedia(this._videoElement);
+        if (this._sourceObj && this._sourceObj.url) {
+          this._hls.loadSource(this._sourceObj.url);
+          this._hls.attachMedia(this._videoElement);
+        }
       });
     }
     return this._loadPromise;
@@ -236,11 +238,11 @@ export default class HlsAdapter extends FakeEventTarget implements IMediaSourceA
 
   /**
    * Parse native video tag text tracks into player text tracks.
-   * @param {Array<Object>} vidTextTracks - The native video tag text tracks.
+   * @param {TextTrackList} vidTextTracks - The native video tag text tracks.
    * @returns {Array<TextTrack>} - The parsed text tracks.
    * @private
    */
-  _parseTextTracks(vidTextTracks: Array<Object>): Array<TextTrack> {
+  _parseTextTracks(vidTextTracks: TextTrackList): Array<TextTrack> {
     let textTracks = [];
     for (let i = 0; i < vidTextTracks.length; i++) {
       // Create text tracks
@@ -355,7 +357,7 @@ export default class HlsAdapter extends FakeEventTarget implements IMediaSourceA
    * @returns {string} - The src url.
    */
   get src(): string {
-    if (this._loadPromise != null) {
+    if (this._loadPromise != null && this._sourceObj && this._sourceObj.url) {
       return this._sourceObj.url;
     }
     return "";

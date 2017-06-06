@@ -13,7 +13,7 @@ module.exports = function (config) {
     logLevel: config.LOG_INFO,
     browsers: [
       'Chrome',
-      // 'Firefox'
+      'Firefox'
     ],
     concurrency: 1,
     singleRun: true,
@@ -71,7 +71,7 @@ module.exports = function (config) {
     if (isWindows) {
       karmaConf.browsers.push('IE');
     } else if (isMacOS) {
-      // karmaConf.browsers.push('Safari');
+      karmaConf.browsers.push('Safari');
     }
   }
 
