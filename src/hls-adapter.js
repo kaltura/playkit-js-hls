@@ -152,7 +152,7 @@ export default class HlsAdapter extends FakeEventTarget implements IMediaSourceA
    */
   load(): Promise<Object> {
     if (!this._loadPromise) {
-      this._loadPromise = new Promise((resolve, reject) => {
+      this._loadPromise = new Promise((resolve) => {
         this._hls.on(Hlsjs.Events.MANIFEST_LOADED, (event: string, data: any) => {
           this._playerTracks = this._parseTracks(data);
           resolve({tracks: this._playerTracks});
@@ -179,7 +179,7 @@ export default class HlsAdapter extends FakeEventTarget implements IMediaSourceA
 
   /**
    * Parse the hls tracks into player tracks.
-   * @param data - The event data.
+   * @param {any} data - The event data.
    * @returns {Array<Track>} - The parsed tracks.
    * @private
    */
@@ -192,7 +192,7 @@ export default class HlsAdapter extends FakeEventTarget implements IMediaSourceA
 
   /**
    * Parse hls audio tracks into player audio tracks.
-   * @param hlsAudioTracks - The hls audio tracks.
+   * @param {Array<Object>} hlsAudioTracks - The hls audio tracks.
    * @returns {Array<AudioTrack>} - The parsed audio tracks.
    * @private
    */
@@ -214,7 +214,7 @@ export default class HlsAdapter extends FakeEventTarget implements IMediaSourceA
 
   /**
    * Parse hls video tracks into player video tracks.
-   * @param hlsVideoTracks - The hls video tracks.
+   * @param {Array<Object>} hlsVideoTracks - The hls video tracks.
    * @returns {Array<VideoTrack>} - The parsed video tracks.
    * @private
    */
@@ -236,7 +236,7 @@ export default class HlsAdapter extends FakeEventTarget implements IMediaSourceA
 
   /**
    * Parse native video tag text tracks into player text tracks.
-   * @param vidTextTracks - The native video tag text tracks.
+   * @param {Array<Object>} vidTextTracks - The native video tag text tracks.
    * @returns {Array<TextTrack>} - The parsed text tracks.
    * @private
    */
@@ -322,6 +322,7 @@ export default class HlsAdapter extends FakeEventTarget implements IMediaSourceA
    * @param {string} event - The event name.
    * @param {any} data - The event data object.
    * @private
+   * @returns {void}
    */
   _onLevelSwitched(event: string, data: any): void {
     if (this._hls.autoLevelEnabled) {

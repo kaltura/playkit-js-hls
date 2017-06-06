@@ -1,5 +1,5 @@
 import playkit from 'playkit-js'
-import {Track, VideoTrack, AudioTrack, TextTrack} from 'playkit-js'
+import {/* Track, */ VideoTrack, AudioTrack, TextTrack} from 'playkit-js'
 import {CustomEvents} from 'playkit-js'
 import {TestUtils} from 'playkit-js'
 import HlsAdapter from '../../src/hls-adapter.js'
@@ -85,7 +85,7 @@ describe('HlsAdapter Instance - Unit', function () {
   });
 
   it('should load the adapter', function (done) {
-    hlsAdapterInstance.load().then((data) => {
+    hlsAdapterInstance.load().then((/* data */) => {
       hlsAdapterInstance._playerTracks.should.be.array;
       hlsAdapterInstance.src.should.equal(hls_sources.multi_audio_multi_subtitles.url);
       done();
@@ -93,7 +93,7 @@ describe('HlsAdapter Instance - Unit', function () {
   });
 
   it('should destroy the adapter', function (done) {
-    hlsAdapterInstance.load().then((data) => {
+    hlsAdapterInstance.load().then((/* data */) => {
       let detachMediaSpier = sinon.spy(hlsAdapterInstance._hls, 'detachMedia');
       let destroySpier = sinon.spy(hlsAdapterInstance._hls, 'destroy');
       hlsAdapterInstance.destroy();
@@ -259,7 +259,7 @@ describe('HlsAdapter Instance - Integration', function () {
           event.payload.selectedAudioTrack.index.should.be.equal(1);
         });
         // Listen to playing event
-        player.addEventListener(player.Event.PLAYING, (event) => {
+        player.addEventListener(player.Event.PLAYING, (/* event */) => {
           //TODO: play.enableAdaptiveBitrate()
           done();
         });
@@ -283,6 +283,10 @@ describe.skip('HlsAdapter [debugging and testing manually (skip)]', function () 
   let audioTracks = [];
   let player;
 
+  /**
+   * Displays track buttons on test page.
+   * @returns {void}
+   */
   function displayTracksOnScreen() {
     tracks = player.getTracks() || [];
     videoTracks = [];
@@ -305,11 +309,9 @@ describe.skip('HlsAdapter [debugging and testing manually (skip)]', function () 
   it('should play hls stream', () => {
     player = playkit({
       sources: [
-        sources.multi_subtitles
+        hls_sources.multi_subtitles
       ]
     });
-    let video = document.getElementsByTagName("video")[0];
-
     player.load().then(() => {
       displayTracksOnScreen();
       player.play();
