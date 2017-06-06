@@ -1,11 +1,281 @@
 import playkit from 'playkit-js'
-import sources from './hls-sources.json'
 import {Track, VideoTrack, AudioTrack, TextTrack} from 'playkit-js'
+import {CustomEvents} from 'playkit-js'
 import {TestUtils} from 'playkit-js'
-//eslint-disable-next-line no-unused-vars
 import HlsAdapter from '../../src/hls-adapter.js'
+import * as hls_sources from './json/hls_sources.json'
+import * as hls_tracks from './json/hls_tracks.json'
+import * as player_tracks from './json/player_tracks.json'
 
-describe('HlsAdapter', function () {
+describe('HlsAdapter.canPlayType', function () {
+  it('should return true to application/x-mpegurl', function () {
+    HlsAdapter.canPlayType('application/x-mpegurl').should.be.true;
+  });
+
+  it('should return true to application/vnd.apple.mpegurl', function () {
+    HlsAdapter.canPlayType('application/vnd.apple.mpegurl').should.be.true;
+  });
+
+  it('should return true to audio/mpegurl', function () {
+    HlsAdapter.canPlayType('audio/mpegurl').should.be.true;
+  });
+
+  it('should return true to audio/x-mpegurl', function () {
+    HlsAdapter.canPlayType('audio/x-mpegurl').should.be.true;
+  });
+
+  it('should return true to video/x-mpegurl', function () {
+    HlsAdapter.canPlayType('video/x-mpegurl').should.be.true;
+  });
+
+  it('should return true to video/mpegurl', function () {
+    HlsAdapter.canPlayType('video/mpegurl').should.be.true;
+  });
+
+  it('should return true to application/mpegurl', function () {
+    HlsAdapter.canPlayType('application/mpegurl').should.be.true;
+  });
+
+  it('should return false to video/mp4', function () {
+    HlsAdapter.canPlayType('video/mp4').should.be.false;
+  });
+
+  it('should return false to unvalid mimetype', function () {
+    HlsAdapter.canPlayType('dummy').should.be.false;
+  });
+});
+
+describe('HlsAdapter.name', function () {
+  it('should be named HlsAdapter', function () {
+    HlsAdapter.name.should.equal('HlsAdapter');
+  });
+
+  it('should not set a new name', function () {
+    HlsAdapter.name = 'Hls';
+    HlsAdapter.name.should.equal('HlsAdapter');
+  });
+});
+
+describe('HlsAdapter Instance - Unit', function () {
+  let hlsAdapterInstance;
+  let video;
+  let sourceObj;
+  let config;
+
+  beforeEach(function () {
+    video = document.createElement('video');
+    sourceObj = hls_sources.multi_audio_multi_subtitles;
+    config = {};
+    hlsAdapterInstance = HlsAdapter.createAdapter(video, sourceObj, config);
+  });
+
+  afterEach(function () {
+    hlsAdapterInstance.destroy();
+    hlsAdapterInstance = null;
+    video = null;
+    TestUtils.removeVideoElementsFromTestPage();
+  });
+
+  it('should create hls adapter properties', function () {
+    hlsAdapterInstance._videoElement.should.deep.equal(video);
+    hlsAdapterInstance._config.should.deep.equal(config);
+    hlsAdapterInstance._sourceObj.should.deep.equal(sourceObj);
+    hlsAdapterInstance._hls.should.exists;
+    hlsAdapterInstance.src.should.be.empty;
+  });
+
+  it('should load the adapter', function (done) {
+    hlsAdapterInstance.load().then((data) => {
+      hlsAdapterInstance._playerTracks.should.be.array;
+      hlsAdapterInstance.src.should.equal(hls_sources.multi_audio_multi_subtitles.url);
+      done();
+    });
+  });
+
+  it('should destroy the adapter', function (done) {
+    hlsAdapterInstance.load().then((data) => {
+      let detachMediaSpier = sinon.spy(hlsAdapterInstance._hls, 'detachMedia');
+      let destroySpier = sinon.spy(hlsAdapterInstance._hls, 'destroy');
+      hlsAdapterInstance.destroy();
+      (hlsAdapterInstance._loadPromise === null).should.be.true;
+      (hlsAdapterInstance._sourceObj === null).should.be.true;
+      detachMediaSpier.should.have.been.called;
+      destroySpier.should.have.been.called;
+      done();
+    });
+  });
+
+  it('should parse the hls audio tracks into player audio tracks', function () {
+    hlsAdapterInstance._hls = {
+      audioTrack: 1,
+      detachMedia: function () {
+      },
+      destroy: function () {
+      }
+    };
+    let audioTracks = hlsAdapterInstance._parseAudioTracks(hls_tracks.audioTracks);
+    audioTracks.should.deep.equals(player_tracks.audioTracks);
+  });
+
+  it('should parse the hls levels into player video tracks', function () {
+    hlsAdapterInstance._hls = {
+      startLevel: 1,
+      detachMedia: function () {
+      },
+      destroy: function () {
+      }
+    };
+    let videoTracks = hlsAdapterInstance._parseVideoTracks(hls_tracks.levels);
+    videoTracks.should.deep.equals(player_tracks.videoTracks);
+  });
+
+  it('should parse the video tag text tracks into player text tracks', function () {
+    hlsAdapterInstance._hls = {
+      detachMedia: function () {
+      },
+      destroy: function () {
+      }
+    };
+    let textTracks = hlsAdapterInstance._parseTextTracks(hls_tracks.subtitles);
+    textTracks.should.deep.equals(player_tracks.textTracks);
+  });
+
+  it('should parse all hls tracks into player tracks', function () {
+    let data = {
+      audioTracks: hls_tracks.audioTracks,
+      levels: hls_tracks.levels
+    };
+    hlsAdapterInstance._videoElement = {
+      textTracks: hls_tracks.subtitles
+    };
+    hlsAdapterInstance._hls = {
+      audioTrack: 1,
+      startLevel: 1,
+      detachMedia: function () {
+      },
+      destroy: function () {
+      }
+    };
+    let tracks = hlsAdapterInstance._parseTracks(data);
+    let allTracks = player_tracks.audioTracks.concat(player_tracks.videoTracks).concat(player_tracks.textTracks);
+    tracks.should.deep.equals(allTracks);
+  });
+
+  it('should disable all text tracks', function () {
+    hlsAdapterInstance._videoElement = {
+      textTracks: hls_tracks.subtitles
+    };
+    hlsAdapterInstance._disableAllTextTracks();
+    for (let i = 0; i < hlsAdapterInstance._videoElement.textTracks.length; i++) {
+      hlsAdapterInstance._videoElement.textTracks[i].mode.should.equal('hidden');
+    }
+  });
+
+  it('should enable adaptive bitrate', function () {
+    hlsAdapterInstance._hls = {
+      on: function () {
+      },
+      nextLevel: 0,
+      detachMedia: function () {
+      },
+      destroy: function () {
+      }
+    };
+    let onSpier = sinon.spy(hlsAdapterInstance._hls, 'on');
+    hlsAdapterInstance.enableAdaptiveBitrate();
+    onSpier.should.have.been.called;
+    hlsAdapterInstance._hls.nextLevel.should.equal(-1);
+  });
+
+  it('should dispatch event with the selected video track', function (done) {
+    let data = {level: 3};
+    hlsAdapterInstance._hls = {
+      autoLevelEnabled: true,
+      detachMedia: function () {
+      },
+      destroy: function () {
+      }
+    };
+    hlsAdapterInstance._playerTracks = player_tracks.audioTracks.concat(player_tracks.videoTracks).concat(player_tracks.textTracks);
+    hlsAdapterInstance._playerTracks.find = function () {
+      return hlsAdapterInstance._playerTracks[6];
+    };
+    sinon.stub(hlsAdapterInstance, 'dispatchEvent').callsFake(function (event) {
+      event.type.should.equal(CustomEvents.VIDEO_TRACK_CHANGED);
+      event.payload.selectedVideoTrack.should.exists;
+      event.payload.selectedVideoTrack.should.deep.equals(hlsAdapterInstance._playerTracks[6]);
+      done();
+    });
+    hlsAdapterInstance._onLevelSwitched('hlsLevelSwitched', data);
+  });
+});
+
+describe('HlsAdapter Instance - Integration', function () {
+  let player;
+  this.timeout(10000);
+
+  before(() => {
+    player = playkit({
+      sources: [
+        hls_sources.multi_audio_multi_subtitles
+      ]
+    });
+  });
+
+  after(() => {
+    player.destroy();
+    player = null;
+    TestUtils.removeVideoElementsFromTestPage();
+  });
+
+  it('should run player with hls adapter', function (done) {
+    player.load().then(() => {
+      let mediaSourceAdapter = player._engine._mediaSourceAdapter;
+      if (mediaSourceAdapter instanceof HlsAdapter) {
+        // Test get tracks api
+        let tracks = player.getTracks();
+        let videoTracks = player.getTracks(player.Track.VIDEO);
+        let audioTracks = player.getTracks(player.Track.AUDIO);
+        let textTracks = player.getTracks(player.Track.TEXT);
+        player.src.should.equal(hls_sources.multi_audio_multi_subtitles.url);
+        tracks.length.should.equal(14);
+        videoTracks.length.should.equal(4);
+        audioTracks.length.should.equal(3);
+        textTracks.length.should.equal(7);
+        // Listen to tracks events
+        player.addEventListener(player.Event.VIDEO_TRACK_CHANGED, (event) => {
+          event.payload.selectedVideoTrack.should.exists;
+          event.payload.selectedVideoTrack.active.should.be.true;
+          event.payload.selectedVideoTrack.index.should.be.equal(1);
+        });
+        player.addEventListener(player.Event.TEXT_TRACK_CHANGED, (event) => {
+          event.payload.selectedTextTrack.should.exists;
+          event.payload.selectedTextTrack.active.should.be.true;
+          event.payload.selectedTextTrack.index.should.be.equal(1);
+        });
+        player.addEventListener(player.Event.AUDIO_TRACK_CHANGED, (event) => {
+          event.payload.selectedAudioTrack.should.exists;
+          event.payload.selectedAudioTrack.active.should.be.true;
+          event.payload.selectedAudioTrack.index.should.be.equal(1);
+        });
+        // Listen to playing event
+        player.addEventListener(player.Event.PLAYING, (event) => {
+          //TODO: play.enableAdaptiveBitrate()
+          done();
+        });
+        // Test select track api
+        player.selectTrack(videoTracks[1]);
+        player.selectTrack(textTracks[1]);
+        player.selectTrack(audioTracks[1]);
+        player.play();
+      } else {
+        done();
+      }
+    });
+  });
+});
+
+describe.skip('HlsAdapter [debugging and testing manually (skip)]', function () {
   this.timeout(10000);
   let tracks;
   let videoTracks = [];
@@ -28,49 +298,21 @@ describe('HlsAdapter', function () {
       }
     });
     TestUtils.createVideoTrackButtons(player, videoTracks);
-    TestUtils.createAudioTrackButtons(player, audioTracks);
+    TestUtils.crteAudioTrackButtons(player, audioTracks);
     TestUtils.createTextTrackButtons(player, textTracks);
   }
 
-  it.only('should play hls stream - preload none', () => {
+  it('should play hls stream', () => {
     player = playkit({
       sources: [
         sources.multi_subtitles
       ]
     });
     let video = document.getElementsByTagName("video")[0];
-    video.onplaying = function () {
-    };
+
     player.load().then(() => {
       displayTracksOnScreen();
       player.play();
-      setTimeout(function () {
-        player._engine._mediaSourceAdapter.enableAdaptiveBitrate();
-        player.addEventListener(player.Event.VIDEO_TRACK_CHANGED, (event) => {
-          let at = player._engine._mediaSourceAdapter._playerTracks;
-          let pt = player.getTracks();
-          at.should.deep.equal(pt);
-          // player.destroy();
-          // done();
-        });
-      }, 2000);
     });
-  });
-
-  it('should play hls stream - preload auto', (done) => {
-    let player = playkit({
-      preload: "auto",
-      sources: [{
-        mimetype: "application/x-mpegurl",
-        url: "http://www.streambox.fr/playlists/test_001/stream.m3u8"
-      }]
-    });
-    let video = document.getElementsByTagName("video")[0];
-    video.onplaying = function () {
-      player.destroy();
-      done();
-    };
-    player.load();
-    player.play();
   });
 });

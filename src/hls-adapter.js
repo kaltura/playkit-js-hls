@@ -108,12 +108,12 @@ export default class HlsAdapter extends FakeEventTarget implements IMediaSourceA
    * Factory method to create media source adapter.
    * @function createAdapter
    * @param {HTMLVideoElement} videoElement - The video element which will bind to the hls adapter.
-   * @param {Object} source - The source Object.
+   * @param {Source} source - The source Object.
    * @param {Object} config - The media source adapter configuration.
    * @returns {IMediaSourceAdapter} - New instance of the run time media source adapter.
    * @static
    */
-  static createAdapter(videoElement: HTMLVideoElement, source: Object, config: Object): IMediaSourceAdapter {
+  static createAdapter(videoElement: HTMLVideoElement, source: Source, config: Object): IMediaSourceAdapter {
     HlsAdapter._logger.debug('Creating adapter. Hls version: ' + Hlsjs.version);
     return new this(videoElement, source, config);
   }
@@ -226,6 +226,7 @@ export default class HlsAdapter extends FakeEventTarget implements IMediaSourceA
         id: hlsVideoTracks[i].bitrate,
         active: this._hls.startLevel === i,
         label: hlsVideoTracks[i].bitrate,
+        language: '',
         index: i
       };
       videoTracks.push(new VideoTrack(settings));
@@ -337,7 +338,7 @@ export default class HlsAdapter extends FakeEventTarget implements IMediaSourceA
   /**
    * Disables all the video tag text tracks.
    * @returns {void}
-   * @private
+   * @privateh
    */
   _disableAllTextTracks() {
     let vidTextTracks = this._videoElement.textTracks;
