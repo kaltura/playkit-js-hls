@@ -11,6 +11,10 @@ describe('HlsAdapter.canPlayType', function () {
     HlsAdapter.canPlayType('application/x-mpegurl').should.be.true;
   });
 
+  it('should return true to application/X-MpegUrl', function () {
+    HlsAdapter.canPlayType('application/X-MpegUrl').should.be.true;
+  });
+
   it('should return true to application/vnd.apple.mpegurl', function () {
     HlsAdapter.canPlayType('application/vnd.apple.mpegurl').should.be.true;
   });
