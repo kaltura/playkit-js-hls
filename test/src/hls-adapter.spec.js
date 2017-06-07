@@ -1,6 +1,6 @@
 import playkit from 'playkit-js'
-import {/* Track, */ VideoTrack, AudioTrack, TextTrack} from 'playkit-js'
-import {TestUtils} from 'playkit-js'
+import {VideoTrack, AudioTrack, TextTrack} from 'playkit-js'
+import * as TestUtils from 'playkit-js/test/src/utils/test-utils'
 import HlsAdapter from '../../src/hls-adapter.js'
 import * as hls_sources from './json/hls_sources.json'
 import * as hls_tracks from './json/hls_tracks.json'
