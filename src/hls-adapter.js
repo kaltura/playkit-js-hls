@@ -99,7 +99,7 @@ export default class HlsAdapter extends FakeEventTarget implements IMediaSourceA
    * @static
    */
   static canPlayType(mimeType: string): boolean {
-    let canHlsPlayType = HlsAdapter._hlsMimeTypes.includes(mimeType);
+    let canHlsPlayType = HlsAdapter._hlsMimeTypes.includes(mimeType.toLowerCase());
     HlsAdapter._logger.debug('canPlayType result for mimeType:' + mimeType + ' is ' + canHlsPlayType.toString());
     return canHlsPlayType;
   }
