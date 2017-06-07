@@ -2,7 +2,6 @@
 import Hlsjs from 'hls.js'
 import {registerMediaSourceAdapter, BaseMediaSourceAdapter} from 'playkit-js'
 import {Track, VideoTrack, AudioTrack, TextTrack} from 'playkit-js'
-import {LoggerFactory} from 'playkit-js'
 
 /**
  * Adapter of hls.js lib for hls content
@@ -22,7 +21,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    * @static
    * @private
    */
-  static _logger = LoggerFactory.getLogger(HlsAdapter._name);
+  static _logger = BaseMediaSourceAdapter.getLogger(HlsAdapter._name);
   /**
    * The supported mime types by the hls adapter.
    * @member {Array<string>} _hlsMimeType
@@ -38,24 +37,6 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     'video/mpegurl',
     'application/mpegurl'
   ];
-  /**
-   * The adapter config.
-   * @member {Object} _config
-   * @private
-   */
-  _config: Object;
-  /**
-   * The video element.
-   * @member {HTMLVideoElement} _videoElement
-   * @private
-   */
-  _videoElement: HTMLVideoElement;
-  /**
-   * The source object.
-   * @member {Source} _sourceObj
-   * @private
-   */
-  _sourceObj: ?Source;
   /**
    * The hls player instance.
    * @member {any} _hls
@@ -85,6 +66,11 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     return HlsAdapter._name;
   }
 
+  /**
+   * @param {string} name - The adapter name.
+   * @returns {void}
+   * @static
+   */
   static set name(name: string): void {
     // Do nothing. Just a workaround for flow issue with static getter in an inheritor. See: https://github.com/facebook/flow/issues/3008.
   }
@@ -97,23 +83,9 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    * @static
    */
   static canPlayType(mimeType: string): boolean {
-    let canHlsPlayType = HlsAdapter._hlsMimeTypes.includes(mimeType.toLowerCase());
+    let canHlsPlayType = (typeof mimeType === 'string') ? HlsAdapter._hlsMimeTypes.includes(mimeType.toLowerCase()) : false;
     HlsAdapter._logger.debug('canPlayType result for mimeType:' + mimeType + ' is ' + canHlsPlayType.toString());
     return canHlsPlayType;
-  }
-
-  /**
-   * Factory method to create media source adapter.
-   * @function createAdapter
-   * @param {HTMLVideoElement} videoElement - The video element which will bind to the hls adapter.
-   * @param {Source} source - The source Object.
-   * @param {Object} config - The media source adapter configuration.
-   * @returns {IMediaSourceAdapter} - New instance of the run time media source adapter.
-   * @static
-   */
-  static createAdapter(videoElement: HTMLVideoElement, source: Source, config: Object): IMediaSourceAdapter {
-    HlsAdapter._logger.debug('Creating adapter. Hls version: ' + Hlsjs.version);
-    return new this(videoElement, source, config);
   }
 
   /**
@@ -135,10 +107,8 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    * @param {Object} config - The media source adapter configuration
    */
   constructor(videoElement: HTMLVideoElement, source: Source, config: Object) {
-    super();
-    this._videoElement = videoElement;
-    this._config = config;
-    this._sourceObj = source;
+    HlsAdapter._logger.debug('Creating adapter. Hls version: ' + Hlsjs.version);
+    super(videoElement, source, config);
     this._hls = new Hlsjs(this._config);
     this._addBindings();
   }
@@ -279,7 +249,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    * @returns {Array<TextTrack>} - The parsed text tracks.
    * @private
    */
-  _parseTextTracks(vidTextTracks: TextTrackList): Array<TextTrack> {
+  _parseTextTracks(vidTextTracks: TextTrackList | Array<Object>): Array<TextTrack> {
     let textTracks = [];
     for (let i = 0; i < vidTextTracks.length; i++) {
       // Create text tracks
@@ -333,7 +303,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     if (textTrack && textTrack instanceof TextTrack && !textTrack.active && this._videoElement.textTracks) {
       this._disableAllTextTracks();
       this._videoElement.textTracks[textTrack.id].mode = 'showing';
-      this.trigger(BaseMediaSourceAdapter.CustomEvents.TEXT_TRACK_CHANGED, {selectedTextTrack: textTrack});
+      this._trigger(BaseMediaSourceAdapter.CustomEvents.TEXT_TRACK_CHANGED, {selectedTextTrack: textTrack});
     }
   }
 
@@ -359,7 +329,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     let videoTrack = this._playerTracks.find((track) => {
       return (track instanceof VideoTrack && track.index === data.level);
     });
-    this.trigger(BaseMediaSourceAdapter.CustomEvents.VIDEO_TRACK_CHANGED, {selectedVideoTrack: videoTrack});
+    this._trigger(BaseMediaSourceAdapter.CustomEvents.VIDEO_TRACK_CHANGED, {selectedVideoTrack: videoTrack});
   }
 
   /**
@@ -374,7 +344,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     let audioTrack = this._playerTracks.find((track) => {
       return (track instanceof AudioTrack && track.id === data.id);
     });
-    this.trigger(BaseMediaSourceAdapter.CustomEvents.AUDIO_TRACK_CHANGED, {selectedAudioTrack: audioTrack});
+    this._trigger(BaseMediaSourceAdapter.CustomEvents.AUDIO_TRACK_CHANGED, {selectedAudioTrack: audioTrack});
   }
 
   /**

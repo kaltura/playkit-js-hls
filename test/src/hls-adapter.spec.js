@@ -43,8 +43,16 @@ describe('HlsAdapter.canPlayType', function () {
     HlsAdapter.canPlayType('video/mp4').should.be.false;
   });
 
-  it('should return false to unvalid mimetype', function () {
+  it('should return false to invalid mimetype', function () {
     HlsAdapter.canPlayType('dummy').should.be.false;
+  });
+
+  it('should return false to nullable mimetype', function () {
+    HlsAdapter.canPlayType(null).should.be.false;
+  });
+
+  it('should return false to empty mimetype', function () {
+    HlsAdapter.canPlayType().should.be.false;
   });
 });
 
