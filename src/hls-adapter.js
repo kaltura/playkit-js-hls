@@ -1,16 +1,14 @@
 //@flow
 import Hlsjs from 'hls.js'
-import {registerMediaSourceAdapter} from 'playkit-js'
+import {registerMediaSourceAdapter, BaseMediaSourceAdapter} from 'playkit-js'
 import {Track, VideoTrack, AudioTrack, TextTrack} from 'playkit-js'
 import {LoggerFactory} from 'playkit-js'
-import {FakeEventTarget, FakeEvent} from 'playkit-js'
-import {CustomEvents} from 'playkit-js'
 
 /**
  * Adapter of hls.js lib for hls content
  * @classdesc
  */
-export default class HlsAdapter extends FakeEventTarget implements IMediaSourceAdapter {
+export default class HlsAdapter extends BaseMediaSourceAdapter {
   /**
    * The name of the adapter.
    * @member {string} _name
@@ -99,7 +97,7 @@ export default class HlsAdapter extends FakeEventTarget implements IMediaSourceA
    * @static
    */
   static canPlayType(mimeType: string): boolean {
-    let canHlsPlayType = HlsAdapter._hlsMimeTypes.includes(mimeType);
+    let canHlsPlayType = HlsAdapter._hlsMimeTypes.includes(mimeType.toLowerCase());
     HlsAdapter._logger.debug('canPlayType result for mimeType:' + mimeType + ' is ' + canHlsPlayType.toString());
     return canHlsPlayType;
   }
@@ -335,10 +333,7 @@ export default class HlsAdapter extends FakeEventTarget implements IMediaSourceA
     if (textTrack && textTrack instanceof TextTrack && !textTrack.active && this._videoElement.textTracks) {
       this._disableAllTextTracks();
       this._videoElement.textTracks[textTrack.id].mode = 'showing';
-      let fakeEvent = new FakeEvent(CustomEvents.TEXT_TRACK_CHANGED, {
-        selectedTextTrack: textTrack
-      });
-      this.dispatchEvent(fakeEvent);
+      this.trigger(BaseMediaSourceAdapter.CustomEvents.TEXT_TRACK_CHANGED, {selectedTextTrack: textTrack});
     }
   }
 
@@ -364,10 +359,7 @@ export default class HlsAdapter extends FakeEventTarget implements IMediaSourceA
     let videoTrack = this._playerTracks.find((track) => {
       return (track instanceof VideoTrack && track.index === data.level);
     });
-    let fakeEvent = new FakeEvent(CustomEvents.VIDEO_TRACK_CHANGED, {
-      selectedVideoTrack: videoTrack
-    });
-    this.dispatchEvent(fakeEvent);
+    this.trigger(BaseMediaSourceAdapter.CustomEvents.VIDEO_TRACK_CHANGED, {selectedVideoTrack: videoTrack});
   }
 
   /**
@@ -382,10 +374,7 @@ export default class HlsAdapter extends FakeEventTarget implements IMediaSourceA
     let audioTrack = this._playerTracks.find((track) => {
       return (track instanceof AudioTrack && track.id === data.id);
     });
-    let fakeEvent = new FakeEvent(CustomEvents.AUDIO_TRACK_CHANGED, {
-      selectedAudioTrack: audioTrack
-    });
-    this.dispatchEvent(fakeEvent);
+    this.trigger(BaseMediaSourceAdapter.CustomEvents.AUDIO_TRACK_CHANGED, {selectedAudioTrack: audioTrack});
   }
 
   /**

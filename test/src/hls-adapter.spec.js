@@ -1,6 +1,5 @@
 import playkit from 'playkit-js'
 import {/* Track, */ VideoTrack, AudioTrack, TextTrack} from 'playkit-js'
-import {CustomEvents} from 'playkit-js'
 import {TestUtils} from 'playkit-js'
 import HlsAdapter from '../../src/hls-adapter.js'
 import * as hls_sources from './json/hls_sources.json'
@@ -202,7 +201,7 @@ describe('HlsAdapter Instance - Unit', function () {
       return hlsAdapterInstance._playerTracks[6];
     };
     sandbox.stub(hlsAdapterInstance, 'dispatchEvent').callsFake(function (event) {
-      event.type.should.equal(CustomEvents.VIDEO_TRACK_CHANGED);
+      event.type.should.equal(HlsAdapter.CustomEvents.VIDEO_TRACK_CHANGED);
       event.payload.selectedVideoTrack.should.exists;
       event.payload.selectedVideoTrack.should.deep.equals(hlsAdapterInstance._playerTracks[6]);
       done();
