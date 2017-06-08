@@ -87,6 +87,11 @@ export default class HlsAdapter extends FakeEventTarget implements IMediaSourceA
     return HlsAdapter._name;
   }
 
+  /**
+   * @param {string} name - The adapter name.
+   * @returns {void}
+   * @static
+   */
   static set name(name: string): void {
     // Do nothing. Just a workaround for flow issue with static getter in an inheritor. See: https://github.com/facebook/flow/issues/3008.
   }
@@ -99,7 +104,7 @@ export default class HlsAdapter extends FakeEventTarget implements IMediaSourceA
    * @static
    */
   static canPlayType(mimeType: string): boolean {
-    let canHlsPlayType = HlsAdapter._hlsMimeTypes.includes(mimeType.toLowerCase());
+    let canHlsPlayType = (typeof mimeType === 'string') ? HlsAdapter._hlsMimeTypes.includes(mimeType.toLowerCase()) : false;
     HlsAdapter._logger.debug('canPlayType result for mimeType:' + mimeType + ' is ' + canHlsPlayType.toString());
     return canHlsPlayType;
   }
@@ -281,7 +286,7 @@ export default class HlsAdapter extends FakeEventTarget implements IMediaSourceA
    * @returns {Array<TextTrack>} - The parsed text tracks.
    * @private
    */
-  _parseTextTracks(vidTextTracks: TextTrackList): Array<TextTrack> {
+  _parseTextTracks(vidTextTracks: TextTrackList | Array<Object>): Array<TextTrack> {
     let textTracks = [];
     for (let i = 0; i < vidTextTracks.length; i++) {
       // Create text tracks
@@ -338,6 +343,7 @@ export default class HlsAdapter extends FakeEventTarget implements IMediaSourceA
       let fakeEvent = new FakeEvent(CustomEvents.TEXT_TRACK_CHANGED, {
         selectedTextTrack: textTrack
       });
+      HlsAdapter._logger.debug('Text track changed', textTrack);
       this.dispatchEvent(fakeEvent);
     }
   }
@@ -367,6 +373,7 @@ export default class HlsAdapter extends FakeEventTarget implements IMediaSourceA
     let fakeEvent = new FakeEvent(CustomEvents.VIDEO_TRACK_CHANGED, {
       selectedVideoTrack: videoTrack
     });
+    HlsAdapter._logger.debug('Video track changed', videoTrack);
     this.dispatchEvent(fakeEvent);
   }
 
@@ -385,6 +392,7 @@ export default class HlsAdapter extends FakeEventTarget implements IMediaSourceA
     let fakeEvent = new FakeEvent(CustomEvents.AUDIO_TRACK_CHANGED, {
       selectedAudioTrack: audioTrack
     });
+    HlsAdapter._logger.debug('Audio track changed', audioTrack);
     this.dispatchEvent(fakeEvent);
   }
 

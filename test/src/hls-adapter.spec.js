@@ -1,7 +1,7 @@
 import playkit from 'playkit-js'
-import {/* Track, */ VideoTrack, AudioTrack, TextTrack} from 'playkit-js'
+import {VideoTrack, AudioTrack, TextTrack} from 'playkit-js'
 import {CustomEvents} from 'playkit-js'
-import {TestUtils} from 'playkit-js'
+import  * as TestUtils from 'playkit-js/test/src/utils/test-utils'
 import HlsAdapter from '../../src/hls-adapter.js'
 import * as hls_sources from './json/hls_sources.json'
 import * as hls_tracks from './json/hls_tracks.json'
@@ -44,8 +44,16 @@ describe('HlsAdapter.canPlayType', function () {
     HlsAdapter.canPlayType('video/mp4').should.be.false;
   });
 
-  it('should return false to unvalid mimetype', function () {
+  it('should return false to invalid mimetype', function () {
     HlsAdapter.canPlayType('dummy').should.be.false;
+  });
+
+  it('should return false to nullable mimetype', function () {
+    HlsAdapter.canPlayType(null).should.be.false;
+  });
+
+  it('should return false to empty mimetype', function () {
+    HlsAdapter.canPlayType().should.be.false;
   });
 });
 
@@ -66,6 +74,7 @@ describe('HlsAdapter Instance - Unit', function () {
   let sourceObj;
   let config;
   let sandbox;
+  this.timeout(10000);
 
   beforeEach(function () {
     sandbox = sinon.sandbox.create();
@@ -87,7 +96,7 @@ describe('HlsAdapter Instance - Unit', function () {
     hlsAdapterInstance._videoElement.should.deep.equal(video);
     hlsAdapterInstance._config.should.deep.equal(config);
     hlsAdapterInstance._sourceObj.should.deep.equal(sourceObj);
-    hlsAdapterInstance._hls.should.exists;
+    hlsAdapterInstance._hls.should.exist;
     hlsAdapterInstance.src.should.be.empty;
   });
 
@@ -121,7 +130,7 @@ describe('HlsAdapter Instance - Unit', function () {
       }
     };
     let audioTracks = hlsAdapterInstance._parseAudioTracks(hls_tracks.audioTracks);
-    audioTracks.should.deep.equals(player_tracks.audioTracks);
+    audioTracks.should.deep.equal(player_tracks.audioTracks);
   });
 
   it('should parse the hls levels into player video tracks', function () {
@@ -133,7 +142,7 @@ describe('HlsAdapter Instance - Unit', function () {
       }
     };
     let videoTracks = hlsAdapterInstance._parseVideoTracks(hls_tracks.levels);
-    videoTracks.should.deep.equals(player_tracks.videoTracks);
+    videoTracks.should.deep.equal(player_tracks.videoTracks);
   });
 
   it('should parse the video tag text tracks into player text tracks', function () {
@@ -144,7 +153,7 @@ describe('HlsAdapter Instance - Unit', function () {
       }
     };
     let textTracks = hlsAdapterInstance._parseTextTracks(hls_tracks.subtitles);
-    textTracks.should.deep.equals(player_tracks.textTracks);
+    textTracks.should.deep.equal(player_tracks.textTracks);
   });
 
   it('should parse all hls tracks into player tracks', function () {
@@ -165,7 +174,7 @@ describe('HlsAdapter Instance - Unit', function () {
     };
     let tracks = hlsAdapterInstance._parseTracks(data);
     let allTracks = player_tracks.audioTracks.concat(player_tracks.videoTracks).concat(player_tracks.textTracks);
-    tracks.should.deep.equals(allTracks);
+    tracks.should.deep.equal(allTracks);
   });
 
   it('should disable all text tracks', function () {
@@ -207,8 +216,8 @@ describe('HlsAdapter Instance - Unit', function () {
     };
     sandbox.stub(hlsAdapterInstance, 'dispatchEvent').callsFake(function (event) {
       event.type.should.equal(CustomEvents.VIDEO_TRACK_CHANGED);
-      event.payload.selectedVideoTrack.should.exists;
-      event.payload.selectedVideoTrack.should.deep.equals(hlsAdapterInstance._playerTracks[6]);
+      event.payload.selectedVideoTrack.should.exist;
+      event.payload.selectedVideoTrack.should.deep.equal(hlsAdapterInstance._playerTracks[6]);
       done();
     });
     hlsAdapterInstance._onLevelSwitched('hlsLevelSwitched', data);
@@ -217,11 +226,13 @@ describe('HlsAdapter Instance - Unit', function () {
 
 describe('HlsAdapter Instance - Integration', function () {
   let player;
-  let sandbox;
+  let tracks;
+  let videoTracks;
+  let audioTracks;
+  let textTracks;
   this.timeout(10000);
 
-  before(() => {
-    sandbox = sinon.sandbox.create();
+  beforeEach(() => {
     player = playkit({
       sources: [
         hls_sources.ElephantsDream
@@ -229,47 +240,72 @@ describe('HlsAdapter Instance - Integration', function () {
     });
   });
 
-  after(() => {
-    sandbox.restore();
+  afterEach(() => {
     player.destroy();
     player = null;
     TestUtils.removeVideoElementsFromTestPage();
   });
 
+  /**
+   * onVideoTrackChanged handler
+   * @param {Object} done _
+   * @param {FakeEvent} event _
+   * @returns {void}
+   */
+  function onVideoTrackChanged(done, event) {
+    player.removeEventListener(player.Event.VIDEO_TRACK_CHANGED, onVideoTrackChanged);
+    player.addEventListener(player.Event.TEXT_TRACK_CHANGED, onTextTrackChanged.bind(null, done));
+    event.payload.selectedVideoTrack.should.exist;
+    event.payload.selectedVideoTrack.active.should.be.true;
+    event.payload.selectedVideoTrack.index.should.equal(2);
+    player.selectTrack(textTracks[6]);
+  }
+
+  /**
+   * onTextTrackChanged handler
+   * @param {Object} done _
+   * @param {FakeEvent} event _
+   * @returns {void}
+   */
+  function onTextTrackChanged(done, event) {
+    player.removeEventListener(player.Event.TEXT_TRACK_CHANGED, onTextTrackChanged);
+    player.addEventListener(player.Event.AUDIO_TRACK_CHANGED, onAudioTrackChanged.bind(null, done));
+    event.payload.selectedTextTrack.should.exist;
+    event.payload.selectedTextTrack.active.should.be.true;
+    event.payload.selectedTextTrack.index.should.equal(6);
+    player.selectTrack(audioTracks[2]);
+  }
+
+  /**
+   * onAudioTrackChanged handler
+   * @param {Object} done _
+   * @param {FakeEvent} event _
+   * @returns {void}
+   */
+  function onAudioTrackChanged(done, event) {
+    player.removeEventListener(player.Event.AUDIO_TRACK_CHANGED, onAudioTrackChanged);
+    event.payload.selectedAudioTrack.should.exist;
+    event.payload.selectedAudioTrack.active.should.be.true;
+    event.payload.selectedAudioTrack.index.should.equal(2);
+    done();
+  }
+
   it('should run player with hls adapter', function (done) {
     player.load().then(() => {
       let mediaSourceAdapter = player._engine._mediaSourceAdapter;
       if (mediaSourceAdapter instanceof HlsAdapter) {
-        // Test get tracks api
-        let tracks = player.getTracks();
-        let videoTracks = player.getTracks(player.Track.VIDEO);
-        let audioTracks = player.getTracks(player.Track.AUDIO);
-        let textTracks = player.getTracks(player.Track.TEXT);
+        player.play();
+        tracks = player.getTracks();
+        videoTracks = player.getTracks(player.Track.VIDEO);
+        audioTracks = player.getTracks(player.Track.AUDIO);
+        textTracks = player.getTracks(player.Track.TEXT);
         player.src.should.equal(hls_sources.ElephantsDream.url);
         tracks.length.should.equal(14);
         videoTracks.length.should.equal(4);
         audioTracks.length.should.equal(3);
         textTracks.length.should.equal(7);
-        // Listen to tracks events
-        player.addEventListener(player.Event.VIDEO_TRACK_CHANGED, (event) => {
-          event.payload.selectedVideoTrack.should.exists;
-          event.payload.selectedVideoTrack.active.should.be.true;
-          event.payload.selectedVideoTrack.index.should.be.equal(0);
-          player.selectTrack(textTracks[0]);
-        });
-        player.addEventListener(player.Event.TEXT_TRACK_CHANGED, (event) => {
-          event.payload.selectedTextTrack.should.exists;
-          event.payload.selectedTextTrack.active.should.be.true;
-          event.payload.selectedTextTrack.index.should.be.equal(0);
-          player.selectTrack(audioTracks[0]);
-        });
-        player.addEventListener(player.Event.AUDIO_TRACK_CHANGED, (event) => {
-          event.payload.selectedAudioTrack.should.exists;
-          event.payload.selectedAudioTrack.active.should.be.true;
-          event.payload.selectedAudioTrack.index.should.be.equal(0);
-          done();
-        });
-        player.selectTrack(videoTracks[0]);
+        player.addEventListener(player.Event.VIDEO_TRACK_CHANGED, onVideoTrackChanged.bind(null, done));
+        player.selectTrack(videoTracks[2]);
       } else {
         done();
       }
@@ -277,7 +313,7 @@ describe('HlsAdapter Instance - Integration', function () {
   });
 });
 
-describe.skip('HlsAdapter [debugging and testing manually (skip)]', function (done) {
+describe.skip('HlsAdapter [debugging and testing manually]', function (done) {
   this.timeout(10000);
   let tracks;
   let videoTracks = [];
