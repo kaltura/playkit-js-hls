@@ -303,6 +303,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     if (textTrack && textTrack instanceof TextTrack && !textTrack.active && this._videoElement.textTracks) {
       this._disableAllTextTracks();
       this._videoElement.textTracks[textTrack.id].mode = 'showing';
+      HlsAdapter._logger.debug('Text track changed', textTrack);
       this._trigger(BaseMediaSourceAdapter.CustomEvents.TEXT_TRACK_CHANGED, {selectedTextTrack: textTrack});
     }
   }
@@ -329,6 +330,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     let videoTrack = this._playerTracks.find((track) => {
       return (track instanceof VideoTrack && track.index === data.level);
     });
+    HlsAdapter._logger.debug('Video track changed', videoTrack);
     this._trigger(BaseMediaSourceAdapter.CustomEvents.VIDEO_TRACK_CHANGED, {selectedVideoTrack: videoTrack});
   }
 
@@ -344,6 +346,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     let audioTrack = this._playerTracks.find((track) => {
       return (track instanceof AudioTrack && track.id === data.id);
     });
+    HlsAdapter._logger.debug('Audio track changed', audioTrack);
     this._trigger(BaseMediaSourceAdapter.CustomEvents.AUDIO_TRACK_CHANGED, {selectedAudioTrack: audioTrack});
   }
 
