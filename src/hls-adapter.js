@@ -59,23 +59,6 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
   _playerTracks: Array<Track>;
 
   /**
-   * Getter for the adapter name.
-   * @returns {string} - The adapter name.
-   */
-  static get name(): string {
-    return HlsAdapter._name;
-  }
-
-  /**
-   * @param {string} name - The adapter name.
-   * @returns {void}
-   * @static
-   */
-  static set name(name: string): void {
-    // Do nothing. Just a workaround for flow issue with static getter in an inheritor. See: https://github.com/facebook/flow/issues/3008.
-  }
-
-  /**
    * Checks if hls adapter can play a given mime type.
    * @function canPlayType
    * @param {string} mimeType - The mime type to check.

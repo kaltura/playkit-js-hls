@@ -60,11 +60,6 @@ describe('HlsAdapter.name', function () {
   it('should be named HlsAdapter', function () {
     HlsAdapter.name.should.equal('HlsAdapter');
   });
-
-  it('should not set a new name', function () {
-    HlsAdapter.name = 'Hls';
-    HlsAdapter.name.should.equal('HlsAdapter');
-  });
 });
 
 describe('HlsAdapter Instance - Unit', function () {
