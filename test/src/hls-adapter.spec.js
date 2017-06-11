@@ -170,6 +170,8 @@ describe('HlsAdapter Instance - Unit', function () {
       detachMedia: function () {
       },
       destroy: function () {
+      },
+      off: function () {
       }
     };
     let tracks = hlsAdapterInstance._parseTracks(data);
@@ -195,6 +197,8 @@ describe('HlsAdapter Instance - Unit', function () {
       detachMedia: function () {
       },
       destroy: function () {
+      },
+      off: function () {
       }
     };
     hlsAdapterInstance.enableAdaptiveBitrate();
@@ -208,6 +212,8 @@ describe('HlsAdapter Instance - Unit', function () {
       detachMedia: function () {
       },
       destroy: function () {
+      },
+      off: function () {
       }
     };
     hlsAdapterInstance._playerTracks = player_tracks.audioTracks.concat(player_tracks.videoTracks).concat(player_tracks.textTracks);
