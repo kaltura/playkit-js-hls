@@ -118,6 +118,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     if (!this._loadPromise) {
       this._loadPromise = new Promise((resolve) => {
         this._hls.on(Hlsjs.Events.MANIFEST_LOADED, (event: string, data: any) => {
+          HlsAdapter._logger.debug('The source has been loaded successfully');
           this._playerTracks = this._parseTracks(data);
           resolve({tracks: this._playerTracks});
         });
@@ -131,7 +132,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
   }
 
   /**
-   * Destroying the _msPlayer
+   * Destroying the hls adapter.
    * @function destroy
    * @override
    */
@@ -139,6 +140,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     HlsAdapter._logger.debug('destroy');
     super.destroy();
     this._loadPromise = null;
+    this._removeBindings();
     this._hls.detachMedia();
     this._hls.destroy();
   }
@@ -189,9 +191,8 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     for (let i = 0; i < hlsVideoTracks.length; i++) {
       // Create video tracks
       let settings = {
-        id: i,
         active: this._hls.startLevel === i,
-        label: this._generateVideoTrackLabel(hlsVideoTracks[i].name),
+        label: hlsVideoTracks[i].name,
         bandwidth: hlsVideoTracks[i].bitrate,
         language: '',
         index: i
@@ -199,31 +200,6 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
       videoTracks.push(new VideoTrack(settings));
     }
     return videoTracks;
-  }
-
-  /**
-   * Generate a human readable label for quality levels.
-   * @param {string} hlsLevelName - The name from the manifest.
-   * @returns {string} - The generated name.
-   * @private
-   */
-  _generateVideoTrackLabel(hlsLevelName: string): string {
-    switch (hlsLevelName) {
-      case('1080'):
-        return 'HD 1080p';
-      case('720'):
-        return 'HD 720p';
-      case('480'):
-        return 'SD 480p';
-      case('380'):
-        return 'LD 380p';
-      case('360'):
-        return 'LD 360p';
-      case('240'):
-        return 'LD 240p';
-      default:
-        return hlsLevelName;
-    }
   }
 
   /**
@@ -237,7 +213,6 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     for (let i = 0; i < vidTextTracks.length; i++) {
       // Create text tracks
       let settings = {
-        id: i,
         active: vidTextTracks[i].mode === 'showing',
         label: vidTextTracks[i].label,
         kind: vidTextTracks[i].kind,
@@ -285,7 +260,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
   selectTextTrack(textTrack: TextTrack): void {
     if (textTrack && textTrack instanceof TextTrack && !textTrack.active && this._videoElement.textTracks) {
       this._disableAllTextTracks();
-      this._videoElement.textTracks[textTrack.id].mode = 'showing';
+      this._videoElement.textTracks[textTrack.index].mode = 'showing';
       HlsAdapter._logger.debug('Text track changed', textTrack);
       super.selectTextTrack(textTrack);
     }
@@ -394,13 +369,24 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
   }
 
   /**
+   * Removes hls.js bindings.
+   * @returns {void}
+   * @private
+   */
+  _removeBindings(): void {
+    this._hls.off(Hlsjs.Events.ERROR, this._onError);
+    this._hls.off(Hlsjs.Events.LEVEL_SWITCHED, this._onLevelSwitched);
+    this._hls.off(Hlsjs.Events.AUDIO_TRACK_SWITCHED, this._onAudioTrackSwitched);
+  }
+
+  /**
    * Getter for the src that the adapter plays on the video element.
    * In case the adapter preformed a load it will return the manifest url.
    * @public
    * @returns {string} - The src url.
    */
   get src(): string {
-    if (this._loadPromise && this._sourceObj && this._sourceObj.url) {
+    if (this._loadPromise && this._sourceObj) {
       return this._sourceObj.url;
     }
     return "";

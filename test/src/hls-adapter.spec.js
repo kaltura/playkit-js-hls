@@ -121,10 +121,12 @@ describe('HlsAdapter Instance - Unit', function () {
       detachMedia: function () {
       },
       destroy: function () {
+      },
+      off: function () {
       }
     };
     let audioTracks = hlsAdapterInstance._parseAudioTracks(hls_tracks.audioTracks);
-    audioTracks.should.deep.equal(player_tracks.audioTracks);
+    JSON.parse(JSON.stringify(audioTracks)).should.deep.equal(player_tracks.audioTracks);
   });
 
   it('should parse the hls levels into player video tracks', function () {
@@ -133,10 +135,12 @@ describe('HlsAdapter Instance - Unit', function () {
       detachMedia: function () {
       },
       destroy: function () {
+      },
+      off: function () {
       }
     };
     let videoTracks = hlsAdapterInstance._parseVideoTracks(hls_tracks.levels);
-    videoTracks.should.deep.equal(player_tracks.videoTracks);
+    JSON.parse(JSON.stringify(videoTracks)).should.deep.equal(player_tracks.videoTracks);
   });
 
   it('should parse the video tag text tracks into player text tracks', function () {
@@ -144,10 +148,12 @@ describe('HlsAdapter Instance - Unit', function () {
       detachMedia: function () {
       },
       destroy: function () {
+      },
+      off: function () {
       }
     };
     let textTracks = hlsAdapterInstance._parseTextTracks(hls_tracks.subtitles);
-    textTracks.should.deep.equal(player_tracks.textTracks);
+    JSON.parse(JSON.stringify(textTracks)).should.deep.equal(player_tracks.textTracks);
   });
 
   it('should parse all hls tracks into player tracks', function () {
@@ -168,7 +174,7 @@ describe('HlsAdapter Instance - Unit', function () {
     };
     let tracks = hlsAdapterInstance._parseTracks(data);
     let allTracks = player_tracks.audioTracks.concat(player_tracks.videoTracks).concat(player_tracks.textTracks);
-    tracks.should.deep.equal(allTracks);
+    JSON.parse(JSON.stringify(tracks)).should.deep.equal(allTracks);
   });
 
   it('should disable all text tracks', function () {

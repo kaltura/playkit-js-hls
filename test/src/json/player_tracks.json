@@ -24,7 +24,6 @@
   ],
   "videoTracks": [
     {
-      "_id": 0,
       "_bandwidth": 2962000,
       "_active": false,
       "_label": "Main",
@@ -32,7 +31,6 @@
       "_index": 0
     },
     {
-      "_id": 1,
       "_bandwidth": 1427000,
       "_active": true,
       "_label": "Main",
@@ -40,7 +38,6 @@
       "_index": 1
     },
     {
-      "_id": 2,
       "_bandwidth": 688000,
       "_active": false,
       "_label": "Main",
@@ -48,7 +45,6 @@
       "_index": 2
     },
     {
-      "_id": 3,
       "_bandwidth": 331000,
       "_active": false,
       "_label": "Main",
@@ -58,7 +54,6 @@
   ],
   "textTracks": [
     {
-      "_id": 0,
       "_active": false,
       "_label": "id3",
       "_language": "",
@@ -66,7 +61,6 @@
       "_kind": "metadata"
     },
     {
-      "_id": 1,
       "_active": false,
       "_label": "Chinese",
       "_language": "zho",
@@ -74,7 +68,6 @@
       "_kind": "subtitles"
     },
     {
-      "_id": 2,
       "_active": false,
       "_label": "Chinese",
       "_language": "zho",
@@ -82,7 +75,6 @@
       "_kind": "subtitles"
     },
     {
-      "_id": 3,
       "_active": true,
       "_label": "French",
       "_language": "fra",
@@ -90,7 +82,6 @@
       "_kind": "subtitles"
     },
     {
-      "_id": 4,
       "_active": false,
       "_label": "German",
       "_language": "deu",
@@ -98,7 +89,6 @@
       "_kind": "subtitles"
     },
     {
-      "_id": 5,
       "_active": false,
       "_label": "Portuguese",
       "_language": "por",
@@ -106,7 +96,6 @@
       "_kind": "subtitles"
     },
     {
-      "_id": 6,
       "_active": false,
       "_label": "Spanish; Castilian",
       "_language": "spa",
