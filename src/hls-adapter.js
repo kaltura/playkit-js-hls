@@ -137,8 +137,8 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    */
   destroy(): void {
     HlsAdapter._logger.debug('destroy');
+    super.destroy();
     this._loadPromise = null;
-    this._sourceObj = null;
     this._hls.detachMedia();
     this._hls.destroy();
   }
@@ -287,7 +287,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
       this._disableAllTextTracks();
       this._videoElement.textTracks[textTrack.id].mode = 'showing';
       HlsAdapter._logger.debug('Text track changed', textTrack);
-      this._trigger(BaseMediaSourceAdapter.CustomEvents.TEXT_TRACK_CHANGED, {selectedTextTrack: textTrack});
+      super.selectTextTrack(textTrack);
     }
   }
 
@@ -314,7 +314,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
       return (track instanceof VideoTrack && track.index === data.level);
     });
     HlsAdapter._logger.debug('Video track changed', videoTrack);
-    this._trigger(BaseMediaSourceAdapter.CustomEvents.VIDEO_TRACK_CHANGED, {selectedVideoTrack: videoTrack});
+    super.selectVideoTrack(videoTrack);
   }
 
   /**
@@ -330,7 +330,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
       return (track instanceof AudioTrack && track.id === data.id);
     });
     HlsAdapter._logger.debug('Audio track changed', audioTrack);
-    this._trigger(BaseMediaSourceAdapter.CustomEvents.AUDIO_TRACK_CHANGED, {selectedAudioTrack: audioTrack});
+    super.selectAudioTrack(audioTrack);
   }
 
   /**
@@ -400,7 +400,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    * @returns {string} - The src url.
    */
   get src(): string {
-    if (this._loadPromise != null && this._sourceObj && this._sourceObj.url) {
+    if (this._loadPromise && this._sourceObj && this._sourceObj.url) {
       return this._sourceObj.url;
     }
     return "";
