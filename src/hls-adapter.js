@@ -262,7 +262,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
       this._disableAllTextTracks();
       this._videoElement.textTracks[textTrack.index].mode = 'showing';
       HlsAdapter._logger.debug('Text track changed', textTrack);
-      super.selectTextTrack(textTrack);
+      this._onTrackChanged(textTrack);
     }
   }
 
@@ -289,7 +289,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
       return (track instanceof VideoTrack && track.index === data.level);
     });
     HlsAdapter._logger.debug('Video track changed', videoTrack);
-    super.selectVideoTrack(videoTrack);
+    this._onTrackChanged(videoTrack);
   }
 
   /**
@@ -305,7 +305,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
       return (track instanceof AudioTrack && track.id === data.id);
     });
     HlsAdapter._logger.debug('Audio track changed', audioTrack);
-    super.selectAudioTrack(audioTrack);
+    this._onTrackChanged(audioTrack);
   }
 
   /**

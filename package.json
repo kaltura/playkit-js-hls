@@ -2,6 +2,7 @@
   "name": "playkit-js-hls",
   "version": "1.0.0",
   "description": "",
+  "main": "dist/playkit-js-hls.js",
   "scripts": {
     "clean": "rm -rf ./dist",
     "prebuild": "npm run clean",

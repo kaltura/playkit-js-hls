@@ -216,14 +216,40 @@ describe('HlsAdapter Instance - Unit', function () {
       off: function () {
       }
     };
-    hlsAdapterInstance._playerTracks = player_tracks.audioTracks.concat(player_tracks.videoTracks).concat(player_tracks.textTracks);
-    hlsAdapterInstance._playerTracks.find = function () {
-      return hlsAdapterInstance._playerTracks[6];
-    };
+    hlsAdapterInstance._playerTracks = [
+      new VideoTrack({
+        "bandwidth": 2962000,
+        "active": false,
+        "label": "Main",
+        "language": "",
+        "index": 0
+      }),
+      new VideoTrack({
+        "bandwidth": 1427000,
+        "active": true,
+        "label": "Main",
+        "language": "",
+        "index": 1
+      }),
+      new VideoTrack({
+        "bandwidth": 688000,
+        "active": false,
+        "label": "Main",
+        "language": "",
+        "index": 2
+      }),
+      new VideoTrack({
+        "bandwidth": 331000,
+        "active": false,
+        "label": "Main",
+        "language": "",
+        "index": 3
+      })
+    ];
     sandbox.stub(hlsAdapterInstance, 'dispatchEvent').callsFake(function (event) {
       event.type.should.equal(HlsAdapter.CustomEvents.VIDEO_TRACK_CHANGED);
       event.payload.selectedVideoTrack.should.exist;
-      event.payload.selectedVideoTrack.should.deep.equal(hlsAdapterInstance._playerTracks[6]);
+      event.payload.selectedVideoTrack.should.deep.equal(hlsAdapterInstance._playerTracks[3]);
       done();
     });
     hlsAdapterInstance._onLevelSwitched('hlsLevelSwitched', data);
