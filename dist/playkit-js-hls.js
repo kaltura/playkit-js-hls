@@ -21087,7 +21087,7 @@ var HlsAdapter = function (_BaseMediaSourceAdapt) {
   }, {
     key: 'selectAudioTrack',
     value: function selectAudioTrack(audioTrack) {
-      if (audioTrack && audioTrack instanceof _playkitJs.AudioTrack && !audioTrack.active && this._hls.audioTracks) {
+      if (audioTrack instanceof _playkitJs.AudioTrack && !audioTrack.active && this._hls.audioTracks) {
         this._hls.audioTrack = audioTrack.id;
       }
     }
@@ -21103,7 +21103,7 @@ var HlsAdapter = function (_BaseMediaSourceAdapt) {
   }, {
     key: 'selectVideoTrack',
     value: function selectVideoTrack(videoTrack) {
-      if (videoTrack && videoTrack instanceof _playkitJs.VideoTrack && !videoTrack.active && this._hls.levels) {
+      if (videoTrack instanceof _playkitJs.VideoTrack && (!videoTrack.active || this._hls.autoLevelEnabled) && this._hls.levels) {
         this._hls.nextLevel = videoTrack.index;
       }
     }
@@ -21119,7 +21119,7 @@ var HlsAdapter = function (_BaseMediaSourceAdapt) {
   }, {
     key: 'selectTextTrack',
     value: function selectTextTrack(textTrack) {
-      if (textTrack && textTrack instanceof _playkitJs.TextTrack && !textTrack.active && this._videoElement.textTracks) {
+      if (textTrack instanceof _playkitJs.TextTrack && !textTrack.active && this._videoElement.textTracks) {
         this._disableAllTextTracks();
         this._videoElement.textTracks[textTrack.index].mode = 'showing';
         HlsAdapter._logger.debug('Text track changed', textTrack);

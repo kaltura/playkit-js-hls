@@ -232,7 +232,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    * @public
    */
   selectAudioTrack(audioTrack: AudioTrack): void {
-    if (audioTrack && audioTrack instanceof AudioTrack && !audioTrack.active && this._hls.audioTracks) {
+    if (audioTrack instanceof AudioTrack && !audioTrack.active && this._hls.audioTracks) {
       this._hls.audioTrack = audioTrack.id;
     }
   }
@@ -245,7 +245,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    * @public
    */
   selectVideoTrack(videoTrack: VideoTrack): void {
-    if (videoTrack && videoTrack instanceof VideoTrack && !videoTrack.active && this._hls.levels) {
+    if (videoTrack instanceof VideoTrack && (!videoTrack.active || this._hls.autoLevelEnabled) && this._hls.levels) {
       this._hls.nextLevel = videoTrack.index;
     }
   }
@@ -258,7 +258,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    * @public
    */
   selectTextTrack(textTrack: TextTrack): void {
-    if (textTrack && textTrack instanceof TextTrack && !textTrack.active && this._videoElement.textTracks) {
+    if (textTrack instanceof TextTrack && !textTrack.active && this._videoElement.textTracks) {
       this._disableAllTextTracks();
       this._videoElement.textTracks[textTrack.index].mode = 'showing';
       HlsAdapter._logger.debug('Text track changed', textTrack);
