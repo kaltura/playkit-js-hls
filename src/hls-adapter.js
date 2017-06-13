@@ -9,12 +9,12 @@ import {Track, VideoTrack, AudioTrack, TextTrack} from 'playkit-js'
  */
 export default class HlsAdapter extends BaseMediaSourceAdapter {
   /**
-   * The name of the adapter.
-   * @member {string} _name
+   * The id of the adapter.
+   * @member {string} id
    * @static
    * @private
    */
-  static _name: string = 'HlsAdapter';
+  static id: string = 'HlsAdapter';
   /**
    * The adapter logger.
    * @member {any} _logger
