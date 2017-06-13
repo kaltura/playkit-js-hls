@@ -56,9 +56,9 @@ describe('HlsAdapter.canPlayType', function () {
   });
 });
 
-describe('HlsAdapter.name', function () {
+describe('HlsAdapter.id', function () {
   it('should be named HlsAdapter', function () {
-    HlsAdapter.name.should.equal('HlsAdapter');
+    HlsAdapter.id.should.equal('HlsAdapter');
   });
 });
 

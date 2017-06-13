@@ -14,7 +14,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    * @static
    * @private
    */
-  static _name: string = 'HlsAdapter';
+  static id: string = 'HlsAdapter';
   /**
    * The adapter logger.
    * @member {any} _logger
