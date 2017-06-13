@@ -1,4 +1,14 @@
-/******/ (function(modules) { // webpackBootstrap
+(function webpackUniversalModuleDefinition(root, factory) {
+	if(typeof exports === 'object' && typeof module === 'object')
+		module.exports = factory();
+	else if(typeof define === 'function' && define.amd)
+		define([], factory);
+	else if(typeof exports === 'object')
+		exports["PlaykitJsHls"] = factory();
+	else
+		root["PlaykitJsHls"] = factory();
+})(this, function() {
+return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
 /******/
@@ -20889,8 +20899,8 @@ var HlsAdapter = function (_BaseMediaSourceAdapt) {
      */
 
     /**
-     * The name of the adapter.
-     * @member {string} _name
+     * The id of the adapter.
+     * @member {string} id
      * @static
      * @private
      */
@@ -21281,7 +21291,7 @@ var HlsAdapter = function (_BaseMediaSourceAdapt) {
 // Register hls adapter to the media source adapter provider.
 
 
-HlsAdapter._name = 'HlsAdapter';
+HlsAdapter.id = 'HlsAdapter';
 HlsAdapter._logger = _playkitJs.BaseMediaSourceAdapter.getLogger(HlsAdapter._name);
 HlsAdapter._hlsMimeTypes = ['application/x-mpegurl', 'application/vnd.apple.mpegurl', 'audio/mpegurl', 'audio/x-mpegurl', 'video/x-mpegurl', 'video/mpegurl', 'application/mpegurl'];
 exports.default = HlsAdapter;
@@ -21291,4 +21301,5 @@ if (HlsAdapter.isSupported()) {
 
 /***/ })
 /******/ ]);
+});
 //# sourceMappingURL=playkit-js-hls.js.map
