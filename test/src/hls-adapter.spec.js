@@ -323,7 +323,8 @@ describe('HlsAdapter Instance - Integration', function () {
   }
 
   it('should run player with hls adapter', function (done) {
-    player.load().then(() => {
+    player.load();
+    player.ready().then(() => {
       let mediaSourceAdapter = player._engine._mediaSourceAdapter;
       if (mediaSourceAdapter instanceof HlsAdapter) {
         player.play();
