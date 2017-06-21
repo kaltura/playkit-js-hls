@@ -561,7 +561,7 @@ var HlsAdapter = function (_BaseMediaSourceAdapt) {
 
 
 HlsAdapter.id = 'HlsAdapter';
-HlsAdapter._logger = _playkitJs.BaseMediaSourceAdapter.getLogger(HlsAdapter._name);
+HlsAdapter._logger = _playkitJs.BaseMediaSourceAdapter.getLogger(HlsAdapter.id);
 HlsAdapter._hlsMimeTypes = ['application/x-mpegurl', 'application/vnd.apple.mpegurl', 'audio/mpegurl', 'audio/x-mpegurl', 'video/x-mpegurl', 'video/mpegurl', 'application/mpegurl'];
 exports.default = HlsAdapter;
 if (HlsAdapter.isSupported()) {
