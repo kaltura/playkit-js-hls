@@ -21,7 +21,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    * @static
    * @private
    */
-  static _logger = BaseMediaSourceAdapter.getLogger(HlsAdapter._name);
+  static _logger = BaseMediaSourceAdapter.getLogger(HlsAdapter.id);
   /**
    * The supported mime types by the hls adapter.
    * @member {Array<string>} _hlsMimeType
