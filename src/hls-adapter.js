@@ -266,6 +266,15 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     }
   }
 
+  /** Hide the text track
+   * @function hideTextTrack
+   * @returns {void}
+   * @public
+   */
+  hideTextTrack(): void {
+    this._disableAllTextTracks();
+  }
+
   /**
    * Enables adaptive bitrate switching according to hls.js logic.
    * @function enableAdaptiveBitrate

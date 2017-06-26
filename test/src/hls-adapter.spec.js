@@ -189,6 +189,17 @@ describe('HlsAdapter Instance - Unit', function () {
     }
   });
 
+  it('should hide the active text track', function () {
+    hlsAdapterInstance._videoElement = {
+      textTracks: hls_tracks.subtitles
+    };
+    hlsAdapterInstance._videoElement.textTracks[0].mode = 'showing';
+    hlsAdapterInstance.hideTextTrack();
+    for (let i = 0; i < hlsAdapterInstance._videoElement.textTracks.length; i++) {
+      hlsAdapterInstance._videoElement.textTracks[i].mode.should.equal('hidden');
+    }
+  });
+
   it('should enable adaptive bitrate', function () {
     hlsAdapterInstance._hls = {
       on: function () {
@@ -383,7 +394,7 @@ describe.skip('HlsAdapter [debugging and testing manually]', function (done) {
         hls_sources.ElephantsDream
       ]
     });
-    player.load().then(() => {
+    player.ready().then(() => {
       displayTracksOnScreen();
       /*
        player.addEventListener(player.Event.VIDEO_TRACK_CHANGED, (event) => {
@@ -396,7 +407,8 @@ describe.skip('HlsAdapter [debugging and testing manually]', function (done) {
       player.addEventListener(player.Event.PLAYING, (/* event */) => {
         done();
       });
-      player.play();
     });
+    player.play();
+    window.player = player;
   });
 });
