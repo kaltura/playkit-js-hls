@@ -268,18 +268,21 @@ describe('HlsAdapter Instance - Unit', function () {
 });
 
 describe('HlsAdapter Instance - Integration', function () {
+  this.timeout(10000);
+
   let player;
   let tracks;
   let videoTracks;
   let audioTracks;
   let textTracks;
-  this.timeout(10000);
 
   beforeEach(() => {
     player = playkit({
-      sources: [
-        hls_sources.ElephantsDream
-      ]
+      sources: {
+        hls: [
+          hls_sources.ElephantsDream
+        ]
+      }
     });
   });
 
@@ -390,9 +393,11 @@ describe.skip('HlsAdapter [debugging and testing manually]', function (done) {
 
   it('should play hls stream', () => {
     player = playkit({
-      sources: [
-        hls_sources.ElephantsDream
-      ]
+      sources: {
+        hls: [
+          hls_sources.ElephantsDream
+        ]
+      }
     });
     player.ready().then(() => {
       displayTracksOnScreen();
