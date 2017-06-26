@@ -406,6 +406,18 @@ var HlsAdapter = function (_BaseMediaSourceAdapt) {
       }
     }
 
+    /** Hide the text track
+     * @function hideTextTrack
+     * @returns {void}
+     * @public
+     */
+
+  }, {
+    key: 'hideTextTrack',
+    value: function hideTextTrack() {
+      this._disableAllTextTracks();
+    }
+
     /**
      * Enables adaptive bitrate switching according to hls.js logic.
      * @function enableAdaptiveBitrate
