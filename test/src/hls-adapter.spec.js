@@ -372,12 +372,21 @@ describe('HlsAdapter Instance - Integration', function () {
 });
 
 describe.skip('HlsAdapter [debugging and testing manually]', function (done) {
-  this.timeout(10000);
+  this.timeout(20000);
+
   let tracks;
   let videoTracks = [];
   let textTracks = [];
   let audioTracks = [];
   let player;
+
+  before(() => {
+    TestUtils.createElement('DIV', targetId);
+  });
+
+  after(() => {
+    TestUtils.removeElemenet(targetId);
+  });
 
   /**
    * Displays track buttons on test page.
@@ -403,7 +412,7 @@ describe.skip('HlsAdapter [debugging and testing manually]', function (done) {
   }
 
   it('should play hls stream', () => {
-    player = playkit({
+    player = loadPlayer(targetId, {
       sources: {
         hls: [
           hls_sources.ElephantsDream
