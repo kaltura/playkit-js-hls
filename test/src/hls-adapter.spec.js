@@ -259,7 +259,8 @@ describe('HlsAdapter Instance - Unit', function () {
         "language": "",
         "index": 3
       })
-    ];
+    ];      window.uiManager = new KalturaPlayer.PlaykitUI(player, player.config);
+    uiManager.buildDefaultUI();
     sandbox.stub(hlsAdapterInstance, 'dispatchEvent').callsFake(function (event) {
       event.type.should.equal(HlsAdapter.CustomEvents.VIDEO_TRACK_CHANGED);
       event.payload.selectedVideoTrack.should.exist;
@@ -300,7 +301,7 @@ describe('HlsAdapter Instance - Integration', function () {
   });
 
   after(() => {
-    TestUtils.removeElemenet(targetId);
+    TestUtils.removeElement(targetId);
   });
 
   /**
@@ -385,7 +386,7 @@ describe.skip('HlsAdapter [debugging and testing manually]', function (done) {
   });
 
   after(() => {
-    TestUtils.removeElemenet(targetId);
+    TestUtils.removeElement(targetId);
   });
 
   /**
