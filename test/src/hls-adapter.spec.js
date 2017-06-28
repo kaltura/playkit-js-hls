@@ -1,10 +1,12 @@
-import playkit from 'playkit-js'
+import loadPlayer from 'playkit-js'
 import {VideoTrack, AudioTrack, TextTrack} from 'playkit-js'
 import * as TestUtils from 'playkit-js/test/src/utils/test-utils'
 import HlsAdapter from '../../src/hls-adapter.js'
 import * as hls_sources from './json/hls_sources.json'
 import * as hls_tracks from './json/hls_tracks.json'
 import * as player_tracks from './json/player_tracks.json'
+
+const targetId = 'player-placeholder_hls-adapter.spec';
 
 describe('HlsAdapter.canPlayType', function () {
   it('should return true to application/x-mpegurl', function () {
@@ -63,12 +65,13 @@ describe('HlsAdapter.id', function () {
 });
 
 describe('HlsAdapter Instance - Unit', function () {
+  this.timeout(10000);
+
   let hlsAdapterInstance;
   let video;
   let sourceObj;
   let config;
   let sandbox;
-  this.timeout(10000);
 
   beforeEach(function () {
     sandbox = sinon.sandbox.create();
@@ -257,6 +260,7 @@ describe('HlsAdapter Instance - Unit', function () {
         "index": 3
       })
     ];
+
     sandbox.stub(hlsAdapterInstance, 'dispatchEvent').callsFake(function (event) {
       event.type.should.equal(HlsAdapter.CustomEvents.VIDEO_TRACK_CHANGED);
       event.payload.selectedVideoTrack.should.exist;
@@ -268,25 +272,36 @@ describe('HlsAdapter Instance - Unit', function () {
 });
 
 describe('HlsAdapter Instance - Integration', function () {
+  this.timeout(20000);
+
   let player;
   let tracks;
   let videoTracks;
   let audioTracks;
   let textTracks;
-  this.timeout(10000);
 
-  beforeEach(() => {
-    player = playkit({
-      sources: [
-        hls_sources.ElephantsDream
-      ]
+  before(function () {
+    TestUtils.createElement('DIV', targetId);
+  });
+
+  beforeEach(function () {
+    player = loadPlayer(targetId, {
+      sources: {
+        hls: [
+          hls_sources.ElephantsDream
+        ]
+      }
     });
   });
 
-  afterEach(() => {
+  afterEach(function () {
     player.destroy();
     player = null;
     TestUtils.removeVideoElementsFromTestPage();
+  });
+
+  after(function () {
+    TestUtils.removeElement(targetId);
   });
 
   /**
@@ -358,12 +373,21 @@ describe('HlsAdapter Instance - Integration', function () {
 });
 
 describe.skip('HlsAdapter [debugging and testing manually]', function (done) {
-  this.timeout(10000);
+  this.timeout(20000);
+
   let tracks;
   let videoTracks = [];
   let textTracks = [];
   let audioTracks = [];
   let player;
+
+  before(() => {
+    TestUtils.createElement('DIV', targetId);
+  });
+
+  after(() => {
+    TestUtils.removeElement(targetId);
+  });
 
   /**
    * Displays track buttons on test page.
@@ -389,10 +413,12 @@ describe.skip('HlsAdapter [debugging and testing manually]', function (done) {
   }
 
   it('should play hls stream', () => {
-    player = playkit({
-      sources: [
-        hls_sources.ElephantsDream
-      ]
+    player = loadPlayer(targetId, {
+      sources: {
+        hls: [
+          hls_sources.ElephantsDream
+        ]
+      }
     });
     player.ready().then(() => {
       displayTracksOnScreen();
