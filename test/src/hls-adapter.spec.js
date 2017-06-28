@@ -259,8 +259,8 @@ describe('HlsAdapter Instance - Unit', function () {
         "language": "",
         "index": 3
       })
-    ];      window.uiManager = new KalturaPlayer.PlaykitUI(player, player.config);
-    uiManager.buildDefaultUI();
+    ];      
+    
     sandbox.stub(hlsAdapterInstance, 'dispatchEvent').callsFake(function (event) {
       event.type.should.equal(HlsAdapter.CustomEvents.VIDEO_TRACK_CHANGED);
       event.payload.selectedVideoTrack.should.exist;
