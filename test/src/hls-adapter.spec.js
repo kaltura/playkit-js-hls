@@ -259,8 +259,8 @@ describe('HlsAdapter Instance - Unit', function () {
         "language": "",
         "index": 3
       })
-    ];      
-    
+    ];
+
     sandbox.stub(hlsAdapterInstance, 'dispatchEvent').callsFake(function (event) {
       event.type.should.equal(HlsAdapter.CustomEvents.VIDEO_TRACK_CHANGED);
       event.payload.selectedVideoTrack.should.exist;
@@ -280,11 +280,11 @@ describe('HlsAdapter Instance - Integration', function () {
   let audioTracks;
   let textTracks;
 
-  before(() => {
+  before(function () {
     TestUtils.createElement('DIV', targetId);
   });
 
-  beforeEach(() => {
+  beforeEach(function () {
     player = loadPlayer(targetId, {
       sources: {
         hls: [
@@ -294,13 +294,13 @@ describe('HlsAdapter Instance - Integration', function () {
     });
   });
 
-  afterEach(() => {
+  afterEach(function () {
     player.destroy();
     player = null;
     TestUtils.removeVideoElementsFromTestPage();
   });
 
-  after(() => {
+  after(function () {
     TestUtils.removeElement(targetId);
   });
 
