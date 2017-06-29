@@ -110,14 +110,16 @@ var HlsAdapter = function (_BaseMediaSourceAdapt) {
   _inherits(HlsAdapter, _BaseMediaSourceAdapt);
 
   _createClass(HlsAdapter, null, [{
-    key: 'canPlayType',
+    key: 'createAdapter',
 
 
     /**
-     * Checks if hls adapter can play a given mime type.
-     * @function canPlayType
-     * @param {string} mimeType - The mime type to check.
-     * @returns {boolean} - Whether the hls adapter can play a specific mime type.
+     * Factory method to create media source adapter.
+     * @function createAdapter
+     * @param {HTMLVideoElement} videoElement - The video element that the media source adapter work with.
+     * @param {Object} source - The source Object.
+     * @param {Object} config - The player configuration.
+     * @returns {IMediaSourceAdapter} - New instance of the run time media source adapter.
      * @static
      */
 
@@ -147,16 +149,15 @@ var HlsAdapter = function (_BaseMediaSourceAdapt) {
      * @static
      * @private
      */
-    value: function canPlayType(mimeType) {
-      var canHlsPlayType = typeof mimeType === 'string' ? HlsAdapter._hlsMimeTypes.includes(mimeType.toLowerCase()) : false;
-      HlsAdapter._logger.debug('canPlayType result for mimeType:' + mimeType + ' is ' + canHlsPlayType.toString());
-      return canHlsPlayType;
+    value: function createAdapter(videoElement, source, config) {
+      return new this(videoElement, source, config.playback.options.html5.hls);
     }
 
     /**
-     * Checks if the hls adapter is supported.
-     * @function isSupported
-     * @returns {boolean} - Whether hls is supported.
+     * Checks if hls adapter can play a given mime type.
+     * @function canPlayType
+     * @param {string} mimeType - The mime type to check.
+     * @returns {boolean} - Whether the hls adapter can play a specific mime type.
      * @static
      */
 
@@ -172,6 +173,21 @@ var HlsAdapter = function (_BaseMediaSourceAdapt) {
      * @member {string} id
      * @static
      * @private
+     */
+
+  }, {
+    key: 'canPlayType',
+    value: function canPlayType(mimeType) {
+      var canHlsPlayType = typeof mimeType === 'string' ? HlsAdapter._hlsMimeTypes.includes(mimeType.toLowerCase()) : false;
+      HlsAdapter._logger.debug('canPlayType result for mimeType:' + mimeType + ' is ' + canHlsPlayType.toString());
+      return canHlsPlayType;
+    }
+
+    /**
+     * Checks if the hls adapter is supported.
+     * @function isSupported
+     * @returns {boolean} - Whether hls is supported.
+     * @static
      */
 
   }, {
