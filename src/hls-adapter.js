@@ -4,7 +4,7 @@ import {registerMediaSourceAdapter, BaseMediaSourceAdapter} from 'playkit-js'
 import {Track, VideoTrack, AudioTrack, TextTrack} from 'playkit-js'
 
 /**
- * Adapter of hls.js lib for hls content
+ * Adapter of hls.js lib for hls content.
  * @classdesc
  */
 export default class HlsAdapter extends BaseMediaSourceAdapter {
