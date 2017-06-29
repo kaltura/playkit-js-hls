@@ -399,7 +399,7 @@ var HlsAdapter = function (_BaseMediaSourceAdapt) {
     key: 'selectVideoTrack',
     value: function selectVideoTrack(videoTrack) {
       if (videoTrack instanceof _playkitJs.VideoTrack && (!videoTrack.active || this._hls.autoLevelEnabled) && this._hls.levels) {
-        this._hls.nextLevel = videoTrack.index;
+        this._hls.currentLevel = videoTrack.index;
       }
     }
 
