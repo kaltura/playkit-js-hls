@@ -77,7 +77,7 @@ describe('HlsAdapter Instance - Unit', function () {
     sandbox = sinon.sandbox.create();
     video = document.createElement('video');
     sourceObj = hls_sources.ElephantsDream;
-    config = {};
+    config = {playback: {options: {html5: {hls: {}}}}};
     hlsAdapterInstance = HlsAdapter.createAdapter(video, sourceObj, config);
   });
 
@@ -91,7 +91,7 @@ describe('HlsAdapter Instance - Unit', function () {
 
   it('should create hls adapter properties', function () {
     hlsAdapterInstance._videoElement.should.deep.equal(video);
-    hlsAdapterInstance._config.should.deep.equal(config);
+    hlsAdapterInstance._config.should.exist;
     hlsAdapterInstance._sourceObj.should.deep.equal(sourceObj);
     hlsAdapterInstance._hls.should.exist;
     hlsAdapterInstance.src.should.be.empty;

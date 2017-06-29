@@ -103,21 +103,23 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 /**
- * Adapter of hls.js lib for hls content
+ * Adapter of hls.js lib for hls content.
  * @classdesc
  */
 var HlsAdapter = function (_BaseMediaSourceAdapt) {
   _inherits(HlsAdapter, _BaseMediaSourceAdapt);
 
   _createClass(HlsAdapter, null, [{
-    key: 'canPlayType',
+    key: 'createAdapter',
 
 
     /**
-     * Checks if hls adapter can play a given mime type.
-     * @function canPlayType
-     * @param {string} mimeType - The mime type to check.
-     * @returns {boolean} - Whether the hls adapter can play a specific mime type.
+     * Factory method to create media source adapter.
+     * @function createAdapter
+     * @param {HTMLVideoElement} videoElement - The video element that the media source adapter work with.
+     * @param {Object} source - The source Object.
+     * @param {Object} config - The player configuration.
+     * @returns {IMediaSourceAdapter} - New instance of the run time media source adapter.
      * @static
      */
 
@@ -147,16 +149,15 @@ var HlsAdapter = function (_BaseMediaSourceAdapt) {
      * @static
      * @private
      */
-    value: function canPlayType(mimeType) {
-      var canHlsPlayType = typeof mimeType === 'string' ? HlsAdapter._hlsMimeTypes.includes(mimeType.toLowerCase()) : false;
-      HlsAdapter._logger.debug('canPlayType result for mimeType:' + mimeType + ' is ' + canHlsPlayType.toString());
-      return canHlsPlayType;
+    value: function createAdapter(videoElement, source, config) {
+      return new this(videoElement, source, config.playback.options.html5.hls);
     }
 
     /**
-     * Checks if the hls adapter is supported.
-     * @function isSupported
-     * @returns {boolean} - Whether hls is supported.
+     * Checks if hls adapter can play a given mime type.
+     * @function canPlayType
+     * @param {string} mimeType - The mime type to check.
+     * @returns {boolean} - Whether the hls adapter can play a specific mime type.
      * @static
      */
 
@@ -172,6 +173,21 @@ var HlsAdapter = function (_BaseMediaSourceAdapt) {
      * @member {string} id
      * @static
      * @private
+     */
+
+  }, {
+    key: 'canPlayType',
+    value: function canPlayType(mimeType) {
+      var canHlsPlayType = typeof mimeType === 'string' ? HlsAdapter._hlsMimeTypes.includes(mimeType.toLowerCase()) : false;
+      HlsAdapter._logger.debug('canPlayType result for mimeType:' + mimeType + ' is ' + canHlsPlayType.toString());
+      return canHlsPlayType;
+    }
+
+    /**
+     * Checks if the hls adapter is supported.
+     * @function isSupported
+     * @returns {boolean} - Whether hls is supported.
+     * @static
      */
 
   }, {
@@ -383,7 +399,7 @@ var HlsAdapter = function (_BaseMediaSourceAdapt) {
     key: 'selectVideoTrack',
     value: function selectVideoTrack(videoTrack) {
       if (videoTrack instanceof _playkitJs.VideoTrack && (!videoTrack.active || this._hls.autoLevelEnabled) && this._hls.levels) {
-        this._hls.nextLevel = videoTrack.index;
+        this._hls.currentLevel = videoTrack.index;
       }
     }
 

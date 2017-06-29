@@ -4,7 +4,7 @@ import {registerMediaSourceAdapter, BaseMediaSourceAdapter} from 'playkit-js'
 import {Track, VideoTrack, AudioTrack, TextTrack} from 'playkit-js'
 
 /**
- * Adapter of hls.js lib for hls content
+ * Adapter of hls.js lib for hls content.
  * @classdesc
  */
 export default class HlsAdapter extends BaseMediaSourceAdapter {
@@ -57,6 +57,19 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    * @private
    */
   _playerTracks: Array<Track>;
+
+  /**
+   * Factory method to create media source adapter.
+   * @function createAdapter
+   * @param {HTMLVideoElement} videoElement - The video element that the media source adapter work with.
+   * @param {Object} source - The source Object.
+   * @param {Object} config - The player configuration.
+   * @returns {IMediaSourceAdapter} - New instance of the run time media source adapter.
+   * @static
+   */
+  static createAdapter(videoElement: HTMLVideoElement, source: Source, config: Object): IMediaSourceAdapter {
+    return new this(videoElement, source, config.playback.options.html5.hls);
+  }
 
   /**
    * Checks if hls adapter can play a given mime type.
@@ -246,7 +259,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    */
   selectVideoTrack(videoTrack: VideoTrack): void {
     if (videoTrack instanceof VideoTrack && (!videoTrack.active || this._hls.autoLevelEnabled) && this._hls.levels) {
-      this._hls.nextLevel = videoTrack.index;
+      this._hls.currentLevel = videoTrack.index;
     }
   }
 
