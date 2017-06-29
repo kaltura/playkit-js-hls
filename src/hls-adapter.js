@@ -259,7 +259,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    */
   selectVideoTrack(videoTrack: VideoTrack): void {
     if (videoTrack instanceof VideoTrack && (!videoTrack.active || this._hls.autoLevelEnabled) && this._hls.levels) {
-      this._hls.nextLevel = videoTrack.index;
+      this._hls.currentLevel = videoTrack.index;
     }
   }
 
