@@ -2,6 +2,7 @@
 import Hlsjs from 'hls.js'
 import {registerMediaSourceAdapter, BaseMediaSourceAdapter} from 'playkit-js'
 import {Track, VideoTrack, AudioTrack, TextTrack} from 'playkit-js'
+import {Utils} from 'playkit-js'
 
 /**
  * Adapter of hls.js lib for hls content.
@@ -68,7 +69,11 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    * @static
    */
   static createAdapter(videoElement: HTMLVideoElement, source: Source, config: Object): IMediaSourceAdapter {
-    return new this(videoElement, source, config.playback.options.html5.hls);
+    let hlsConfig = {};
+    if (Utils.hasPropertyPath(config, 'playback.options.html5.hls')) {
+      hlsConfig = config.playback.options.html5.hls;
+    }
+    return new this(videoElement, source, hlsConfig);
   }
 
   /**
