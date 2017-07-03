@@ -342,6 +342,8 @@ var HlsAdapter = function (_BaseMediaSourceAdapt) {
           active: this._hls.startLevel === i,
           label: hlsVideoTracks[i].name,
           bandwidth: hlsVideoTracks[i].bitrate,
+          width: hlsVideoTracks[i].width,
+          height: hlsVideoTracks[i].height,
           language: '',
           index: i
         };
