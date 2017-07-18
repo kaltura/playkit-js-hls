@@ -151,7 +151,7 @@ var HlsAdapter = function (_BaseMediaSourceAdapt) {
      */
     value: function createAdapter(videoElement, source, config) {
       var hlsConfig = {};
-      if (_playkitJs.Utils.hasPropertyPath(config, 'playback.options.html5.hls')) {
+      if (_playkitJs.Utils.Object.hasPropertyPath(config, 'playback.options.html5.hls')) {
         hlsConfig = config.playback.options.html5.hls;
       }
       return new this(videoElement, source, hlsConfig);
