@@ -28,28 +28,36 @@
       "_active": false,
       "_label": "Main",
       "_language": "",
-      "_index": 0
+      "_index": 0,
+      "_height": 720,
+      "_width": 1280
     },
     {
       "_bandwidth": 1427000,
       "_active": true,
       "_label": "Main",
       "_language": "",
-      "_index": 1
+      "_index": 1,
+      "_height": 432,
+      "_width": 768
     },
     {
       "_bandwidth": 688000,
       "_active": false,
       "_label": "Main",
       "_language": "",
-      "_index": 2
+      "_index": 2,
+      "_height": 252,
+      "_width": 448
     },
     {
       "_bandwidth": 331000,
       "_active": false,
       "_label": "Main",
       "_language": "",
-      "_index": 3
+      "_index": 3,
+      "_height": 160,
+      "_width": 284
     }
   ],
   "textTracks": [

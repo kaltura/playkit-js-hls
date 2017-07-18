@@ -70,7 +70,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    */
   static createAdapter(videoElement: HTMLVideoElement, source: Source, config: Object): IMediaSourceAdapter {
     let hlsConfig = {};
-    if (Utils.hasPropertyPath(config, 'playback.options.html5.hls')) {
+    if (Utils.Object.hasPropertyPath(config, 'playback.options.html5.hls')) {
       hlsConfig = config.playback.options.html5.hls;
     }
     return new this(videoElement, source, hlsConfig);
