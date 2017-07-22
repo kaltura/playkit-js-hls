@@ -242,13 +242,14 @@ var HlsAdapter = function (_BaseMediaSourceAdapt) {
     /**
      * Load the video source
      * @function load
+     * @param {number} startTime - Optional time to start the video from.
      * @returns {Promise<Object>} - The loaded data
      * @override
      */
 
   }, {
     key: 'load',
-    value: function load() {
+    value: function load(startTime) {
       var _this2 = this;
 
       if (!this._loadPromise) {
@@ -258,6 +259,9 @@ var HlsAdapter = function (_BaseMediaSourceAdapt) {
             _this2._playerTracks = _this2._parseTracks(data);
             resolve({ tracks: _this2._playerTracks });
           });
+          if (startTime) {
+            _this2._hls.startPosition = startTime;
+          }
           if (_this2._sourceObj && _this2._sourceObj.url) {
             _this2._hls.loadSource(_this2._sourceObj.url);
             _this2._hls.attachMedia(_this2._videoElement);
