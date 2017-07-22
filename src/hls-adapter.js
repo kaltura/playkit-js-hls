@@ -129,10 +129,11 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
   /**
    * Load the video source
    * @function load
+   * @param {number} startTime - Optional time to start the video from.
    * @returns {Promise<Object>} - The loaded data
    * @override
    */
-  load(): Promise<Object> {
+  load(startTime: ?number): Promise<Object> {
     if (!this._loadPromise) {
       this._loadPromise = new Promise((resolve) => {
         this._hls.on(Hlsjs.Events.MANIFEST_LOADED, (event: string, data: any) => {
@@ -140,6 +141,9 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
           this._playerTracks = this._parseTracks(data);
           resolve({tracks: this._playerTracks});
         });
+        if (startTime) {
+          this._hls.startPosition = startTime;
+        }
         if (this._sourceObj && this._sourceObj.url) {
           this._hls.loadSource(this._sourceObj.url);
           this._hls.attachMedia(this._videoElement);
