@@ -381,7 +381,31 @@ describe('HlsAdapter Instance - Integration', function () {
         mediaSourceAdapter.isAdaptiveBitrateEnabled().should.be.true;
         mediaSourceAdapter._hls.nextLevel.should.equal(-1);
         mediaSourceAdapter._hls.autoLevelEnabled.should.be.true;
+      }
+      done();
+    });
+  });
+
+  it('should fire abr mode changed', function (done) {
+    let mode = 'auto';
+    let counter = 0;
+    player.addEventListener(player.Event.ABR_MODE_CHANGED, (event) => {
+      event.payload.mode.should.equal(mode);
+      counter++;
+      if (counter === 3) {
         done();
+      }
+    });
+    player.load();
+    player.ready().then(() => {
+      let mediaSourceAdapter = player._engine._mediaSourceAdapter;
+      if (mediaSourceAdapter instanceof HlsAdapter) {
+        player.play();
+        videoTracks = player.getTracks(player.Track.VIDEO);
+        mode = 'manual';
+        player.selectTrack(videoTracks[0]);
+        mode = 'auto';
+        player.enableAdaptiveBitrate();
       } else {
         done();
       }
