@@ -387,7 +387,7 @@ describe('HlsAdapter Instance - Integration', function () {
   });
 });
 
-describe.only('HlsAdapter [debugging and testing manually]', function (done) {
+describe.skip('HlsAdapter [debugging and testing manually]', function (done) {
   this.timeout(20000);
 
   let tracks;
@@ -434,9 +434,6 @@ describe.only('HlsAdapter [debugging and testing manually]', function (done) {
           hls_sources.ElephantsDream
         ]
       }
-    });
-    player.addEventListener(player.Event.ABR_MODE_CHANGED, (event) => {
-      debugger;
     });
     player.ready().then(() => {
       displayTracksOnScreen();
