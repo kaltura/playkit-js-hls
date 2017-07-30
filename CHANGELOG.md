@@ -15,6 +15,7 @@ All notable changes to this project will be documented in this file. See [standa
 
 ### Features
 
+* **abr:** add abr mode changed event ([#19](https://github.com/kaltura/playkit-js-hls/issues/19)) ([2fd4e86](https://github.com/kaltura/playkit-js-hls/commit/2fd4e86))
 * **abr:** add api for checking if abr is enabled ([#18](https://github.com/kaltura/playkit-js-hls/issues/18)) ([5505640](https://github.com/kaltura/playkit-js-hls/commit/5505640))
 * **config:** pass hls config and change bitrate switch to current level ([#13](https://github.com/kaltura/playkit-js-hls/issues/13)) ([856e102](https://github.com/kaltura/playkit-js-hls/commit/856e102))
 * **hls adapter:** hide text track api  ([#11](https://github.com/kaltura/playkit-js-hls/issues/11)) ([5068d59](https://github.com/kaltura/playkit-js-hls/commit/5068d59))
