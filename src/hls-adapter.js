@@ -147,6 +147,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
         if (this._sourceObj && this._sourceObj.url) {
           this._hls.loadSource(this._sourceObj.url);
           this._hls.attachMedia(this._videoElement);
+          this._trigger(BaseMediaSourceAdapter.CustomEvents.ABR_MODE_CHANGED, {mode: this.isAdaptiveBitrateEnabled() ? 'auto' : 'manual'});
         }
       });
     }
@@ -162,6 +163,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     HlsAdapter._logger.debug('destroy');
     super.destroy();
     this._loadPromise = null;
+    this._sourceObj = null;
     this._removeBindings();
     this._hls.detachMedia();
     this._hls.destroy();
@@ -269,7 +271,10 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    * @public
    */
   selectVideoTrack(videoTrack: VideoTrack): void {
-    if (videoTrack instanceof VideoTrack && (!videoTrack.active || this._hls.autoLevelEnabled) && this._hls.levels) {
+    if (videoTrack instanceof VideoTrack && (!videoTrack.active || this.isAdaptiveBitrateEnabled()) && this._hls.levels) {
+      if (this.isAdaptiveBitrateEnabled()) {
+        this._trigger(BaseMediaSourceAdapter.CustomEvents.ABR_MODE_CHANGED, {mode: 'manual'});
+      }
       this._hls.currentLevel = videoTrack.index;
     }
   }
@@ -306,7 +311,10 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    * @public
    */
   enableAdaptiveBitrate(): void {
-    this._hls.nextLevel = -1;
+    if (!this.isAdaptiveBitrateEnabled()) {
+      this._trigger(BaseMediaSourceAdapter.CustomEvents.ABR_MODE_CHANGED, {mode: 'auto'});
+      this._hls.nextLevel = -1;
+    }
   }
 
   /**
