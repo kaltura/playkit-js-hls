@@ -265,6 +265,7 @@ var HlsAdapter = function (_BaseMediaSourceAdapt) {
           if (_this2._sourceObj && _this2._sourceObj.url) {
             _this2._hls.loadSource(_this2._sourceObj.url);
             _this2._hls.attachMedia(_this2._videoElement);
+            _this2._trigger(_playkitJs.BaseMediaSourceAdapter.CustomEvents.ABR_MODE_CHANGED, { mode: _this2.isAdaptiveBitrateEnabled() ? 'auto' : 'manual' });
           }
         });
       }
@@ -408,7 +409,10 @@ var HlsAdapter = function (_BaseMediaSourceAdapt) {
   }, {
     key: 'selectVideoTrack',
     value: function selectVideoTrack(videoTrack) {
-      if (videoTrack instanceof _playkitJs.VideoTrack && (!videoTrack.active || this._hls.autoLevelEnabled) && this._hls.levels) {
+      if (videoTrack instanceof _playkitJs.VideoTrack && (!videoTrack.active || this.isAdaptiveBitrateEnabled()) && this._hls.levels) {
+        if (this.isAdaptiveBitrateEnabled()) {
+          this._trigger(_playkitJs.BaseMediaSourceAdapter.CustomEvents.ABR_MODE_CHANGED, { mode: 'manual' });
+        }
         this._hls.currentLevel = videoTrack.index;
       }
     }
@@ -454,7 +458,10 @@ var HlsAdapter = function (_BaseMediaSourceAdapt) {
   }, {
     key: 'enableAdaptiveBitrate',
     value: function enableAdaptiveBitrate() {
-      this._hls.nextLevel = -1;
+      if (!this.isAdaptiveBitrateEnabled()) {
+        this._trigger(_playkitJs.BaseMediaSourceAdapter.CustomEvents.ABR_MODE_CHANGED, { mode: 'auto' });
+        this._hls.nextLevel = -1;
+      }
     }
 
     /**
