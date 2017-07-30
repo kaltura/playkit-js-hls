@@ -163,6 +163,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     HlsAdapter._logger.debug('destroy');
     super.destroy();
     this._loadPromise = null;
+    this._sourceObj = null;
     this._removeBindings();
     this._hls.detachMedia();
     this._hls.destroy();
