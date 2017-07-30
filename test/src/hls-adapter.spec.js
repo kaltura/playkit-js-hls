@@ -370,6 +370,23 @@ describe('HlsAdapter Instance - Integration', function () {
       }
     });
   });
+
+  it('should enable adaptive bitrate', function (done) {
+    player.load();
+    player.ready().then(() => {
+      let mediaSourceAdapter = player._engine._mediaSourceAdapter;
+      if (mediaSourceAdapter instanceof HlsAdapter) {
+        player.play();
+        mediaSourceAdapter.enableAdaptiveBitrate();
+        mediaSourceAdapter.isAdaptiveBitrateEnabled().should.be.true;
+        mediaSourceAdapter._hls.nextLevel.should.equal(-1);
+        mediaSourceAdapter._hls.autoLevelEnabled.should.be.true;
+        done();
+      } else {
+        done();
+      }
+    });
+  });
 });
 
 describe.skip('HlsAdapter [debugging and testing manually]', function (done) {

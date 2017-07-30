@@ -458,6 +458,19 @@ var HlsAdapter = function (_BaseMediaSourceAdapt) {
     }
 
     /**
+     * Checking if adaptive bitrate switching is enabled.
+     * @function isAdaptiveBitrateEnabled
+     * @returns {boolean} - Whether adaptive bitrate is enabled.
+     * @public
+     */
+
+  }, {
+    key: 'isAdaptiveBitrateEnabled',
+    value: function isAdaptiveBitrateEnabled() {
+      return this._hls.autoLevelEnabled;
+    }
+
+    /**
      * Triggers on video track selection (auto or manually) the 'videotrackchanged' event forward.
      * @function _onLevelSwitched
      * @param {string} event - The event name.
