@@ -381,15 +381,13 @@ describe('HlsAdapter Instance - Integration', function () {
         mediaSourceAdapter.isAdaptiveBitrateEnabled().should.be.true;
         mediaSourceAdapter._hls.nextLevel.should.equal(-1);
         mediaSourceAdapter._hls.autoLevelEnabled.should.be.true;
-        done();
-      } else {
-        done();
       }
+      done();
     });
   });
 });
 
-describe.skip('HlsAdapter [debugging and testing manually]', function (done) {
+describe.only('HlsAdapter [debugging and testing manually]', function (done) {
   this.timeout(20000);
 
   let tracks;
@@ -436,6 +434,9 @@ describe.skip('HlsAdapter [debugging and testing manually]', function (done) {
           hls_sources.ElephantsDream
         ]
       }
+    });
+    player.addEventListener(player.Event.ABR_MODE_CHANGED, (event) => {
+      debugger;
     });
     player.ready().then(() => {
       displayTracksOnScreen();
