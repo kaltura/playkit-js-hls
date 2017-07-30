@@ -284,6 +284,7 @@ var HlsAdapter = function (_BaseMediaSourceAdapt) {
       HlsAdapter._logger.debug('destroy');
       _get(HlsAdapter.prototype.__proto__ || Object.getPrototypeOf(HlsAdapter.prototype), 'destroy', this).call(this);
       this._loadPromise = null;
+      this._sourceObj = null;
       this._removeBindings();
       this._hls.detachMedia();
       this._hls.destroy();
