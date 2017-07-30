@@ -380,6 +380,7 @@ describe('HlsAdapter Instance - Integration', function () {
         mediaSourceAdapter.enableAdaptiveBitrate();
         mediaSourceAdapter.isAdaptiveBitrateEnabled().should.be.true;
         mediaSourceAdapter._hls.nextLevel.should.equal(-1);
+        mediaSourceAdapter._hls.autoLevelEnabled.should.be.true;
         done();
       } else {
         done();
