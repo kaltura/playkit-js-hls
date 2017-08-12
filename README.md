@@ -1,4 +1,4 @@
-# PlayKit JS HLS - [HLS.JS] Adapter for the PlayKit JS Player
+# PlayKit JS HLS - [HLS.JS] Adapter for the [PlayKit JS Player]
 
 [![Build Status](https://travis-ci.com/kaltura/playkit-js-hls.svg?token=s2ZQw18ukx9Q6ePzDX3F&branch=master)](https://travis-ci.com/kaltura/playkit-js-hls)
 
