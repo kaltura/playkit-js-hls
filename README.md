@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.com/kaltura/playkit-js-hls.svg?token=s2ZQw18ukx9Q6ePzDX3F&branch=master)](https://travis-ci.com/kaltura/playkit-js-hls)
 
-PlayKit JS HLS plugin integrates [HLS.JS] with the [PlayKit JS Player].
+PlayKit JS HLS adapter integrates [HLS.JS] with the [PlayKit JS Player].
  
 PlayKit JS HLS is written in [ECMAScript6], statically analysed using [Flow] and transpiled in ECMAScript5 using [Babel].
 
@@ -15,9 +15,9 @@ PlayKit JS HLS is written in [ECMAScript6], statically analysed using [Flow] and
 ## Getting Started
 
 ### Prerequisites
-The plugin requires [PlayKit JS Player] to be loaded first.
+The adapter requires [PlayKit JS Player] to be loaded first.
 
-The plugin uses the [HLS.JS] javascript library.
+The adapter uses the [HLS.JS] javascript library.
 
 [Playkit JS Player]: https://github.com/kaltura/playkit-js
 
