@@ -138,6 +138,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
       this._loadPromise = new Promise((resolve) => {
         this._hls.on(Hlsjs.Events.MANIFEST_LOADED, (event: string, data: any) => {
           HlsAdapter._logger.debug('The source has been loaded successfully');
+          this._hls.startLoad();
           this._playerTracks = this._parseTracks(data);
           resolve({tracks: this._playerTracks});
         });
