@@ -188,6 +188,20 @@ var HlsAdapter = function (_BaseMediaSourceAdapt) {
     }
 
     /**
+     * Checks if hls adapter can play a given drm data.
+     * For hls.js it always returns false.
+     * @returns {boolean} - Whether the hls adapter can play a specific drm data.
+     * @static
+     */
+
+  }, {
+    key: 'canPlayDrm',
+    value: function canPlayDrm() {
+      HlsAdapter._logger.warn('canPlayDrm result is false');
+      return false;
+    }
+
+    /**
      * Checks if the hls adapter is supported.
      * @function isSupported
      * @returns {boolean} - Whether hls is supported.
@@ -235,7 +249,9 @@ var HlsAdapter = function (_BaseMediaSourceAdapt) {
     key: '_addBindings',
     value: function _addBindings() {
       this._hls.on(_hls2.default.Events.ERROR, this._onError.bind(this));
+      this._hls.on(_hls2.default.Events.MANIFEST_LOADED, this._onManifestLoaded.bind(this));
       this._hls.on(_hls2.default.Events.LEVEL_SWITCHED, this._onLevelSwitched.bind(this));
+      this._hls.on(_hls2.default.Events.FRAG_CHANGED, this._onFragChanged.bind(this));
       this._hls.on(_hls2.default.Events.AUDIO_TRACK_SWITCHED, this._onAudioTrackSwitched.bind(this));
     }
 
@@ -254,12 +270,11 @@ var HlsAdapter = function (_BaseMediaSourceAdapt) {
 
       if (!this._loadPromise) {
         this._loadPromise = new Promise(function (resolve) {
-          _this2._hls.on(_hls2.default.Events.MANIFEST_LOADED, function (event, data) {
-            HlsAdapter._logger.debug('The source has been loaded successfully');
-            _this2._hls.startLoad();
-            _this2._playerTracks = _this2._parseTracks(data);
+          var onLevelUpdated = function onLevelUpdated(event, data) {
+            _this2._hls.off(_hls2.default.Events.LEVEL_UPDATED, onLevelUpdated);
             resolve({ tracks: _this2._playerTracks });
-          });
+          };
+          _this2._hls.on(_hls2.default.Events.LEVEL_UPDATED, onLevelUpdated);
           if (startTime) {
             _this2._hls.startPosition = startTime;
           }
@@ -477,6 +492,36 @@ var HlsAdapter = function (_BaseMediaSourceAdapt) {
     key: 'isAdaptiveBitrateEnabled',
     value: function isAdaptiveBitrateEnabled() {
       return this._hls.autoLevelEnabled;
+    }
+  }, {
+    key: 'seekToLiveEdge',
+    value: function seekToLiveEdge() {
+      this._videoElement.currentTime = this._videoElement.duration - 3 * this._fragmentDuration;
+    }
+  }, {
+    key: 'isLive',
+    value: function isLive() {
+      try {
+        return this._hls.levels[0].details.live;
+      } catch (e) {
+        return false;
+      }
+    }
+  }, {
+    key: '_onManifestLoaded',
+    value: function _onManifestLoaded(event, data) {
+      HlsAdapter._logger.debug('The source has been loaded successfully');
+      this._hls.startLoad();
+      this._playerTracks = this._parseTracks(data);
+    }
+  }, {
+    key: '_onFragChanged',
+    value: function _onFragChanged(event, data) {
+      if (data && data.frag) {
+        if (data.frag.duration) {
+          this._fragmentDuration = data.frag.duration;
+        }
+      }
     }
 
     /**

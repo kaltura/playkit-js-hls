@@ -59,8 +59,6 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    */
   _playerTracks: Array<Track>;
 
-  _isLive: boolean = false;
-
   _fragmentDuration: number;
 
   /**
@@ -155,7 +153,6 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
       this._loadPromise = new Promise((resolve) => {
         let onLevelUpdated = (event: string, data: any) => {
           this._hls.off(Hlsjs.Events.LEVEL_UPDATED, onLevelUpdated);
-          this._isLive = data.details.live;
           resolve({tracks: this._playerTracks});
         };
         this._hls.on(Hlsjs.Events.LEVEL_UPDATED, onLevelUpdated);
@@ -182,7 +179,6 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     super.destroy();
     this._loadPromise = null;
     this._sourceObj = null;
-    this._isLive = false;
     this._removeBindings();
     this._hls.detachMedia();
     this._hls.destroy();
@@ -351,7 +347,11 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
   }
 
   isLive(): boolean {
-    return this._isLive;
+    try {
+      return this._hls.levels[0].details.live;
+    } catch (e) {
+      return false;
+    }
   }
 
   _onManifestLoaded(event: string, data: any): void {
