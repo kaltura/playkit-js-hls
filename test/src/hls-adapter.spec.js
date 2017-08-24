@@ -8,6 +8,24 @@ import * as player_tracks from './json/player_tracks.json'
 
 const targetId = 'player-placeholder_hls-adapter.spec';
 
+describe('HlsAdapter.canPlayDrm', function () {
+  it('should return false for any input', function () {
+    HlsAdapter.canPlayDrm().should.be.false;
+    HlsAdapter.canPlayDrm(null).should.be.false;
+    HlsAdapter.canPlayDrm(null).should.be.false;
+    HlsAdapter.canPlayDrm([{
+      "certificate": undefined,
+      "licenseUrl": "https://udrm.kaltura.com//cenc/playready/license?custom_data=eyJjYV9zeXN0ZW0iOiJPVlAiLCJ1c2VyX3Rva2VuIjoiWlRGaU56azRNbU01TWpKaVl6a3dPRGxpTXpRelpUUTNZMkk0TXpJd1lUSXpNbVF6TVRNeFlud3hNRFk0TWpreU96RXdOamd5T1RJN01UUTVNREkxTWprNU1qc3dPekUwT1RBeE5qWTFPVEl1T0RVeU1Uc3dPM1pwWlhjNktpeDNhV1JuWlhRNk1UczciLCJhY2NvdW50X2lkIjoxMDY4MjkyLCJjb250ZW50X2lkIjoiMV9yd2JqM2owYSIsImZpbGVzIjoiMV85MmRmeXJ6NSwxXzlkaGg2bTBpLDFfenVkb3V1YWgsMV9yMHd1Nnk3NywxX296MzQza2xhIn0%3D&signature=AZaaKvEx5j8CAh6VMSZbGzmUK1A%3D",
+      "scheme": "com.microsoft.playready"
+    }, {
+      "certificate": undefined,
+      "licenseUrl": "https://udrm.kaltura.com//cenc/widevine/license?custom_data=eyJjYV9zeXN0ZW0iOiJPVlAiLCJ1c2VyX3Rva2VuIjoiWlRGaU56azRNbU01TWpKaVl6a3dPRGxpTXpRelpUUTNZMkk0TXpJd1lUSXpNbVF6TVRNeFlud3hNRFk0TWpreU96RXdOamd5T1RJN01UUTVNREkxTWprNU1qc3dPekUwT1RBeE5qWTFPVEl1T0RVeU1Uc3dPM1pwWlhjNktpeDNhV1JuWlhRNk1UczciLCJhY2NvdW50X2lkIjoxMDY4MjkyLCJjb250ZW50X2lkIjoiMV9yd2JqM2owYSIsImZpbGVzIjoiMV85MmRmeXJ6NSwxXzlkaGg2bTBpLDFfenVkb3V1YWgsMV9yMHd1Nnk3NywxX296MzQza2xhIn0%3D&signature=AZaaKvEx5j8CAh6VMSZbGzmUK1A%3D",
+      "scheme": "com.widevine.alpha"
+    }
+    ]).should.be.false;
+  });
+});
+
 describe('HlsAdapter.canPlayType', function () {
   it('should return true to application/x-mpegurl', function () {
     HlsAdapter.canPlayType('application/x-mpegurl').should.be.true;
