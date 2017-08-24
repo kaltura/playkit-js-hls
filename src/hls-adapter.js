@@ -90,6 +90,17 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
   }
 
   /**
+   * Checks if hls adapter can play a given drm data.
+   * For hls.js it always returns false.
+   * @returns {boolean} - Whether the hls adapter can play a specific drm data.
+   * @static
+   */
+  static canPlayDrm(): boolean {
+    HlsAdapter._logger.warn('canPlayDrm result is false');
+    return false;
+  }
+
+  /**
    * Checks if the hls adapter is supported.
    * @function isSupported
    * @returns {boolean} - Whether hls is supported.
