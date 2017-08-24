@@ -59,6 +59,10 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    */
   _playerTracks: Array<Track>;
 
+  _isLive: boolean = false;
+
+  _fragmentDuration: number;
+
   /**
    * Factory method to create media source adapter.
    * @function createAdapter
@@ -122,7 +126,9 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    */
   _addBindings(): void {
     this._hls.on(Hlsjs.Events.ERROR, this._onError.bind(this));
+    this._hls.on(Hlsjs.Events.MANIFEST_LOADED, this._onManifestLoaded.bind(this));
     this._hls.on(Hlsjs.Events.LEVEL_SWITCHED, this._onLevelSwitched.bind(this));
+    this._hls.on(Hlsjs.Events.FRAG_CHANGED, this._onFragChanged.bind(this));
     this._hls.on(Hlsjs.Events.AUDIO_TRACK_SWITCHED, this._onAudioTrackSwitched.bind(this));
   }
 
@@ -136,12 +142,12 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
   load(startTime: ?number): Promise<Object> {
     if (!this._loadPromise) {
       this._loadPromise = new Promise((resolve) => {
-        this._hls.on(Hlsjs.Events.MANIFEST_LOADED, (event: string, data: any) => {
-          HlsAdapter._logger.debug('The source has been loaded successfully');
-          this._hls.startLoad();
-          this._playerTracks = this._parseTracks(data);
+        let onLevelUpdated = (event: string, data: any) => {
+          this._hls.off(Hlsjs.Events.LEVEL_UPDATED, onLevelUpdated);
+          this._isLive = data.details.live;
           resolve({tracks: this._playerTracks});
-        });
+        };
+        this._hls.on(Hlsjs.Events.LEVEL_UPDATED, onLevelUpdated);
         if (startTime) {
           this._hls.startPosition = startTime;
         }
@@ -165,6 +171,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     super.destroy();
     this._loadPromise = null;
     this._sourceObj = null;
+    this._isLive = false;
     this._removeBindings();
     this._hls.detachMedia();
     this._hls.destroy();
@@ -326,6 +333,28 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    */
   isAdaptiveBitrateEnabled(): boolean {
     return this._hls.autoLevelEnabled;
+  }
+
+  seekToLiveEdge(): void {
+    this._videoElement.currentTime = this._videoElement.duration - 3 * this._fragmentDuration;
+  }
+
+  isLive(): boolean {
+    return this._isLive;
+  }
+
+  _onManifestLoaded(event: string, data: any): void {
+    HlsAdapter._logger.debug('The source has been loaded successfully');
+    this._hls.startLoad();
+    this._playerTracks = this._parseTracks(data);
+  }
+
+  _onFragChanged(event: string, data: any): void {
+    if (data && data.frag) {
+      if (data.frag.duration) {
+        this._fragmentDuration = data.frag.duration;
+      }
+    }
   }
 
   /**
