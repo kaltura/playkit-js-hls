@@ -102,10 +102,13 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
+var LIVE_EDGE_BUFFER_UNITS = 3;
+
 /**
  * Adapter of hls.js lib for hls content.
  * @classdesc
  */
+
 var HlsAdapter = function (_BaseMediaSourceAdapt) {
   _inherits(HlsAdapter, _BaseMediaSourceAdapt);
 
@@ -251,7 +254,6 @@ var HlsAdapter = function (_BaseMediaSourceAdapt) {
       this._hls.on(_hls2.default.Events.ERROR, this._onError.bind(this));
       this._hls.on(_hls2.default.Events.MANIFEST_LOADED, this._onManifestLoaded.bind(this));
       this._hls.on(_hls2.default.Events.LEVEL_SWITCHED, this._onLevelSwitched.bind(this));
-      this._hls.on(_hls2.default.Events.FRAG_CHANGED, this._onFragChanged.bind(this));
       this._hls.on(_hls2.default.Events.AUDIO_TRACK_SWITCHED, this._onAudioTrackSwitched.bind(this));
     }
 
@@ -270,7 +272,7 @@ var HlsAdapter = function (_BaseMediaSourceAdapt) {
 
       if (!this._loadPromise) {
         this._loadPromise = new Promise(function (resolve) {
-          var onLevelUpdated = function onLevelUpdated(event, data) {
+          var onLevelUpdated = function onLevelUpdated() {
             _this2._hls.off(_hls2.default.Events.LEVEL_UPDATED, onLevelUpdated);
             resolve({ tracks: _this2._playerTracks });
           };
@@ -494,9 +496,22 @@ var HlsAdapter = function (_BaseMediaSourceAdapt) {
       return this._hls.autoLevelEnabled;
     }
   }, {
+    key: '_getLiveEdge',
+    value: function _getLiveEdge() {
+      try {
+        return this._videoElement.duration - LIVE_EDGE_BUFFER_UNITS * this._hls.levels[0].details.targetduration;
+      } catch (e) {
+        return NaN;
+      }
+    }
+  }, {
     key: 'seekToLiveEdge',
     value: function seekToLiveEdge() {
-      this._videoElement.currentTime = this._videoElement.duration - 3 * this._fragmentDuration;
+      try {
+        this._videoElement.currentTime = this._getLiveEdge();
+      } catch (e) {
+        return;
+      }
     }
   }, {
     key: 'isLive',
@@ -513,15 +528,6 @@ var HlsAdapter = function (_BaseMediaSourceAdapt) {
       HlsAdapter._logger.debug('The source has been loaded successfully');
       this._hls.startLoad();
       this._playerTracks = this._parseTracks(data);
-    }
-  }, {
-    key: '_onFragChanged',
-    value: function _onFragChanged(event, data) {
-      if (data && data.frag) {
-        if (data.frag.duration) {
-          this._fragmentDuration = data.frag.duration;
-        }
-      }
     }
 
     /**
@@ -656,6 +662,22 @@ var HlsAdapter = function (_BaseMediaSourceAdapt) {
         return this._sourceObj.url;
       }
       return "";
+    }
+
+    /**
+     * Get the duration in seconds.
+     * @returns {Number} - The playback duration.
+     * @public
+     */
+
+  }, {
+    key: 'duration',
+    get: function get() {
+      if (this.isLive()) {
+        return this._getLiveEdge();
+      } else {
+        return _get(HlsAdapter.prototype.__proto__ || Object.getPrototypeOf(HlsAdapter.prototype), 'duration', this);
+      }
     }
   }]);
 

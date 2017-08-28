@@ -4,6 +4,8 @@ import {registerMediaSourceAdapter, BaseMediaSourceAdapter} from 'playkit-js'
 import {Track, VideoTrack, AudioTrack, TextTrack} from 'playkit-js'
 import {Utils} from 'playkit-js'
 
+const LIVE_EDGE_BUFFER_UNITS = 3;
+
 /**
  * Adapter of hls.js lib for hls content.
  * @classdesc
@@ -58,8 +60,6 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    * @private
    */
   _playerTracks: Array<Track>;
-
-  _fragmentDuration: number;
 
   /**
    * Factory method to create media source adapter.
@@ -137,7 +137,6 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     this._hls.on(Hlsjs.Events.ERROR, this._onError.bind(this));
     this._hls.on(Hlsjs.Events.MANIFEST_LOADED, this._onManifestLoaded.bind(this));
     this._hls.on(Hlsjs.Events.LEVEL_SWITCHED, this._onLevelSwitched.bind(this));
-    this._hls.on(Hlsjs.Events.FRAG_CHANGED, this._onFragChanged.bind(this));
     this._hls.on(Hlsjs.Events.AUDIO_TRACK_SWITCHED, this._onAudioTrackSwitched.bind(this));
   }
 
@@ -151,7 +150,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
   load(startTime: ?number): Promise<Object> {
     if (!this._loadPromise) {
       this._loadPromise = new Promise((resolve) => {
-        let onLevelUpdated = (event: string, data: any) => {
+        let onLevelUpdated = () => {
           this._hls.off(Hlsjs.Events.LEVEL_UPDATED, onLevelUpdated);
           resolve({tracks: this._playerTracks});
         };
@@ -342,8 +341,20 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     return this._hls.autoLevelEnabled;
   }
 
+  _getLiveEdge(): number {
+    try {
+      return this._videoElement.duration - LIVE_EDGE_BUFFER_UNITS * this._hls.levels[0].details.targetduration;
+    } catch (e) {
+      return NaN;
+    }
+  }
+
   seekToLiveEdge(): void {
-    this._videoElement.currentTime = this._videoElement.duration - 3 * this._fragmentDuration;
+    try {
+      this._videoElement.currentTime = this._getLiveEdge();
+    } catch (e) {
+      return;
+    }
   }
 
   isLive(): boolean {
@@ -358,14 +369,6 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     HlsAdapter._logger.debug('The source has been loaded successfully');
     this._hls.startLoad();
     this._playerTracks = this._parseTracks(data);
-  }
-
-  _onFragChanged(event: string, data: any): void {
-    if (data && data.frag) {
-      if (data.frag.duration) {
-        this._fragmentDuration = data.frag.duration;
-      }
-    }
   }
 
   /**
@@ -482,6 +485,19 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
       return this._sourceObj.url;
     }
     return "";
+  }
+
+  /**
+   * Get the duration in seconds.
+   * @returns {Number} - The playback duration.
+   * @public
+   */
+  get duration(): number {
+    if (this.isLive()) {
+        return this._getLiveEdge();
+    } else {
+      return super.duration;
+    }
   }
 }
 
