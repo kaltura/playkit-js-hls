@@ -83,7 +83,6 @@ describe('HlsAdapter.id', function () {
 });
 
 describe('HlsAdapter Instance - Unit', function () {
-  this.timeout(10000);
 
   let hlsAdapterInstance;
   let video;
@@ -290,7 +289,6 @@ describe('HlsAdapter Instance - Unit', function () {
 });
 
 describe('HlsAdapter Instance - Integration', function () {
-  this.timeout(20000);
 
   let player;
   let tracks;
@@ -478,7 +476,6 @@ describe('HlsAdapter Instance - isLive', () => {
 });
 
 describe('HlsAdapter Instance - seekToLiveEdge', function () {
-  this.timeout(20000);
 
   let hlsAdapterInstance;
   let video;
@@ -566,8 +563,61 @@ describe('HlsAdapter Instance - get duration', function () {
   });
 });
 
+describe('HlsAdapter Instance - _getLiveEdge', function () {
+
+  let hlsAdapterInstance;
+  let video;
+  let liveSource = hls_sources.Live;
+  let config;
+  let sandbox;
+
+  beforeEach(function () {
+    sandbox = sinon.sandbox.create();
+    video = document.createElement('video');
+    config = {playback: {options: {html5: {hls: {}}}}};
+  });
+
+  afterEach(function () {
+    sandbox.restore();
+    hlsAdapterInstance.destroy();
+    hlsAdapterInstance = null;
+    video = null;
+    TestUtils.removeVideoElementsFromTestPage();
+  });
+
+  it('should return live edge for liveSyncDuration = 60', (done) => {
+    config.playback.options.html5.hls.liveSyncDuration = 60;
+    hlsAdapterInstance = HlsAdapter.createAdapter(video, liveSource, config);
+    hlsAdapterInstance.load().then(() => {
+      hlsAdapterInstance._videoElement.addEventListener('durationchange', () => {
+        if (video.duration > 60) {
+          hlsAdapterInstance._getLiveEdge().should.be.equal(video.duration - 60);
+          done();
+        } else {
+          hlsAdapterInstance._getLiveEdge().should.be.equal(0);
+        }
+      });
+    });
+  });
+
+  it('should return live edge for liveSyncDurationCount = 5', (done) => {
+    config.playback.options.html5.hls.liveSyncDurationCount = 5;
+    hlsAdapterInstance = HlsAdapter.createAdapter(video, liveSource, config);
+    hlsAdapterInstance.load().then(() => {
+      hlsAdapterInstance._videoElement.addEventListener('durationchange', () => {
+        let delay = 5 * hlsAdapterInstance._hls.levels[0].details.targetduration;
+        if (video.duration > delay) {
+          hlsAdapterInstance._getLiveEdge().should.be.equal(video.duration - delay);
+          done();
+        } else {
+          hlsAdapterInstance._getLiveEdge().should.be.equal(0);
+        }
+      });
+    });
+  });
+});
+
 describe.skip('HlsAdapter [debugging and testing manually]', function (done) {
-  this.timeout(20000);
 
   let tracks;
   let videoTracks = [];
