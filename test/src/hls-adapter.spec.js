@@ -431,6 +431,141 @@ describe('HlsAdapter Instance - Integration', function () {
   });
 });
 
+describe('HlsAdapter Instance - isLive', () => {
+
+  let hlsAdapterInstance;
+  let video;
+  let vodSource = hls_sources.ElephantsDream;
+  let liveSource = hls_sources.Live;
+  let config;
+  let sandbox;
+
+  beforeEach(function () {
+    sandbox = sinon.sandbox.create();
+    video = document.createElement('video');
+    config = {playback: {options: {html5: {hls: {}}}}};
+  });
+
+  afterEach(function () {
+    sandbox.restore();
+    hlsAdapterInstance.destroy();
+    hlsAdapterInstance = null;
+    video = null;
+    TestUtils.removeVideoElementsFromTestPage();
+  });
+
+  it('should return false for VOD', (done) => {
+    hlsAdapterInstance = HlsAdapter.createAdapter(video, vodSource, config);
+    hlsAdapterInstance.load().then((/* data */) => {
+      hlsAdapterInstance.isLive().should.be.false;
+      done();
+    });
+  });
+
+  it('should return false for live before load', () => {
+    hlsAdapterInstance = HlsAdapter.createAdapter(video, liveSource, config);
+    hlsAdapterInstance.isLive().should.be.false;
+  });
+
+  it('should return true for live', (done) => {
+    hlsAdapterInstance = HlsAdapter.createAdapter(video, liveSource, config);
+    hlsAdapterInstance.load().then(() => {
+      hlsAdapterInstance.isLive().should.be.true;
+      done();
+    });
+  });
+
+});
+
+describe('HlsAdapter Instance - seekToLiveEdge', function () {
+  this.timeout(20000);
+
+  let hlsAdapterInstance;
+  let video;
+  let liveSource = hls_sources.Live;
+  let config;
+  let sandbox;
+
+  beforeEach(function () {
+    sandbox = sinon.sandbox.create();
+    video = document.createElement('video');
+    config = {playback: {options: {html5: {hls: {}}}}};
+  });
+
+  afterEach(function () {
+    sandbox.restore();
+    hlsAdapterInstance.destroy();
+    hlsAdapterInstance = null;
+    video = null;
+    TestUtils.removeVideoElementsFromTestPage();
+  });
+
+  it('should seek to live edge', (done) => {
+    hlsAdapterInstance = HlsAdapter.createAdapter(video, liveSource, config);
+    hlsAdapterInstance.load().then(() => {
+      hlsAdapterInstance._videoElement.addEventListener('durationchange', () => {
+        if (hlsAdapterInstance._getLiveEdge() > 0) {
+          video.currentTime = 0;
+          (hlsAdapterInstance._getLiveEdge() - hlsAdapterInstance._videoElement.currentTime > 1).should.be.true;
+          hlsAdapterInstance.seekToLiveEdge();
+          (hlsAdapterInstance._getLiveEdge() - hlsAdapterInstance._videoElement.currentTime < 1).should.be.true;
+          done();
+        }
+      });
+    });
+  });
+});
+
+describe('HlsAdapter Instance - get duration', function () {
+
+  let hlsAdapterInstance;
+  let video;
+  let vodSource = hls_sources.ElephantsDream;
+  let liveSource = hls_sources.Live;
+  let config;
+  let sandbox;
+
+  beforeEach(function () {
+    sandbox = sinon.sandbox.create();
+    video = document.createElement('video');
+    config = {playback: {options: {html5: {hls: {}}}}};
+  });
+
+  afterEach(function () {
+    sandbox.restore();
+    hlsAdapterInstance.destroy();
+    hlsAdapterInstance = null;
+    video = null;
+    TestUtils.removeVideoElementsFromTestPage();
+  });
+
+  it('should return video tag duration for VOD', (done) => {
+    hlsAdapterInstance = HlsAdapter.createAdapter(video, vodSource, config);
+    hlsAdapterInstance.load().then(() => {
+      hlsAdapterInstance._videoElement.addEventListener('durationchange', () => {
+        if (isNaN(video.duration)) {
+          done();
+        } else {
+          hlsAdapterInstance.duration.should.be.equal(video.duration);
+          done();
+        }
+      });
+    });
+  });
+
+  it('should return live duration for live', (done) => {
+    hlsAdapterInstance = HlsAdapter.createAdapter(video, liveSource, config);
+    hlsAdapterInstance.load().then(() => {
+      hlsAdapterInstance._videoElement.addEventListener('durationchange', () => {
+        if (video.duration > 40) {
+          hlsAdapterInstance.duration.should.be.equal(video.duration - 3 * hlsAdapterInstance._hls.levels[0].details.targetduration);
+          done();
+        }
+      });
+    });
+  });
+});
+
 describe.skip('HlsAdapter [debugging and testing manually]', function (done) {
   this.timeout(20000);
 

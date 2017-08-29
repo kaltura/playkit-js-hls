@@ -348,7 +348,8 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    */
   _getLiveEdge(): number {
     try {
-      return this._videoElement.duration - LIVE_EDGE_BUFFER_UNITS * this._hls.levels[0].details.targetduration;
+      let liveEdge = this._videoElement.duration - LIVE_EDGE_BUFFER_UNITS * this._hls.levels[0].details.targetduration;
+      return liveEdge > 0 ? liveEdge : 0;
     } catch (e) {
       return NaN;
     }
