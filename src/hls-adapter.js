@@ -341,6 +341,11 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     return this._hls.autoLevelEnabled;
   }
 
+  /**
+   * Returns the live edge
+   * @returns {number} - live edge
+   * @private
+   */
   _getLiveEdge(): number {
     try {
       return this._videoElement.duration - LIVE_EDGE_BUFFER_UNITS * this._hls.levels[0].details.targetduration;
@@ -349,6 +354,12 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     }
   }
 
+  /**
+   * Seeking to live edge.
+   * @function seekToLiveEdge
+   * @returns {void}
+   * @public
+   */
   seekToLiveEdge(): void {
     try {
       this._videoElement.currentTime = this._getLiveEdge();
@@ -357,6 +368,12 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     }
   }
 
+  /**
+   * Checking if the current playback is live.
+   * @function isLive
+   * @returns {boolean} - Whether playback is live.
+   * @public
+   */
   isLive(): boolean {
     try {
       return this._hls.levels[0].details.live;
@@ -365,6 +382,14 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     }
   }
 
+  /**
+   * Fired after manifest has been loaded.
+   * @function _onManifestLoaded
+   * @param {string} event - The event name.
+   * @param {any} data - The event data object.
+   * @private
+   * @returns {void}
+   */
   _onManifestLoaded(event: string, data: any): void {
     HlsAdapter._logger.debug('The source has been loaded successfully');
     this._hls.startLoad();
