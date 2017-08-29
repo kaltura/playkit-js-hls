@@ -4,6 +4,8 @@ import {registerMediaSourceAdapter, BaseMediaSourceAdapter} from 'playkit-js'
 import {Track, VideoTrack, AudioTrack, TextTrack} from 'playkit-js'
 import {Utils} from 'playkit-js'
 
+const LIVE_EDGE_BUFFER_UNITS = 3;
+
 /**
  * Adapter of hls.js lib for hls content.
  * @classdesc
@@ -133,6 +135,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    */
   _addBindings(): void {
     this._hls.on(Hlsjs.Events.ERROR, this._onError.bind(this));
+    this._hls.on(Hlsjs.Events.MANIFEST_LOADED, this._onManifestLoaded.bind(this));
     this._hls.on(Hlsjs.Events.LEVEL_SWITCHED, this._onLevelSwitched.bind(this));
     this._hls.on(Hlsjs.Events.AUDIO_TRACK_SWITCHED, this._onAudioTrackSwitched.bind(this));
   }
@@ -147,12 +150,11 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
   load(startTime: ?number): Promise<Object> {
     if (!this._loadPromise) {
       this._loadPromise = new Promise((resolve) => {
-        this._hls.on(Hlsjs.Events.MANIFEST_LOADED, (event: string, data: any) => {
-          HlsAdapter._logger.debug('The source has been loaded successfully');
-          this._hls.startLoad();
-          this._playerTracks = this._parseTracks(data);
+        let onLevelUpdated = () => {
+          this._hls.off(Hlsjs.Events.LEVEL_UPDATED, onLevelUpdated);
           resolve({tracks: this._playerTracks});
-        });
+        };
+        this._hls.on(Hlsjs.Events.LEVEL_UPDATED, onLevelUpdated);
         if (startTime) {
           this._hls.startPosition = startTime;
         }
@@ -340,6 +342,62 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
   }
 
   /**
+   * Returns the live edge
+   * @returns {number} - live edge
+   * @private
+   */
+  _getLiveEdge(): number {
+    try {
+      let liveEdge = this._videoElement.duration - LIVE_EDGE_BUFFER_UNITS * this._hls.levels[0].details.targetduration;
+      return liveEdge > 0 ? liveEdge : 0;
+    } catch (e) {
+      return NaN;
+    }
+  }
+
+  /**
+   * Seeking to live edge.
+   * @function seekToLiveEdge
+   * @returns {void}
+   * @public
+   */
+  seekToLiveEdge(): void {
+    try {
+      this._videoElement.currentTime = this._getLiveEdge();
+    } catch (e) {
+      return;
+    }
+  }
+
+  /**
+   * Checking if the current playback is live.
+   * @function isLive
+   * @returns {boolean} - Whether playback is live.
+   * @public
+   */
+  isLive(): boolean {
+    try {
+      return this._hls.levels[0].details.live;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /**
+   * Fired after manifest has been loaded.
+   * @function _onManifestLoaded
+   * @param {string} event - The event name.
+   * @param {any} data - The event data object.
+   * @private
+   * @returns {void}
+   */
+  _onManifestLoaded(event: string, data: any): void {
+    HlsAdapter._logger.debug('The source has been loaded successfully');
+    this._hls.startLoad();
+    this._playerTracks = this._parseTracks(data);
+  }
+
+  /**
    * Triggers on video track selection (auto or manually) the 'videotrackchanged' event forward.
    * @function _onLevelSwitched
    * @param {string} event - The event name.
@@ -453,6 +511,19 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
       return this._sourceObj.url;
     }
     return "";
+  }
+
+  /**
+   * Get the duration in seconds.
+   * @returns {Number} - The playback duration.
+   * @public
+   */
+  get duration(): number {
+    if (this.isLive()) {
+        return this._getLiveEdge();
+    } else {
+      return super.duration;
+    }
   }
 }
 

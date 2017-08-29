@@ -11,6 +11,7 @@ const customLaunchers = {
 module.exports = function (config) {
   let karmaConf = {
     logLevel: config.LOG_INFO,
+    browserNoActivityTimeout: 30000,
     browsers: [
       'Chrome',
       'Firefox'
@@ -57,7 +58,8 @@ module.exports = function (config) {
     },
     client: {
       mocha: {
-        reporter: 'html'
+        reporter: 'html',
+        timeout: 30000
       }
     }
   };
