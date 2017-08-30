@@ -4,8 +4,6 @@ import {registerMediaSourceAdapter, BaseMediaSourceAdapter} from 'playkit-js'
 import {Track, VideoTrack, AudioTrack, TextTrack} from 'playkit-js'
 import {Utils} from 'playkit-js'
 
-const LIVE_EDGE_BUFFER_UNITS = 3;
-
 /**
  * Adapter of hls.js lib for hls content.
  * @classdesc
@@ -348,7 +346,12 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    */
   _getLiveEdge(): number {
     try {
-      let liveEdge = this._videoElement.duration - LIVE_EDGE_BUFFER_UNITS * this._hls.levels[0].details.targetduration;
+      let liveEdge;
+      if (this._hls.config.liveSyncDuration) {
+        liveEdge = this._videoElement.duration - this._hls.config.liveSyncDuration;
+      } else {
+        liveEdge = this._videoElement.duration - this._hls.config.liveSyncDurationCount * this._hls.levels[0].details.targetduration;
+      }
       return liveEdge > 0 ? liveEdge : 0;
     } catch (e) {
       return NaN;
@@ -356,7 +359,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
   }
 
   /**
-   * Seeking to live edge.
+   * Seeking to live edge, calculated according hls configuration - liveSyncDuration or liveSyncDurationCount.
    * @function seekToLiveEdge
    * @returns {void}
    * @public
