@@ -359,7 +359,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
   }
 
   /**
-   * Seeking to live edge.
+   * Seeking to live edge, calculated according hls configuration - liveSyncDuration or liveSyncDurationCount.
    * @function seekToLiveEdge
    * @returns {void}
    * @public
