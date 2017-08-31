@@ -46,7 +46,7 @@
     "eslint-plugin-import": "^2.2.0",
     "eslint-plugin-mocha-no-only": "^0.0.5",
     "flow-bin": "latest",
-    "hls.js": "^0.7.9",
+    "hls.js": "^0.8.1",
     "istanbul": "^0.4.5",
     "karma": "^1.5.0",
     "karma-chai": "^0.1.0",
@@ -73,7 +73,7 @@
   "keywords": [],
   "license": "AGPL-3.0",
   "peerDependencies": {
-    "hls.js": "^0.7.9",
+    "hls.js": "^0.8.1",
     "playkit-js": "git+https://github.com/kaltura/playkit-js.git#v0.3.0"
   },
   "repository": {
