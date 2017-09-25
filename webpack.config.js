@@ -12,7 +12,7 @@ module.exports = {
     filename: '[name].js',
     library: "PlaykitJsHls",
     libraryTarget: "umd",
-    devtoolModuleFilenameTemplate: "webpack:///hls/[resource-path]",
+    devtoolModuleFilenameTemplate: "./hls/[resource-path]",
   },
   devtool: 'source-map',
   plugins: PROD ? [new webpack.optimize.UglifyJsPlugin({sourceMap: true})] : [],
