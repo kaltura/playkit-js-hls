@@ -167,18 +167,19 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
   }
 
   /**
-   * Destroying the hls adapter.
+   * Destroys the hls adapter.
    * @function destroy
    * @override
+   * @returns {Promise<*>} - The destroy promise.
    */
-  destroy(): void {
-    HlsAdapter._logger.debug('destroy');
-    super.destroy();
-    this._loadPromise = null;
-    this._sourceObj = null;
-    this._removeBindings();
-    this._hls.detachMedia();
-    this._hls.destroy();
+  destroy(): Promise<*> {
+    return super.destroy().then(() => {
+      HlsAdapter._logger.debug('destroy');
+      this._loadPromise = null;
+      this._removeBindings();
+      this._hls.detachMedia();
+      this._hls.destroy();
+    });
   }
 
   /**
@@ -523,7 +524,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    */
   get duration(): number {
     if (this.isLive()) {
-        return this._getLiveEdge();
+      return this._getLiveEdge();
     } else {
       return super.duration;
     }
