@@ -205,7 +205,7 @@ describe('HlsAdapter Instance - Unit', function () {
     };
     hlsAdapterInstance._disableAllTextTracks();
     for (let i = 0; i < hlsAdapterInstance._videoElement.textTracks.length; i++) {
-      hlsAdapterInstance._videoElement.textTracks[i].mode.should.equal('hidden');
+      hlsAdapterInstance._videoElement.textTracks[i].mode.should.equal('disabled');
     }
   });
 
@@ -216,7 +216,7 @@ describe('HlsAdapter Instance - Unit', function () {
     hlsAdapterInstance._videoElement.textTracks[0].mode = 'showing';
     hlsAdapterInstance.hideTextTrack();
     for (let i = 0; i < hlsAdapterInstance._videoElement.textTracks.length; i++) {
-      hlsAdapterInstance._videoElement.textTracks[i].mode.should.equal('hidden');
+      hlsAdapterInstance._videoElement.textTracks[i].mode.should.equal('disabled');
     }
   });
 
