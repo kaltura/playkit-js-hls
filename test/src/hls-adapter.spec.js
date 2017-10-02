@@ -290,6 +290,7 @@ describe('HlsAdapter Instance - Unit', function () {
 
 describe('HlsAdapter Instance - Integration', function () {
 
+  let playerContainer;
   let player;
   let tracks;
   let videoTracks;
@@ -297,17 +298,18 @@ describe('HlsAdapter Instance - Integration', function () {
   let textTracks;
 
   before(function () {
-    TestUtils.createElement('DIV', targetId);
+    playerContainer = TestUtils.createElement('DIV', targetId);
   });
 
   beforeEach(function () {
-    player = loadPlayer(targetId, {
+    player = loadPlayer({
       sources: {
         hls: [
           hls_sources.ElephantsDream
         ]
       }
     });
+    playerContainer.appendChild(player.getView());
   });
 
   afterEach(function () {
@@ -375,10 +377,10 @@ describe('HlsAdapter Instance - Integration', function () {
         audioTracks = player.getTracks(player.Track.AUDIO);
         textTracks = player.getTracks(player.Track.TEXT);
         player.src.should.equal(hls_sources.ElephantsDream.url);
-        tracks.length.should.equal(14);
+        tracks.length.should.equal(15);
         videoTracks.length.should.equal(4);
         audioTracks.length.should.equal(3);
-        textTracks.length.should.equal(7);
+        textTracks.length.should.equal(8);
         player.addEventListener(player.Event.VIDEO_TRACK_CHANGED, onVideoTrackChanged.bind(null, done));
         player.selectTrack(videoTracks[2]);
       } else {
