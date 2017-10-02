@@ -446,7 +446,7 @@ var HlsAdapter = function (_BaseMediaSourceAdapt) {
     value: function selectTextTrack(textTrack) {
       if (textTrack instanceof _playkitJs.TextTrack && !textTrack.active && this._videoElement.textTracks) {
         this._disableAllTextTracks();
-        this._videoElement.textTracks[textTrack.index].mode = 'showing';
+        this._videoElement.textTracks[textTrack.index].mode = 'hidden';
         HlsAdapter._logger.debug('Text track changed', textTrack);
         this._onTrackChanged(textTrack);
       }
@@ -615,7 +615,7 @@ var HlsAdapter = function (_BaseMediaSourceAdapt) {
     value: function _disableAllTextTracks() {
       var vidTextTracks = this._videoElement.textTracks;
       for (var i = 0; i < vidTextTracks.length; i++) {
-        vidTextTracks[i].mode = 'hidden';
+        vidTextTracks[i].mode = 'disabled';
       }
     }
 
