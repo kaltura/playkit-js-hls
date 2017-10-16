@@ -288,21 +288,24 @@ var HlsAdapter = function (_BaseMediaSourceAdapt) {
     }
 
     /**
-     * Destroying the hls adapter.
+     * Destroys the hls adapter.
      * @function destroy
      * @override
+     * @returns {Promise<*>} - The destroy promise.
      */
 
   }, {
     key: 'destroy',
     value: function destroy() {
-      HlsAdapter._logger.debug('destroy');
-      _get(HlsAdapter.prototype.__proto__ || Object.getPrototypeOf(HlsAdapter.prototype), 'destroy', this).call(this);
-      this._loadPromise = null;
-      this._sourceObj = null;
-      this._removeBindings();
-      this._hls.detachMedia();
-      this._hls.destroy();
+      var _this3 = this;
+
+      return _get(HlsAdapter.prototype.__proto__ || Object.getPrototypeOf(HlsAdapter.prototype), 'destroy', this).call(this).then(function () {
+        HlsAdapter._logger.debug('destroy');
+        _this3._loadPromise = null;
+        _this3._removeBindings();
+        _this3._hls.detachMedia();
+        _this3._hls.destroy();
+      });
     }
 
     /**
