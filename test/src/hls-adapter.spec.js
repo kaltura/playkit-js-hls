@@ -98,12 +98,14 @@ describe('HlsAdapter Instance - Unit', function () {
     hlsAdapterInstance = HlsAdapter.createAdapter(video, sourceObj, config);
   });
 
-  afterEach(function () {
+  afterEach(function (done) {
     sandbox.restore();
-    hlsAdapterInstance.destroy();
-    hlsAdapterInstance = null;
-    video = null;
-    TestUtils.removeVideoElementsFromTestPage();
+    hlsAdapterInstance.destroy().then(() => {
+      hlsAdapterInstance = null;
+      video = null;
+      TestUtils.removeVideoElementsFromTestPage();
+      done();
+    });
   });
 
   it('should create hls adapter properties', function () {
@@ -126,12 +128,13 @@ describe('HlsAdapter Instance - Unit', function () {
     hlsAdapterInstance.load().then((/* data */) => {
       let detachMediaSpier = sandbox.spy(hlsAdapterInstance._hls, 'detachMedia');
       let destroySpier = sandbox.spy(hlsAdapterInstance._hls, 'destroy');
-      hlsAdapterInstance.destroy();
-      (hlsAdapterInstance._loadPromise === null).should.be.true;
-      (hlsAdapterInstance._sourceObj === null).should.be.true;
-      detachMediaSpier.should.have.been.called;
-      destroySpier.should.have.been.called;
-      done();
+      hlsAdapterInstance.destroy().then(() => {
+        (hlsAdapterInstance._loadPromise === null).should.be.true;
+        (hlsAdapterInstance._sourceObj === null).should.be.true;
+        detachMediaSpier.should.have.been.called;
+        destroySpier.should.have.been.called;
+        done();
+      });
     });
   });
 
@@ -141,6 +144,7 @@ describe('HlsAdapter Instance - Unit', function () {
       detachMedia: function () {
       },
       destroy: function () {
+        return Promise.resolve();
       },
       off: function () {
       }
@@ -155,6 +159,7 @@ describe('HlsAdapter Instance - Unit', function () {
       detachMedia: function () {
       },
       destroy: function () {
+        return Promise.resolve();
       },
       off: function () {
       }
@@ -168,6 +173,7 @@ describe('HlsAdapter Instance - Unit', function () {
       detachMedia: function () {
       },
       destroy: function () {
+        return Promise.resolve();
       },
       off: function () {
       }
@@ -190,6 +196,7 @@ describe('HlsAdapter Instance - Unit', function () {
       detachMedia: function () {
       },
       destroy: function () {
+        return Promise.resolve();
       },
       off: function () {
       }
@@ -228,6 +235,7 @@ describe('HlsAdapter Instance - Unit', function () {
       detachMedia: function () {
       },
       destroy: function () {
+        return Promise.resolve();
       },
       off: function () {
       }
@@ -243,6 +251,7 @@ describe('HlsAdapter Instance - Unit', function () {
       detachMedia: function () {
       },
       destroy: function () {
+        return Promise.resolve();
       },
       off: function () {
       }
@@ -446,12 +455,14 @@ describe('HlsAdapter Instance - isLive', () => {
     config = {playback: {options: {html5: {hls: {}}}}};
   });
 
-  afterEach(function () {
+  afterEach(function (done) {
     sandbox.restore();
-    hlsAdapterInstance.destroy();
-    hlsAdapterInstance = null;
-    video = null;
-    TestUtils.removeVideoElementsFromTestPage();
+    hlsAdapterInstance.destroy().then(() => {
+      hlsAdapterInstance = null;
+      video = null;
+      TestUtils.removeVideoElementsFromTestPage();
+      done();
+    });
   });
 
   it('should return false for VOD', (done) => {
@@ -491,12 +502,14 @@ describe('HlsAdapter Instance - seekToLiveEdge', function () {
     config = {playback: {options: {html5: {hls: {}}}}};
   });
 
-  afterEach(function () {
+  afterEach(function (done) {
     sandbox.restore();
-    hlsAdapterInstance.destroy();
-    hlsAdapterInstance = null;
-    video = null;
-    TestUtils.removeVideoElementsFromTestPage();
+    hlsAdapterInstance.destroy().then(() => {
+      hlsAdapterInstance = null;
+      video = null;
+      TestUtils.removeVideoElementsFromTestPage();
+      done();
+    });
   });
 
   it('should seek to live edge', (done) => {
@@ -530,12 +543,14 @@ describe('HlsAdapter Instance - get duration', function () {
     config = {playback: {options: {html5: {hls: {}}}}};
   });
 
-  afterEach(function () {
+  afterEach(function (done) {
     sandbox.restore();
-    hlsAdapterInstance.destroy();
-    hlsAdapterInstance = null;
-    video = null;
-    TestUtils.removeVideoElementsFromTestPage();
+    hlsAdapterInstance.destroy().then(() => {
+      hlsAdapterInstance = null;
+      video = null;
+      TestUtils.removeVideoElementsFromTestPage();
+      done();
+    });
   });
 
   it('should return video tag duration for VOD', (done) => {
@@ -579,12 +594,14 @@ describe('HlsAdapter Instance - _getLiveEdge', function () {
     config = {playback: {options: {html5: {hls: {}}}}};
   });
 
-  afterEach(function () {
+  afterEach(function (done) {
     sandbox.restore();
-    hlsAdapterInstance.destroy();
-    hlsAdapterInstance = null;
-    video = null;
-    TestUtils.removeVideoElementsFromTestPage();
+    hlsAdapterInstance.destroy().then(() => {
+      hlsAdapterInstance = null;
+      video = null;
+      TestUtils.removeVideoElementsFromTestPage();
+      done();
+    });
   });
 
   it('should return live edge for liveSyncDuration = 60', (done) => {
