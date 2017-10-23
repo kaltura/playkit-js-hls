@@ -62,13 +62,15 @@
   ],
   "textTracks": [
     {
+      "_id": 0,
       "_active": false,
-      "_label": "id3",
-      "_language": "",
+      "_label": "Chinese",
+      "_language": "zho",
       "_index": 0,
-      "_kind": "metadata"
+      "_kind": "subtitles"
     },
     {
+      "_id": 1,
       "_active": false,
       "_label": "Chinese",
       "_language": "zho",
@@ -76,38 +78,35 @@
       "_kind": "subtitles"
     },
     {
-      "_active": false,
-      "_label": "Chinese",
-      "_language": "zho",
+      "_id": 2,
+      "_active": true,
+      "_label": "French",
+      "_language": "fra",
       "_index": 2,
       "_kind": "subtitles"
     },
     {
-      "_active": true,
-      "_label": "French",
-      "_language": "fra",
+      "_id": 3,
+      "_active": false,
+      "_label": "German",
+      "_language": "deu",
       "_index": 3,
       "_kind": "subtitles"
     },
     {
+      "_id": 4,
       "_active": false,
-      "_label": "German",
-      "_language": "deu",
+      "_label": "Portuguese",
+      "_language": "por",
       "_index": 4,
       "_kind": "subtitles"
     },
     {
-      "_active": false,
-      "_label": "Portuguese",
-      "_language": "por",
-      "_index": 5,
-      "_kind": "subtitles"
-    },
-    {
+      "_id": 5,
       "_active": false,
       "_label": "Spanish; Castilian",
       "_language": "spa",
-      "_index": 6,
+      "_index": 5,
       "_kind": "subtitles"
     }
   ]

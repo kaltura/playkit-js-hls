@@ -191,6 +191,7 @@ describe('HlsAdapter Instance - Unit', function () {
       textTracks: hls_tracks.subtitles
     };
     hlsAdapterInstance._hls = {
+      subtitleTracks: hls_tracks.subtitles,
       audioTrack: 1,
       startLevel: 1,
       detachMedia: function () {
@@ -631,6 +632,46 @@ describe('HlsAdapter Instance - _getLiveEdge', function () {
         } else {
           hlsAdapterInstance._getLiveEdge().should.be.equal(0);
         }
+      });
+    });
+  });
+});
+
+describe('HlsAdapter Instance - change media', function () {
+
+  let hlsAdapterInstance;
+  let video;
+  let source1 = hls_sources.ElephantsDream;
+  let source2 = hls_sources.BigBugBunnuy;
+  let config;
+  let sandbox;
+
+  beforeEach(function () {
+    sandbox = sinon.sandbox.create();
+    video = document.createElement('video');
+    config = {playback: {options: {html5: {hls: {}}}}};
+  });
+
+  afterEach(function (done) {
+    sandbox.restore();
+    hlsAdapterInstance.destroy().then(() => {
+      hlsAdapterInstance = null;
+      video = null;
+      TestUtils.removeVideoElementsFromTestPage();
+      done();
+    });
+  });
+
+  it('should clean the text tracks on change media', (done) => {
+    hlsAdapterInstance = HlsAdapter.createAdapter(video, source1, config);
+    hlsAdapterInstance.load().then((data) => {
+      data.tracks.filter((track) => track instanceof TextTrack).length.should.equal(6);
+      hlsAdapterInstance.destroy().then(() => {
+        hlsAdapterInstance = HlsAdapter.createAdapter(video, source2, config);
+        hlsAdapterInstance.load().then((data) => {
+          data.tracks.filter((track) => track instanceof TextTrack).length.should.equal(0);
+          done();
+        });
       });
     });
   });
