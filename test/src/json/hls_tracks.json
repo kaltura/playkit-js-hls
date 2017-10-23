@@ -119,53 +119,46 @@
   ],
   "subtitles": [
     {
-      "id": "",
-      "kind": "metadata",
-      "label": "id3",
-      "language": "",
-      "mode": "hidden"
+      "id": 0,
+      "default": false,
+      "type": "SUBTITLES",
+      "name": "Chinese",
+      "lang": "zho"
     },
     {
-      "id": "",
-      "kind": "subtitles",
-      "label": "Chinese",
-      "language": "zho",
-      "mode": "hidden"
+      "id": 1,
+      "default": false,
+      "type": "SUBTITLES",
+      "name": "Chinese",
+      "lang": "zho"
     },
     {
-      "id": "",
-      "kind": "subtitles",
-      "label": "Chinese",
-      "language": "zho",
-      "mode": "hidden"
+      "id": 2,
+      "default": true,
+      "type": "SUBTITLES",
+      "name": "French",
+      "lang": "fra"
     },
     {
-      "id": "",
-      "kind": "subtitles",
-      "label": "French",
-      "language": "fra",
-      "mode": "showing"
+      "id": 3,
+      "default": false,
+      "type": "SUBTITLES",
+      "name": "German",
+      "lang": "deu"
     },
     {
-      "id": "",
-      "kind": "subtitles",
-      "label": "German",
-      "language": "deu",
-      "mode": "hidden"
+      "id": 4,
+      "default": false,
+      "type": "SUBTITLES",
+      "name": "Portuguese",
+      "lang": "por"
     },
     {
-      "id": "",
-      "kind": "subtitles",
-      "label": "Portuguese",
-      "language": "por",
-      "mode": "hidden"
-    },
-    {
-      "id": "",
-      "kind": "subtitles",
-      "label": "Spanish; Castilian",
-      "language": "spa",
-      "mode": "hidden"
+      "id": 5,
+      "default": false,
+      "type": "SUBTITLES",
+      "name": "Spanish; Castilian",
+      "lang": "spa"
     }
   ]
 }

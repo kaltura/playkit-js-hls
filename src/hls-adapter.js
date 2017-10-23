@@ -176,6 +176,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     return super.destroy().then(() => {
       HlsAdapter._logger.debug('destroy');
       this._loadPromise = null;
+      this._playerTracks = [];
       this._removeBindings();
       this._hls.detachMedia();
       this._hls.destroy();
@@ -191,7 +192,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
   _parseTracks(data: any): Array<Track> {
     let audioTracks = this._parseAudioTracks(data.audioTracks || []);
     let videoTracks = this._parseVideoTracks(data.levels || []);
-    let textTracks = this._parseTextTracks(this._videoElement.textTracks || []);
+    let textTracks = this._parseTextTracks(this._hls.subtitleTracks|| []);
     return audioTracks.concat(videoTracks).concat(textTracks);
   }
 
@@ -242,20 +243,21 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
   }
 
   /**
-   * Parse native video tag text tracks into player text tracks.
-   * @param {TextTrackList} vidTextTracks - The native video tag text tracks.
+   * Parse hls text tracks into player text tracks.
+   * @param {Array<Object>} hlsTextTracks - The hls text tracks.
    * @returns {Array<TextTrack>} - The parsed text tracks.
    * @private
    */
-  _parseTextTracks(vidTextTracks: TextTrackList | Array<Object>): Array<TextTrack> {
+  _parseTextTracks(hlsTextTracks: Array<Object>): Array<TextTrack> {
     let textTracks = [];
-    for (let i = 0; i < vidTextTracks.length; i++) {
+    for (let i = 0; i < hlsTextTracks.length; i++) {
       // Create text tracks
       let settings = {
-        active: vidTextTracks[i].mode === 'showing',
-        label: vidTextTracks[i].label,
-        kind: vidTextTracks[i].kind,
-        language: vidTextTracks[i].language,
+        id: hlsTextTracks[i].id,
+        active: hlsTextTracks[i].default,
+        label: hlsTextTracks[i].name,
+        kind: hlsTextTracks[i].type.toLowerCase(),
+        language: hlsTextTracks[i].lang,
         index: i
       };
       textTracks.push(new TextTrack(settings));
