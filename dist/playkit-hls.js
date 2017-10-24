@@ -302,6 +302,7 @@ var HlsAdapter = function (_BaseMediaSourceAdapt) {
       return _get(HlsAdapter.prototype.__proto__ || Object.getPrototypeOf(HlsAdapter.prototype), 'destroy', this).call(this).then(function () {
         HlsAdapter._logger.debug('destroy');
         _this3._loadPromise = null;
+        _this3._playerTracks = [];
         _this3._removeBindings();
         _this3._hls.detachMedia();
         _this3._hls.destroy();
@@ -320,7 +321,7 @@ var HlsAdapter = function (_BaseMediaSourceAdapt) {
     value: function _parseTracks(data) {
       var audioTracks = this._parseAudioTracks(data.audioTracks || []);
       var videoTracks = this._parseVideoTracks(data.levels || []);
-      var textTracks = this._parseTextTracks(this._videoElement.textTracks || []);
+      var textTracks = this._parseTextTracks(this._hls.subtitleTracks || []);
       return audioTracks.concat(videoTracks).concat(textTracks);
     }
 
@@ -377,23 +378,24 @@ var HlsAdapter = function (_BaseMediaSourceAdapt) {
     }
 
     /**
-     * Parse native video tag text tracks into player text tracks.
-     * @param {TextTrackList} vidTextTracks - The native video tag text tracks.
+     * Parse hls text tracks into player text tracks.
+     * @param {Array<Object>} hlsTextTracks - The hls text tracks.
      * @returns {Array<TextTrack>} - The parsed text tracks.
      * @private
      */
 
   }, {
     key: '_parseTextTracks',
-    value: function _parseTextTracks(vidTextTracks) {
+    value: function _parseTextTracks(hlsTextTracks) {
       var textTracks = [];
-      for (var i = 0; i < vidTextTracks.length; i++) {
+      for (var i = 0; i < hlsTextTracks.length; i++) {
         // Create text tracks
         var settings = {
-          active: vidTextTracks[i].mode === 'showing',
-          label: vidTextTracks[i].label,
-          kind: vidTextTracks[i].kind,
-          language: vidTextTracks[i].language,
+          id: hlsTextTracks[i].id,
+          active: hlsTextTracks[i].default,
+          label: hlsTextTracks[i].name,
+          kind: hlsTextTracks[i].type.toLowerCase(),
+          language: hlsTextTracks[i].lang,
           index: i
         };
         textTracks.push(new _playkitJs.TextTrack(settings));
