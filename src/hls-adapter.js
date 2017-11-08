@@ -1,6 +1,6 @@
 //@flow
 import Hlsjs from 'hls.js'
-import {registerMediaSourceAdapter, BaseMediaSourceAdapter} from 'playkit-js'
+import {BaseMediaSourceAdapter} from 'playkit-js'
 import {Track, VideoTrack, AudioTrack, TextTrack} from 'playkit-js'
 import {Utils} from 'playkit-js'
 
@@ -531,14 +531,4 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
       return super.duration;
     }
   }
-}
-
-declare var __VERSION__: string;
-declare var __NAME__: string;
-
-export {__VERSION__ as VERSION, __NAME__ as NAME};
-
-// Register hls adapter to the media source adapter provider.
-if (HlsAdapter.isSupported()) {
-  registerMediaSourceAdapter(HlsAdapter);
 }
