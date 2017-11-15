@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="1.3.2"></a>
+## [1.3.2](https://github.com/kaltura/playkit-js-hls/compare/v1.3.0...v1.3.2) (2017-10-26)
+
+
+### Bug Fixes
+
+* **FEC-7313:** live HLS stream is flashing ([#31](https://github.com/kaltura/playkit-js-hls/issues/31)) ([c8474ed](https://github.com/kaltura/playkit-js-hls/commit/c8474ed))
+
+
 <a name="1.3.1"></a>
 ## [1.3.1](https://github.com/kaltura/playkit-js-hls/compare/v1.3.0...v1.3.1) (2017-10-24)
 
