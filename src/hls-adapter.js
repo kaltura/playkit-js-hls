@@ -3,6 +3,7 @@ import Hlsjs from 'hls.js'
 import {registerMediaSourceAdapter, BaseMediaSourceAdapter} from 'playkit-js'
 import {Track, VideoTrack, AudioTrack, TextTrack} from 'playkit-js'
 import {Utils} from 'playkit-js'
+import {PlayerError} from 'playkit-js'
 
 /**
  * Adapter of hls.js lib for hls content.
@@ -449,50 +450,117 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
 
   /**
    * Handles hls errors.
-   * @param {string} event - The event name.
+   * @param {number} severity - The error severity.
+   * @param {number} category - The error category.
+   * @param {number} code - The error code.
+   * @param {any} description - The error description.
+   * @param {any} callback - function to execute after throwing an error.
+   * @private
+   * @returns {void}
+   */
+  _handleFatalError(severity: number, category: number, code: number, description: any, callback: any): void{
+    const message = PlayerError.createError({
+      severity: severity,
+      category: category,
+      code: code,
+      args: {data: description}
+    });
+    this._trigger(BaseMediaSourceAdapter.CustomEvents.ERROR,{message: message})
+    HlsAdapter._logger.error(description);
+    callback && callback();
+  }
+
+
+  /**
+   * Handles hls errors.
    * @param {any} data - The event data object.
    * @private
    * @returns {void}
    */
-  _onError(event: string, data: any): void {
+  _onError(data: any): void {
     let errorType = data.type;
     let errorDetails = data.details;
     let errorFatal = data.fatal;
+    let description = "";
     if (errorFatal) {
       switch (errorType) {
         case Hlsjs.ErrorTypes.NETWORK_ERROR:
-          HlsAdapter._logger.error("fatal network error encountered, try to recover");
-          this._hls.startLoad();
+          description = "fatal network error encountered, try to recover";
+          this._handleFatalError(PlayerError.Severity.RECOVERABLE, PlayerError.Category.NETWORK, PlayerError.Category.HTTP_ERROR, description, this._hls.startLoad);
           break;
         case Hlsjs.ErrorTypes.MEDIA_ERROR:
-          HlsAdapter._logger.error("fatal media error encountered, try to recover");
-          this._hls.recoverMediaError();
+          description = "fatal media error encountered, try to recover";
+          this._handleFatalError(PlayerError.Severity.RECOVERABLE, PlayerError.Category.MEDIA, PlayerError.Category.HLS_FATAL_MEDIA_ERROR, description, this._hls.recoverMediaError);
           break;
         default:
-          HlsAdapter._logger.error("fatal error, cannot recover");
-          this.destroy();
+          description = "fatal error, cannot recover";
+          this._handleFatalError(PlayerError.Severity.CRITICAL, PlayerError.Category.PLAYER, PlayerError.Category.HLS_FATAL_MEDIA_ERROR, description, this.destroy);
           break;
       }
     } else {
+      let code = 0;
+      let category = 0;
       switch (errorDetails) {
         case Hlsjs.ErrorDetails.MANIFEST_LOAD_ERROR:
+          category = PlayerError.Category.MANIFEST;
+          code = PlayerError.Code.HTTP_ERROR;
+          break;
         case Hlsjs.ErrorDetails.MANIFEST_LOAD_TIMEOUT:
+          category = PlayerError.Category.MANIFEST;
+          code = PlayerError.Code.TIMEOUT;
+          break;
         case Hlsjs.ErrorDetails.MANIFEST_PARSING_ERROR:
+          category = PlayerError.Category.MANIFEST;
+          code = PlayerError.Code.HLSJS_CANNOT_PARSE;
+          break;
         case Hlsjs.ErrorDetails.LEVEL_LOAD_ERROR:
+          category = PlayerError.Category.NETWORK;
+          code = PlayerError.Code.HTTP_ERROR;
+          break;
         case Hlsjs.ErrorDetails.LEVEL_LOAD_TIMEOUT:
+          category = PlayerError.Category.NETWORK;
+          code = PlayerError.Code.TIMEOUT;
+          break;
         case Hlsjs.ErrorDetails.LEVEL_SWITCH_ERROR:
+          category = PlayerError.Category.PLAYER;
+          code = PlayerError.Code.BITRATE_SWITCH_ISSUE;
+          break;
         case Hlsjs.ErrorDetails.FRAG_LOAD_ERROR:
+          category = PlayerError.Category.NETWORK;
+          code = PlayerError.Code.HTTP_ERROR;
+          break;
         case Hlsjs.ErrorDetails.FRAG_LOOP_LOADING_ERROR:
+          category = PlayerError.Category.NETWORK;
+          code = PlayerError.Code.HTTP_ERROR;
+          break;
         case Hlsjs.ErrorDetails.FRAG_LOAD_TIMEOUT:
+          category = PlayerError.Category.NETWORK;
+          code = PlayerError.Code.TIMEOUT;
+          break;
         case Hlsjs.ErrorDetails.FRAG_PARSING_ERROR:
+          category = PlayerError.Category.MEDIA;
+          code = PlayerError.Code.HLS_FRAG_PARSING_ERROR;
+          break;
         case Hlsjs.ErrorDetails.BUFFER_APPEND_ERROR:
+          category = PlayerError.Category.MEDIA;
+          code = PlayerError.Code.HLS_BUFFER_APPEND_ISSUE;
+          break;
         case Hlsjs.ErrorDetails.BUFFER_APPENDING_ERROR:
+          category = PlayerError.Category.MEDIA;
+          code = PlayerError.Code.HLS_BUFFER_APPENDING_ISSUE;
           HlsAdapter._logger.error(errorType, errorDetails);
           break;
         default:
           break;
       }
-    }
+      const message = PlayerError.createError({
+        severity: PlayerError.Severity.CRITICAL,
+        category: category,
+        code: code,
+        args: {message: errorDetails}
+      });
+      this._trigger(BaseMediaSourceAdapter.CustomEvents.ERROR,{message: message})
+
   }
 
   /**
