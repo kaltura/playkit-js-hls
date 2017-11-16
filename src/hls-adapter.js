@@ -465,7 +465,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
       code: code,
       args: {data: description}
     });
-    this._trigger(BaseMediaSourceAdapter.CustomEvents.ERROR,{message: message})
+    this._trigger(BaseMediaSourceAdapter.CustomEvents.ERROR,message);
     HlsAdapter._logger.error(description);
     callback && callback();
   }
@@ -559,7 +559,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
         code: code,
         args: {message: errorDetails}
       });
-      this._trigger(BaseMediaSourceAdapter.CustomEvents.ERROR,{message: message})
+      this._trigger(BaseMediaSourceAdapter.CustomEvents.ERROR, message);
 
   }
 
