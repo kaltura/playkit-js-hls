@@ -1,13 +1,13 @@
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
-		module.exports = factory(require("hls.js"), require("playkit-js"));
+		module.exports = factory(require("playkit-js"), require("hls.js"));
 	else if(typeof define === 'function' && define.amd)
-		define(["hls.js", "playkit-js"], factory);
+		define(["playkit-js", "hls.js"], factory);
 	else if(typeof exports === 'object')
-		exports["PlaykitJsHls"] = factory(require("hls.js"), require("playkit-js"));
+		exports["PlaykitJsHls"] = factory(require("playkit-js"), require("hls.js"));
 	else
-		root["PlaykitJsHls"] = factory(root["Hls"], root["Playkit"]);
-})(this, function(__WEBPACK_EXTERNAL_MODULE_1__, __WEBPACK_EXTERNAL_MODULE_2__) {
+		root["PlaykitJsHls"] = factory(root["Playkit"], root["Hls"]);
+})(this, function(__WEBPACK_EXTERNAL_MODULE_0__, __WEBPACK_EXTERNAL_MODULE_3__) {
 return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
@@ -70,11 +70,47 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 0);
+/******/ 	return __webpack_require__(__webpack_require__.s = 1);
 /******/ })
 /************************************************************************/
 /******/ ([
 /* 0 */
+/***/ (function(module, exports) {
+
+module.exports = __WEBPACK_EXTERNAL_MODULE_0__;
+
+/***/ }),
+/* 1 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.NAME = exports.VERSION = undefined;
+
+var _playkitJs = __webpack_require__(0);
+
+var _hlsAdapter = __webpack_require__(2);
+
+var _hlsAdapter2 = _interopRequireDefault(_hlsAdapter);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+exports.default = _hlsAdapter2.default;
+exports.VERSION = "1.4.0";
+exports.NAME = "playkit-js-hls";
+
+// Register hls adapter to the media source adapter provider.
+
+if (_hlsAdapter2.default.isSupported()) {
+  (0, _playkitJs.registerMediaSourceAdapter)(_hlsAdapter2.default);
+}
+
+/***/ }),
+/* 2 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -88,11 +124,11 @@ var _get = function get(object, property, receiver) { if (object === null) objec
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _hls = __webpack_require__(1);
+var _hls = __webpack_require__(3);
 
 var _hls2 = _interopRequireDefault(_hls);
 
-var _playkitJs = __webpack_require__(2);
+var _playkitJs = __webpack_require__(0);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -725,28 +761,16 @@ var HlsAdapter = function (_BaseMediaSourceAdapt) {
   return HlsAdapter;
 }(_playkitJs.BaseMediaSourceAdapter);
 
-// Register hls adapter to the media source adapter provider.
-
-
 HlsAdapter.id = 'HlsAdapter';
 HlsAdapter._logger = _playkitJs.BaseMediaSourceAdapter.getLogger(HlsAdapter.id);
 HlsAdapter._hlsMimeTypes = ['application/x-mpegurl', 'application/vnd.apple.mpegurl', 'audio/mpegurl', 'audio/x-mpegurl', 'video/x-mpegurl', 'video/mpegurl', 'application/mpegurl'];
 exports.default = HlsAdapter;
-if (HlsAdapter.isSupported()) {
-  (0, _playkitJs.registerMediaSourceAdapter)(HlsAdapter);
-}
 
 /***/ }),
-/* 1 */
+/* 3 */
 /***/ (function(module, exports) {
 
-module.exports = __WEBPACK_EXTERNAL_MODULE_1__;
-
-/***/ }),
-/* 2 */
-/***/ (function(module, exports) {
-
-module.exports = __WEBPACK_EXTERNAL_MODULE_2__;
+module.exports = __WEBPACK_EXTERNAL_MODULE_3__;
 
 /***/ })
 /******/ ]);
