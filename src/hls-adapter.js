@@ -3,7 +3,7 @@ import Hlsjs from 'hls.js'
 import {BaseMediaSourceAdapter} from 'playkit-js'
 import {Track, VideoTrack, AudioTrack, TextTrack} from 'playkit-js'
 import {Utils} from 'playkit-js'
-import {Error, Category, Severity, Code} from 'playkit-js'
+import {Error} from 'playkit-js'
 
 /**
  * Adapter of hls.js lib for hls content.
@@ -59,15 +59,6 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    * @private
    */
   _playerTracks: Array<Track>;
-
-  /**
-   * debugMode
-   * @member {boolean} - debugMode
-   * @type {boolean}
-   * @private
-   */
-
-  _debugMode: boolean = true;
 
   /**
    * Factory method to create media source adapter.
@@ -468,15 +459,9 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    * @private
    * @returns {void}
    */
-  _handleRecoverableError(severity: number, category: number, code: number, description: any): void{
-    const message = new Error(this._debugMode).createError({
-      severity: severity,
-      category: category,
-      code: code,
-      args: {data: description}
-    });
-    this._trigger(BaseMediaSourceAdapter.CustomEvents.ERROR,message);
-    HlsAdapter._logger.error(description);
+  _handleError(severity: number, category: number, code: number, description: any): void{
+    const message = new Error(severity, category, code, {data: description});
+    this._trigger(BaseMediaSourceAdapter.CustomEvents.ERROR , message);
   }
 
 
@@ -495,17 +480,17 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
       switch (errorType) {
         case Hlsjs.ErrorTypes.NETWORK_ERROR:
           description = "fatal network error encountered, try to recover";
-          this._handleRecoverableError(Severity.RECOVERABLE, Category.NETWORK, Category.HTTP_ERROR, description);
+          this._handleError(Error.Severity.RECOVERABLE, Error.Category.NETWORK, Error.Category.HTTP_ERROR, description);
           this._hls.startLoad();
           break;
         case Hlsjs.ErrorTypes.MEDIA_ERROR:
           description = "fatal media error encountered, try to recover";
-          this._handleRecoverableError(Severity.RECOVERABLE, Category.MEDIA, Category.HLS_FATAL_MEDIA_ERROR, description);
+          this._handleError(Error.Severity.RECOVERABLE, Error.Category.MEDIA, Error.Category.HLS_FATAL_MEDIA_ERROR, description);
           this._hls.recoverMediaError();
           break;
         default:
           description = "fatal error, cannot recover";
-          this._handleRecoverableError(Severity.CRITICAL, Category.PLAYER, Category.HLS_FATAL_MEDIA_ERROR, description);
+          this._handleError(Error.Severity.CRITICAL, Error.Category.PLAYER, Error.Category.HLS_FATAL_MEDIA_ERROR, description);
           this.destroy();
           break;
       }
@@ -514,65 +499,57 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
       let category = 0;
       switch (errorDetails) {
         case Hlsjs.ErrorDetails.MANIFEST_LOAD_ERROR:
-          category = Category.MANIFEST;
-          code = Code.HTTP_ERROR;
+          category = Error.Category.MANIFEST;
+          code = Error.Code.HTTP_ERROR;
           break;
         case Hlsjs.ErrorDetails.MANIFEST_LOAD_TIMEOUT:
-          category = Category.MANIFEST;
-          code = Code.TIMEOUT;
+          category = Error.Category.MANIFEST;
+          code = Error.Code.TIMEOUT;
           break;
         case Hlsjs.ErrorDetails.MANIFEST_PARSING_ERROR:
-          category = Category.MANIFEST;
-          code = Code.HLSJS_CANNOT_PARSE;
+          category = Error.Category.MANIFEST;
+          code = Error.Code.HLSJS_CANNOT_PARSE;
           break;
         case Hlsjs.ErrorDetails.LEVEL_LOAD_ERROR:
-          category = Category.NETWORK;
-          code = Code.HTTP_ERROR;
+          category = Error.Category.NETWORK;
+          code = Error.Code.HTTP_ERROR;
           break;
         case Hlsjs.ErrorDetails.LEVEL_LOAD_TIMEOUT:
-          category = Category.NETWORK;
-          code = Code.TIMEOUT;
+          category = Error.Category.NETWORK;
+          code = Error.Code.TIMEOUT;
           break;
         case Hlsjs.ErrorDetails.LEVEL_SWITCH_ERROR:
-          category = Category.PLAYER;
-          code = Code.BITRATE_SWITCH_ISSUE;
+          category = Error.Category.PLAYER;
+          code = Error.Code.BITRATE_SWITCH_ISSUE;
           break;
         case Hlsjs.ErrorDetails.FRAG_LOAD_ERROR:
-          category = Category.NETWORK;
-          code = Code.HTTP_ERROR;
+          category = Error.Category.NETWORK;
+          code = Error.Code.HTTP_ERROR;
           break;
         case Hlsjs.ErrorDetails.FRAG_LOOP_LOADING_ERROR:
-          category = Category.NETWORK;
-          code = Code.HTTP_ERROR;
+          category = Error.Category.NETWORK;
+          code = Error.Code.HTTP_ERROR;
           break;
         case Hlsjs.ErrorDetails.FRAG_LOAD_TIMEOUT:
-          category = Category.NETWORK;
-          code = Code.TIMEOUT;
+          category = Error.Category.NETWORK;
+          code = Error.Code.TIMEOUT;
           break;
         case Hlsjs.ErrorDetails.FRAG_PARSING_ERROR:
-          category = Category.MEDIA;
-          code = Code.HLS_FRAG_PARSING_ERROR;
+          category = Error.Category.MEDIA;
+          code = Error.Code.HLS_FRAG_PARSING_ERROR;
           break;
         case Hlsjs.ErrorDetails.BUFFER_APPEND_ERROR:
-          category = Category.MEDIA;
-          code = Code.HLS_BUFFER_APPEND_ISSUE;
+          category = Error.Category.MEDIA;
+          code = Error.Code.HLS_BUFFER_APPEND_ISSUE;
           break;
         case Hlsjs.ErrorDetails.BUFFER_APPENDING_ERROR:
-          category = Category.MEDIA;
-          code = Code.HLS_BUFFER_APPENDING_ISSUE;
-          HlsAdapter._logger.error(errorType, errorDetails);
+          category = Error.Category.MEDIA;
+          code = Error.Code.HLS_BUFFER_APPENDING_ISSUE;
           break;
         default:
           break;
       }
-      const message = new Error(this._debugMode).createError({
-        severity: Severity.CRITICAL,
-        category: category,
-        code: code,
-        args: {message: errorDetails}
-      });
-      this._trigger(BaseMediaSourceAdapter.CustomEvents.ERROR, message);
-
+      this._handleError(Error.Severity.CRITICAL, category, code, errorDetails);
     }
   }
 
