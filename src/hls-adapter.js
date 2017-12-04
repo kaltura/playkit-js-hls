@@ -1,9 +1,7 @@
 //@flow
 import Hlsjs from 'hls.js'
-import {BaseMediaSourceAdapter} from 'playkit-js'
+import {BaseMediaSourceAdapter, Utils, Error} from 'playkit-js'
 import {Track, VideoTrack, AudioTrack, TextTrack} from 'playkit-js'
-import {Utils} from 'playkit-js'
-import {Error} from 'playkit-js'
 
 /**
  * Adapter of hls.js lib for hls content.
@@ -141,7 +139,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
   }
 
   /**
-   * Load the video source need moew
+   * Load the video source
    * @function load
    * @param {number} startTime - Optional time to start the video from.
    * @returns {Promise<Object>} - The loaded data
@@ -495,62 +493,73 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
           break;
       }
     } else {
-      let code = 0;
-      let category = 0;
-      switch (errorDetails) {
-        case Hlsjs.ErrorDetails.MANIFEST_LOAD_ERROR:
-          category = Error.Category.MANIFEST;
-          code = Error.Code.HTTP_ERROR;
-          break;
-        case Hlsjs.ErrorDetails.MANIFEST_LOAD_TIMEOUT:
-          category = Error.Category.MANIFEST;
-          code = Error.Code.TIMEOUT;
-          break;
-        case Hlsjs.ErrorDetails.MANIFEST_PARSING_ERROR:
-          category = Error.Category.MANIFEST;
-          code = Error.Code.HLSJS_CANNOT_PARSE;
-          break;
-        case Hlsjs.ErrorDetails.LEVEL_LOAD_ERROR:
-          category = Error.Category.NETWORK;
-          code = Error.Code.HTTP_ERROR;
-          break;
-        case Hlsjs.ErrorDetails.LEVEL_LOAD_TIMEOUT:
-          category = Error.Category.NETWORK;
-          code = Error.Code.TIMEOUT;
-          break;
-        case Hlsjs.ErrorDetails.LEVEL_SWITCH_ERROR:
-          category = Error.Category.PLAYER;
-          code = Error.Code.BITRATE_SWITCH_ISSUE;
-          break;
-        case Hlsjs.ErrorDetails.FRAG_LOAD_ERROR:
-          category = Error.Category.NETWORK;
-          code = Error.Code.HTTP_ERROR;
-          break;
-        case Hlsjs.ErrorDetails.FRAG_LOOP_LOADING_ERROR:
-          category = Error.Category.NETWORK;
-          code = Error.Code.HTTP_ERROR;
-          break;
-        case Hlsjs.ErrorDetails.FRAG_LOAD_TIMEOUT:
-          category = Error.Category.NETWORK;
-          code = Error.Code.TIMEOUT;
-          break;
-        case Hlsjs.ErrorDetails.FRAG_PARSING_ERROR:
-          category = Error.Category.MEDIA;
-          code = Error.Code.HLS_FRAG_PARSING_ERROR;
-          break;
-        case Hlsjs.ErrorDetails.BUFFER_APPEND_ERROR:
-          category = Error.Category.MEDIA;
-          code = Error.Code.HLS_BUFFER_APPEND_ISSUE;
-          break;
-        case Hlsjs.ErrorDetails.BUFFER_APPENDING_ERROR:
-          category = Error.Category.MEDIA;
-          code = Error.Code.HLS_BUFFER_APPENDING_ISSUE;
-          break;
-        default:
-          break;
-      }
-      this._handleError(Error.Severity.CRITICAL, category, code, errorDetails);
+      const errorData: {category: number, code: number} = this._getErrorData(errorDetails);
+      this._handleError(Error.Severity.CRITICAL, errorData.category, errorData.code, errorDetails);
     }
+  }
+
+  /**
+   * Transforms the HLS error to player error code and category
+   * @param {Object} errorDetails - hls.js error details
+   * @returns {{code: number, category: number}} - player error code and category
+   * @private
+   */
+  _getErrorData(errorDetails: Object): {category: number, code: number}{
+    let code = 0;
+    let category = 0;
+    switch (errorDetails) {
+      case Hlsjs.ErrorDetails.MANIFEST_LOAD_ERROR:
+        category = Error.Category.MANIFEST;
+        code = Error.Code.HTTP_ERROR;
+        break;
+      case Hlsjs.ErrorDetails.MANIFEST_LOAD_TIMEOUT:
+        category = Error.Category.MANIFEST;
+        code = Error.Code.TIMEOUT;
+        break;
+      case Hlsjs.ErrorDetails.MANIFEST_PARSING_ERROR:
+        category = Error.Category.MANIFEST;
+        code = Error.Code.HLSJS_CANNOT_PARSE;
+        break;
+      case Hlsjs.ErrorDetails.LEVEL_LOAD_ERROR:
+        category = Error.Category.NETWORK;
+        code = Error.Code.HTTP_ERROR;
+        break;
+      case Hlsjs.ErrorDetails.LEVEL_LOAD_TIMEOUT:
+        category = Error.Category.NETWORK;
+        code = Error.Code.TIMEOUT;
+        break;
+      case Hlsjs.ErrorDetails.LEVEL_SWITCH_ERROR:
+        category = Error.Category.PLAYER;
+        code = Error.Code.BITRATE_SWITCH_ISSUE;
+        break;
+      case Hlsjs.ErrorDetails.FRAG_LOAD_ERROR:
+        category = Error.Category.NETWORK;
+        code = Error.Code.HTTP_ERROR;
+        break;
+      case Hlsjs.ErrorDetails.FRAG_LOOP_LOADING_ERROR:
+        category = Error.Category.NETWORK;
+        code = Error.Code.HTTP_ERROR;
+        break;
+      case Hlsjs.ErrorDetails.FRAG_LOAD_TIMEOUT:
+        category = Error.Category.NETWORK;
+        code = Error.Code.TIMEOUT;
+        break;
+      case Hlsjs.ErrorDetails.FRAG_PARSING_ERROR:
+        category = Error.Category.MEDIA;
+        code = Error.Code.HLS_FRAG_PARSING_ERROR;
+        break;
+      case Hlsjs.ErrorDetails.BUFFER_APPEND_ERROR:
+        category = Error.Category.MEDIA;
+        code = Error.Code.HLS_BUFFER_APPEND_ISSUE;
+        break;
+      case Hlsjs.ErrorDetails.BUFFER_APPENDING_ERROR:
+        category = Error.Category.MEDIA;
+        code = Error.Code.HLS_BUFFER_APPENDING_ISSUE;
+        break;
+      default:
+        break;
+    }
+    return {code: code, category: category};
   }
 
   /**
