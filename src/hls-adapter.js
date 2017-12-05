@@ -138,8 +138,8 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    * @returns {void}
    */
   _addBindings(): void {
-    this._hls.on(Hlsjs.Events.ERROR, (e) => {
-      this._onError(e);});
+    this._hls.on(Hlsjs.Events.ERROR, (e, data) => {
+      this._onError(data);});
     this._hls.on(Hlsjs.Events.MANIFEST_LOADED, this._onManifestLoaded.bind(this));
     this._hls.on(Hlsjs.Events.LEVEL_SWITCHED, this._onLevelSwitched.bind(this));
     this._hls.on(Hlsjs.Events.AUDIO_TRACK_SWITCHED, this._onAudioTrackSwitched.bind(this));
