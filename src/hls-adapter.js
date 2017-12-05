@@ -3,6 +3,12 @@ import Hlsjs from 'hls.js'
 import {BaseMediaSourceAdapter, Utils, Error} from 'playkit-js'
 import {Track, VideoTrack, AudioTrack, TextTrack} from 'playkit-js'
 
+const _defaultConfig: {[key: string]: any} = {
+  "recoverDecodingErrorDelay": 3000,
+  "recoverSwapAudioCodecDelay": 3000,
+  "fragLoadingMaxRetry": 4
+};
+
 /**
  * Adapter of hls.js lib for hls content.
  * @classdesc
@@ -120,6 +126,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
   constructor(videoElement: HTMLVideoElement, source: Source, config: Object) {
     HlsAdapter._logger.debug('Creating adapter. Hls version: ' + Hlsjs.version);
     super(videoElement, source, config);
+    this._config = Utils.Object.mergeDeep({}, this._config, _defaultConfig);
     this._hls = new Hlsjs(this._config);
     this._addBindings();
   }
