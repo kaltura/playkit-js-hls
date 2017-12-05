@@ -49,6 +49,21 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    * @private
    */
   _hls: any;
+
+  /**
+   * last recover date from decoding error
+   * @type {number}
+   * @private
+   */
+  _recoverDecodingErrorDate: number;
+
+  /**
+   * last recover date from audio swap codec operation
+   * @type {number}
+   * @private
+   */
+  _recoverSwapAudioCodecDate: number;
+
   /**
    * The load promise
    * @member {Promise<Object>} - _loadPromise
@@ -480,30 +495,74 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     let errorType = data.type;
     let errorDetails = data.details;
     let errorFatal = data.fatal;
-    let description = "";
     if (errorFatal) {
+      let error: typeof Error;
       switch (errorType) {
         case Hlsjs.ErrorTypes.NETWORK_ERROR:
-          description = "fatal network error encountered, try to recover";
-          this._handleError(Error.Severity.RECOVERABLE, Error.Category.NETWORK, Error.Category.HTTP_ERROR, description);
-          this._hls.startLoad();
+          error = new Error(
+            Error.Severity.CRITICAL,
+            Error.Category.NETWORK,
+            Error.Code.HTTP_ERROR,
+            errorDetails);
           break;
         case Hlsjs.ErrorTypes.MEDIA_ERROR:
-          description = "fatal media error encountered, try to recover";
-          this._handleError(Error.Severity.RECOVERABLE, Error.Category.MEDIA, Error.Category.HLS_FATAL_MEDIA_ERROR, description);
-          this._hls.recoverMediaError();
+          if (this._handleMediaError()) {
+            error = new Error(
+              Error.Severity.RECOVERABLE,
+              Error.Category.MEDIA,
+              Error.Code.HLS_FATAL_MEDIA_ERROR,
+              errorDetails);
+          } else {
+            error = new Error(
+              Error.Severity.CRITICAL,
+              Error.Category.MEDIA,
+              Error.Code.HLS_FATAL_MEDIA_ERROR,
+              errorDetails);
+          }
           break;
         default:
-          description = "fatal error, cannot recover";
-          this._handleError(Error.Severity.CRITICAL, Error.Category.PLAYER, Error.Category.HLS_FATAL_MEDIA_ERROR, description);
-          this.destroy();
+          error = new Error(
+            Error.Severity.CRITICAL,
+            Error.Category.PLAYER,
+            Error.Code.HLS_FATAL_MEDIA_ERROR,
+            errorDetails);
           break;
+      }
+      this._trigger(BaseMediaSourceAdapter.Html5Events.ERROR, error);
+      if (error && error.severity === Error.Severity.CRITICAL) {
+        this.destroy();
       }
     } else {
       const errorData: {category: number, code: number} = this._getErrorData(errorDetails);
-      this._handleError(Error.Severity.CRITICAL, errorData.category, errorData.code, errorDetails);
+      HlsAdapter._logger.warn(new Error(
+        Error.Severity.RECOVERABLE,
+        errorData.category,
+        errorData.code,
+        errorDetails));
     }
   }
+
+  _handleMediaError(): boolean {
+    const now: number = performance.now();
+    let recover = true;
+    if(!this._recoverDecodingErrorDate || (now - this._recoverDecodingErrorDate) > this._config.recoverDecodingErrorDelay) {
+      this._recoverDecodingErrorDate = performance.now();
+      HlsAdapter._logger.warn("try to recover media Error");
+      this.hls.recoverMediaError();
+    } else {
+      if(!this._recoverSwapAudioCodecDate || (now - this._recoverSwapAudioCodecDate) > this._config.recoverSwapAudioCodecDelay) {
+        this._recoverSwapAudioCodecDate = performance.now();
+        HlsAdapter._logger.warn("try to swap Audio Codec and recover media Error");
+        this.hls.swapAudioCodec();
+        this.hls.recoverMediaError();
+      } else {
+        recover = false;
+        HlsAdapter._logger.error("cannot recover, last media error recovery failed");
+      }
+    }
+    return recover;
+  }
+
 
   /**
    * Transforms the HLS error to player error code and category
