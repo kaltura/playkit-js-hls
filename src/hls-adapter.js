@@ -466,7 +466,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    */
   _handleError(severity: number, category: number, code: number, description: any): void{
     const message = new Error(severity, category, code, {data: description});
-    this._trigger(BaseMediaSourceAdapter.CustomEvents.ERROR , message);
+    this._trigger(BaseMediaSourceAdapter.Html5Events.ERROR , message);
   }
 
 
