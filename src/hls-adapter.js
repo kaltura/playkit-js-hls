@@ -3,7 +3,7 @@ import Hlsjs from 'hls.js'
 import {BaseMediaSourceAdapter, Utils, Error} from 'playkit-js'
 import {Track, VideoTrack, AudioTrack, TextTrack} from 'playkit-js'
 
-const _defaultConfig: {[key: string]: any} = {
+const _defaultConfig: { [key: string]: any } = {
   "recoverDecodingErrorDelay": 3000,
   "recoverSwapAudioCodecDelay": 3000,
   "fragLoadingMaxRetry": 4
@@ -154,7 +154,8 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    */
   _addBindings(): void {
     this._hls.on(Hlsjs.Events.ERROR, (e, data) => {
-      this._onError(data);});
+      this._onError(data);
+    });
     this._hls.on(Hlsjs.Events.MANIFEST_LOADED, this._onManifestLoaded.bind(this));
     this._hls.on(Hlsjs.Events.LEVEL_SWITCHED, this._onLevelSwitched.bind(this));
     this._hls.on(Hlsjs.Events.AUDIO_TRACK_SWITCHED, this._onAudioTrackSwitched.bind(this));
@@ -214,7 +215,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
   _parseTracks(data: any): Array<Track> {
     let audioTracks = this._parseAudioTracks(data.audioTracks || []);
     let videoTracks = this._parseVideoTracks(data.levels || []);
-    let textTracks = this._parseTextTracks(this._hls.subtitleTracks|| []);
+    let textTracks = this._parseTextTracks(this._hls.subtitleTracks || []);
     return audioTracks.concat(videoTracks).concat(textTracks);
   }
 
@@ -479,9 +480,9 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    * @private
    * @returns {void}
    */
-  _handleError(severity: number, category: number, code: number, description: any): void{
+  _handleError(severity: number, category: number, code: number, description: any): void {
     const message = new Error(severity, category, code, {data: description});
-    this._trigger(BaseMediaSourceAdapter.Html5Events.ERROR , message);
+    this._trigger(BaseMediaSourceAdapter.Html5Events.ERROR, message);
   }
 
 
@@ -533,7 +534,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
         this.destroy();
       }
     } else {
-      const errorData: {category: number, code: number} = this._getErrorData(errorDetails);
+      const errorData: { category: number, code: number } = this._getErrorData(errorDetails);
       HlsAdapter._logger.warn(new Error(
         Error.Severity.RECOVERABLE,
         errorData.category,
@@ -545,12 +546,12 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
   _handleMediaError(): boolean {
     const now: number = performance.now();
     let recover = true;
-    if(!this._recoverDecodingErrorDate || (now - this._recoverDecodingErrorDate) > this._config.recoverDecodingErrorDelay) {
+    if (!this._recoverDecodingErrorDate || (now - this._recoverDecodingErrorDate) > this._config.recoverDecodingErrorDelay) {
       this._recoverDecodingErrorDate = performance.now();
       HlsAdapter._logger.warn("try to recover media Error");
       this.hls.recoverMediaError();
     } else {
-      if(!this._recoverSwapAudioCodecDate || (now - this._recoverSwapAudioCodecDate) > this._config.recoverSwapAudioCodecDelay) {
+      if (!this._recoverSwapAudioCodecDate || (now - this._recoverSwapAudioCodecDate) > this._config.recoverSwapAudioCodecDelay) {
         this._recoverSwapAudioCodecDate = performance.now();
         HlsAdapter._logger.warn("try to swap Audio Codec and recover media Error");
         this.hls.swapAudioCodec();
@@ -570,7 +571,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    * @returns {{code: number, category: number}} - player error code and category
    * @private
    */
-  _getErrorData(errorDetails: Object): {category: number, code: number}{
+  _getErrorData(errorDetails: Object): { category: number, code: number } {
     let code = 0;
     let category = 0;
     switch (errorDetails) {
