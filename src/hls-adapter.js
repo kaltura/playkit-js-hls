@@ -623,6 +623,10 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
         category = Error.Category.MEDIA;
         code = Error.Code.HLS_BUFFER_APPENDING_ISSUE;
         break;
+      case Hlsjs.ErrorDetails.BUFFER_STALLED_ERROR:
+        category = Error.Category.MEDIA;
+        code = Error.Code.HLS_BUFFER_STALLED_ERROR;
+        break;
       default:
         break;
     }
