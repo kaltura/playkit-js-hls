@@ -159,6 +159,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     this._hls.on(Hlsjs.Events.MANIFEST_LOADED, this._onManifestLoaded.bind(this));
     this._hls.on(Hlsjs.Events.LEVEL_SWITCHED, this._onLevelSwitched.bind(this));
     this._hls.on(Hlsjs.Events.AUDIO_TRACK_SWITCHED, this._onAudioTrackSwitched.bind(this));
+    this._hls.on(Hlsjs.Events.FRAG_PARSING_METADATA, this._onMetadataEvent.bind(this));
   }
 
   /**
@@ -217,6 +218,12 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     let videoTracks = this._parseVideoTracks(data.levels || []);
     let textTracks = this._parseTextTracks(this._hls.subtitleTracks || []);
     return audioTracks.concat(videoTracks).concat(textTracks);
+  }
+
+  _onMetadataEvent(event:any, data: any){
+    if (data){
+      this._trigger(BaseMediaSourceAdapter.CustomEvents.STREAM_METADATA,data);
+    }
   }
 
   /**
