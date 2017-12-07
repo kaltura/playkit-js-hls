@@ -1,7 +1,6 @@
 //@flow
 import Hlsjs from 'hls.js'
-import {HlsJsErrorMap} from "./errors"
-import type {ErrorDetailsType} from "./errors"
+import {HlsJsErrorMap, type ErrorDetailsType} from "./errors"
 import {BaseMediaSourceAdapter, Utils, Error} from 'playkit-js'
 import {Track, VideoTrack, AudioTrack, TextTrack} from 'playkit-js'
 
