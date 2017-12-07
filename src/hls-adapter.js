@@ -546,14 +546,25 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
   }
 
   /**
+   * Check if time ahs passed a certain delta
+   * @param {number} now - current time
+   * @param {number} then - previous time
+   * @param {number} delay - time delta in ms
+   * @returns {boolean} - if time delta has
+   * @private
+   */
+  _checkTimeDeltaHasPassed(now: number, then: number, delay: number): boolean {
+    return (!then || (now - then) > delay);
+  }
+
+  /**
    * Check if should recover decoding error
    * @param {number} now - current time
    * @returns {boolean} - if should recover decoding error
    * @private
    */
   _shouldHandleDeodingError(now: number): boolean {
-    return (!this._recoverDecodingErrorDate ||
-      (now - this._recoverDecodingErrorDate) > this._config.recoverDecodingErrorDelay);
+    return this._checkTimeDeltaHasPassed(now, this._recoverDecodingErrorDate, this._config.recoverDecodingErrorDelay);
   }
 
   /**
@@ -573,8 +584,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    * @private
    */
   _shouldHandleSwapAudioCodec(now: number): boolean {
-    return (!this._recoverSwapAudioCodecDate ||
-      (now - this._recoverSwapAudioCodecDate) > this._config.recoverSwapAudioCodecDelay);
+    return this._checkTimeDeltaHasPassed(now, this._recoverSwapAudioCodecDate, this._config.recoverSwapAudioCodecDelay);
   }
 
   /**
