@@ -532,10 +532,10 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
   _handleMediaError(): boolean {
     const now: number = performance.now();
     let recover = true;
-    if (this._shouldHandleDeodingError(now)) {
+    if (this._checkTimeDeltaHasPassed(now, this._recoverDecodingErrorDate, this._config.recoverDecodingErrorDelay)) {
       this._recoverDecodingError();
     } else {
-      if (this._shouldHandleSwapAudioCodec(now)) {
+      if (this._checkTimeDeltaHasPassed(now, this._recoverSwapAudioCodecDate, this._config.recoverSwapAudioCodecDelay)) {
         this._recoverSwapAudioCodec();
       } else {
         recover = false;
@@ -558,16 +558,6 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
   }
 
   /**
-   * Check if should recover decoding error
-   * @param {number} now - current time
-   * @returns {boolean} - if should recover decoding error
-   * @private
-   */
-  _shouldHandleDeodingError(now: number): boolean {
-    return this._checkTimeDeltaHasPassed(now, this._recoverDecodingErrorDate, this._config.recoverDecodingErrorDelay);
-  }
-
-  /**
    * handle recover from decoding error
    * @private
    */
@@ -575,16 +565,6 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     this._recoverDecodingErrorDate = performance.now();
     HlsAdapter._logger.warn("try to recover media Error");
     this.hls.recoverMediaError();
-  }
-
-  /**
-   * Check if should recover decoding error by swaping audio codec
-   * @param {number} now - current time
-   * @returns {boolean} - if should recover decoding error
-   * @private
-   */
-  _shouldHandleSwapAudioCodec(now: number): boolean {
-    return this._checkTimeDeltaHasPassed(now, this._recoverSwapAudioCodecDate, this._config.recoverSwapAudioCodecDelay);
   }
 
   /**
