@@ -1,5 +1,6 @@
 //@flow
 import Hlsjs from 'hls.js'
+import {DefaultConfig} from './default-config'
 import {HlsJsErrorMap, type ErrorDetailsType} from "./errors"
 import {BaseMediaSourceAdapter, Utils, Error} from 'playkit-js'
 import {Track, VideoTrack, AudioTrack, TextTrack} from 'playkit-js'
@@ -136,7 +137,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
   constructor(videoElement: HTMLVideoElement, source: Source, config: Object) {
     HlsAdapter._logger.debug('Creating adapter. Hls version: ' + Hlsjs.version);
     super(videoElement, source, config);
-    this._config = Utils.Object.mergeDeep({}, this._config, defaultConfig);
+    this._config = Utils.Object.mergeDeep({}, this._config, DefaultConfig);
     this._hls = new Hlsjs(this._config);
     this._addBindings();
   }
@@ -615,3 +616,5 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     }
   }
 }
+
+HlsAdapter.defa
