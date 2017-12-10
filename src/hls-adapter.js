@@ -1,6 +1,7 @@
 //@flow
 import Hlsjs from 'hls.js'
-import {defaultConfig} from './default-config.json'
+import {DefaultConfig} from './default-config'
+import {HlsJsErrorMap, type ErrorDetailsType} from "./errors"
 import {BaseMediaSourceAdapter, Utils, Error} from 'playkit-js'
 import {Track, VideoTrack, AudioTrack, TextTrack} from 'playkit-js'
 
@@ -136,7 +137,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
   constructor(videoElement: HTMLVideoElement, source: Source, config: Object) {
     HlsAdapter._logger.debug('Creating adapter. Hls version: ' + Hlsjs.version);
     super(videoElement, source, config);
-    this._config = Utils.Object.mergeDeep({}, this._config, defaultConfig);
+    this._config = Utils.Object.mergeDeep({}, this._config, DefaultConfig);
     this._hls = new Hlsjs(this._config);
     this._addBindings();
   }
@@ -465,22 +466,6 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     }
   }
 
-
-  /**
-   * Handles hls errors.
-   * @param {number} severity - The error severity.
-   * @param {number} category - The error category.
-   * @param {number} code - The error code.
-   * @param {any} description - The error description.
-   * @private
-   * @returns {void}
-   */
-  _handleError(severity: number, category: number, code: number, description: any): void {
-    const message = new Error(severity, category, code, {data: description});
-    this._trigger(BaseMediaSourceAdapter.Html5Events.ERROR, message);
-  }
-
-
   /**
    * Handles hls errors.
    * @param {any} data - The event data object.
@@ -488,9 +473,9 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    * @returns {void}
    */
   _onError(data: any): void {
-    let errorType = data.type;
-    let errorDetails = data.details;
-    let errorFatal = data.fatal;
+    const errorType = data.type;
+    const errorDetails = data.details;
+    const errorFatal = data.fatal;
     if (errorFatal) {
       let error: typeof Error;
       switch (errorType) {
@@ -529,28 +514,28 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
         this.destroy();
       }
     } else {
-      const errorData: { category: number, code: number } = this._getErrorData(errorDetails);
+      const {category, code}: ErrorDetailsType = HlsJsErrorMap[errorDetails] || {category: 0, code: 0};
       HlsAdapter._logger.warn(new Error(
         Error.Severity.RECOVERABLE,
-        errorData.category,
-        errorData.code,
+        category,
+        code,
         errorDetails));
     }
   }
 
+  /**
+   * Tries to handle media errors via hls.js error handlers
+   * @returns {boolean} - if media error is handled or not
+   * @private
+   */
   _handleMediaError(): boolean {
     const now: number = performance.now();
     let recover = true;
-    if (!this._recoverDecodingErrorDate || (now - this._recoverDecodingErrorDate) > this._config.recoverDecodingErrorDelay) {
-      this._recoverDecodingErrorDate = performance.now();
-      HlsAdapter._logger.warn("try to recover media Error");
-      this.hls.recoverMediaError();
+    if (this._checkTimeDeltaHasPassed(now, this._recoverDecodingErrorDate, this._config.recoverDecodingErrorDelay)) {
+      this._recoverDecodingError();
     } else {
-      if (!this._recoverSwapAudioCodecDate || (now - this._recoverSwapAudioCodecDate) > this._config.recoverSwapAudioCodecDelay) {
-        this._recoverSwapAudioCodecDate = performance.now();
-        HlsAdapter._logger.warn("try to swap Audio Codec and recover media Error");
-        this.hls.swapAudioCodec();
-        this.hls.recoverMediaError();
+      if (this._checkTimeDeltaHasPassed(now, this._recoverSwapAudioCodecDate, this._config.recoverSwapAudioCodecDelay)) {
+        this._recoverSwapAudioCodec();
       } else {
         recover = false;
         HlsAdapter._logger.error("cannot recover, last media error recovery failed");
@@ -559,73 +544,39 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     return recover;
   }
 
-
   /**
-   * Transforms the HLS error to player error code and category
-   * @param {Object} errorDetails - hls.js error details
-   * @returns {{code: number, category: number}} - player error code and category
+   * Check if time ahs passed a certain delta
+   * @param {number} now - current time
+   * @param {number} then - previous time
+   * @param {number} delay - time delta in ms
+   * @returns {boolean} - if time delta has
    * @private
    */
-  _getErrorData(errorDetails: Object): { category: number, code: number } {
-    let code = 0;
-    let category = 0;
-    switch (errorDetails) {
-      case Hlsjs.ErrorDetails.MANIFEST_LOAD_ERROR:
-        category = Error.Category.MANIFEST;
-        code = Error.Code.HTTP_ERROR;
-        break;
-      case Hlsjs.ErrorDetails.MANIFEST_LOAD_TIMEOUT:
-        category = Error.Category.MANIFEST;
-        code = Error.Code.TIMEOUT;
-        break;
-      case Hlsjs.ErrorDetails.MANIFEST_PARSING_ERROR:
-        category = Error.Category.MANIFEST;
-        code = Error.Code.HLSJS_CANNOT_PARSE;
-        break;
-      case Hlsjs.ErrorDetails.LEVEL_LOAD_ERROR:
-        category = Error.Category.NETWORK;
-        code = Error.Code.HTTP_ERROR;
-        break;
-      case Hlsjs.ErrorDetails.LEVEL_LOAD_TIMEOUT:
-        category = Error.Category.NETWORK;
-        code = Error.Code.TIMEOUT;
-        break;
-      case Hlsjs.ErrorDetails.LEVEL_SWITCH_ERROR:
-        category = Error.Category.PLAYER;
-        code = Error.Code.BITRATE_SWITCH_ISSUE;
-        break;
-      case Hlsjs.ErrorDetails.FRAG_LOAD_ERROR:
-        category = Error.Category.NETWORK;
-        code = Error.Code.HTTP_ERROR;
-        break;
-      case Hlsjs.ErrorDetails.FRAG_LOOP_LOADING_ERROR:
-        category = Error.Category.NETWORK;
-        code = Error.Code.HTTP_ERROR;
-        break;
-      case Hlsjs.ErrorDetails.FRAG_LOAD_TIMEOUT:
-        category = Error.Category.NETWORK;
-        code = Error.Code.TIMEOUT;
-        break;
-      case Hlsjs.ErrorDetails.FRAG_PARSING_ERROR:
-        category = Error.Category.MEDIA;
-        code = Error.Code.HLS_FRAG_PARSING_ERROR;
-        break;
-      case Hlsjs.ErrorDetails.BUFFER_APPEND_ERROR:
-        category = Error.Category.MEDIA;
-        code = Error.Code.HLS_BUFFER_APPEND_ISSUE;
-        break;
-      case Hlsjs.ErrorDetails.BUFFER_APPENDING_ERROR:
-        category = Error.Category.MEDIA;
-        code = Error.Code.HLS_BUFFER_APPENDING_ISSUE;
-        break;
-      case Hlsjs.ErrorDetails.BUFFER_STALLED_ERROR:
-        category = Error.Category.MEDIA;
-        code = Error.Code.HLS_BUFFER_STALLED_ERROR;
-        break;
-      default:
-        break;
-    }
-    return {code: code, category: category};
+  _checkTimeDeltaHasPassed(now: number, then: number, delay: number): boolean {
+    return (!then || (now - then) > delay);
+  }
+
+  /**
+   * handle recover from decoding error
+   * @returns {void}
+   * @private
+   */
+  _recoverDecodingError(): void {
+    this._recoverDecodingErrorDate = performance.now();
+    HlsAdapter._logger.warn("try to recover media Error");
+    this.hls.recoverMediaError();
+  }
+
+  /**
+   * handle recover from decoding error by swaping audio codec
+   * @returns {void}
+   * @private
+   */
+  _recoverSwapAudioCodec(): void {
+    this._recoverSwapAudioCodecDate = performance.now();
+    HlsAdapter._logger.warn("try to swap Audio Codec and recover media Error");
+    this.hls.swapAudioCodec();
+    this.hls.recoverMediaError();
   }
 
   /**
