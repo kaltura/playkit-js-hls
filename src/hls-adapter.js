@@ -528,6 +528,11 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     }
   }
 
+  /**
+   * Tries to handle media errors via hls.js error handlers
+   * @returns {boolean} - if media error is handled or not
+   * @private
+   */
   _handleMediaError(): boolean {
     const now: number = performance.now();
     let recover = true;
@@ -558,6 +563,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
 
   /**
    * handle recover from decoding error
+   * @returns {void}
    * @private
    */
   _recoverDecodingError(): void {
@@ -568,6 +574,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
 
   /**
    * handle recover from decoding error by swaping audio codec
+   * @returns {void}
    * @private
    */
   _recoverSwapAudioCodec(): void {
