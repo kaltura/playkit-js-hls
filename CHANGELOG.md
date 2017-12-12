@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="1.5.0"></a>
+# [1.5.0](https://github.com/kaltura/playkit-js-hls/compare/v1.4.1...v1.5.0) (2017-12-12)
+
+
+### Bug Fixes
+
+* add error code for buffer stalled ([#38](https://github.com/kaltura/playkit-js-hls/issues/38)) ([d5b8ac7](https://github.com/kaltura/playkit-js-hls/commit/d5b8ac7))
+
+
+### Features
+
+* add default-config json container ([#40](https://github.com/kaltura/playkit-js-hls/issues/40)) ([4a02bff](https://github.com/kaltura/playkit-js-hls/commit/4a02bff))
+
+
+
 <a name="1.4.1"></a>
 ## [1.4.1](https://github.com/kaltura/playkit-js-hls/compare/v1.4.0...v1.4.1) (2017-12-06)
 
