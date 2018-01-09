@@ -22,7 +22,7 @@ module.exports = {
   output: {
     path: __dirname + "/dist",
     filename: '[name].js',
-    library: "PlaykitJsHls",
+    library: ["playkit", "hls"],
     libraryTarget: "umd",
     devtoolModuleFilenameTemplate: "./hls/[resource-path]",
   },
