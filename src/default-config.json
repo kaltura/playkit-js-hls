@@ -1,5 +1,6 @@
 {
   "recoverDecodingErrorDelay": 3000,
   "recoverSwapAudioCodecDelay": 3000,
-  "fragLoadingMaxRetry": 4
+  "fragLoadingMaxRetry": 4,
+  "maxMaxBufferLength": 60
 }
