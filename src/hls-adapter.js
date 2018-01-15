@@ -84,7 +84,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    * @returns {IMediaSourceAdapter} - New instance of the run time media source adapter.
    * @static
    */
-  static createAdapter(videoElement: HTMLVideoElement, source: Source, config: Object): IMediaSourceAdapter {
+  static createAdapter(videoElement: HTMLVideoElement, source: PKMediaSourceObject, config: Object): IMediaSourceAdapter {
     let hlsConfig = {};
     if (Utils.Object.hasPropertyPath(config, 'playback.options.html5.hls')) {
       hlsConfig = config.playback.options.html5.hls;
