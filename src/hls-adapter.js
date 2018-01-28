@@ -204,14 +204,13 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
 
   /**
    * Parse the hls tracks into player tracks.
-   * @param {any} data - The event data.
    * @returns {Array<Track>} - The parsed tracks.
    * @private
    */
-  _parseTracks(data: any): Array<Track> {
-    let audioTracks = this._parseAudioTracks(data.audioTracks || []);
-    let videoTracks = this._parseVideoTracks(data.levels || []);
-    let textTracks = this._parseTextTracks(this._hls.subtitleTracks || []);
+  _parseTracks(): Array<Track> {
+    const audioTracks = this._parseAudioTracks(this._hls.audioTracks || []);
+    const videoTracks = this._parseVideoTracks(this._hls.levels || []);
+    const textTracks = this._parseTextTracks(this._hls.subtitleTracks || []);
     return audioTracks.concat(videoTracks).concat(textTracks);
   }
 
@@ -411,15 +410,13 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
   /**
    * Fired after manifest has been loaded.
    * @function _onManifestLoaded
-   * @param {string} event - The event name.
-   * @param {any} data - The event data object.
    * @private
    * @returns {void}
    */
-  _onManifestLoaded(event: string, data: any): void {
+  _onManifestLoaded(): void {
     HlsAdapter._logger.debug('The source has been loaded successfully');
     this._hls.startLoad();
-    this._playerTracks = this._parseTracks(data);
+    this._playerTracks = this._parseTracks();
   }
 
   /**

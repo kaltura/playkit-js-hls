@@ -183,15 +183,13 @@ describe('HlsAdapter Instance - Unit', function () {
   });
 
   it('should parse all hls tracks into player tracks', function () {
-    let data = {
-      audioTracks: hls_tracks.audioTracks,
-      levels: hls_tracks.levels
-    };
     hlsAdapterInstance._videoElement = {
       textTracks: hls_tracks.subtitles
     };
     hlsAdapterInstance._hls = {
+      audioTracks: hls_tracks.audioTracks,
       subtitleTracks: hls_tracks.subtitles,
+      levels: hls_tracks.levels,
       audioTrack: 1,
       startLevel: 1,
       detachMedia: function () {
@@ -202,7 +200,7 @@ describe('HlsAdapter Instance - Unit', function () {
       off: function () {
       }
     };
-    let tracks = hlsAdapterInstance._parseTracks(data);
+    let tracks = hlsAdapterInstance._parseTracks();
     let allTracks = player_tracks.audioTracks.concat(player_tracks.videoTracks).concat(player_tracks.textTracks);
     JSON.parse(JSON.stringify(tracks)).should.deep.equal(allTracks);
   });
