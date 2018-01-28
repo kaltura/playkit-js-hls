@@ -184,14 +184,14 @@ describe('HlsAdapter Instance - Unit', function () {
 
   it('should parse all hls tracks into player tracks', function () {
     let data = {
-      audioTracks: hls_tracks.audioTracks,
-      levels: hls_tracks.levels
+      audioTracks: hls_tracks.audioTracks
     };
     hlsAdapterInstance._videoElement = {
       textTracks: hls_tracks.subtitles
     };
     hlsAdapterInstance._hls = {
       subtitleTracks: hls_tracks.subtitles,
+      levels: hls_tracks.levels,
       audioTrack: 1,
       startLevel: 1,
       detachMedia: function () {
