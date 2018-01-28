@@ -209,9 +209,9 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    * @private
    */
   _parseTracks(data: any): Array<Track> {
-    let audioTracks = this._parseAudioTracks(data.audioTracks || []);
-    let videoTracks = this._parseVideoTracks(data.levels || []);
-    let textTracks = this._parseTextTracks(this._hls.subtitleTracks || []);
+    const audioTracks = this._parseAudioTracks(data.audioTracks || []);
+    const videoTracks = this._parseVideoTracks(this._hls.levels || []);
+    const textTracks = this._parseTextTracks(this._hls.subtitleTracks || []);
     return audioTracks.concat(videoTracks).concat(textTracks);
   }
 
