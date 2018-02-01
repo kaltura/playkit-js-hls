@@ -4,6 +4,7 @@ import DefaultConfig from './default-config'
 import {HlsJsErrorMap, type ErrorDetailsType} from "./errors"
 import {BaseMediaSourceAdapter, Utils, Error} from 'playkit-js'
 import {Track, VideoTrack, AudioTrack, TextTrack} from 'playkit-js'
+import pLoader from './jsonp-pLoader'
 
 /**
  * Adapter of hls.js lib for hls content.
@@ -138,6 +139,9 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     HlsAdapter._logger.debug('Creating adapter. Hls version: ' + Hlsjs.version);
     super(videoElement, source, config);
     this._config = Utils.Object.mergeDeep({}, this._config, DefaultConfig);
+    if (this._config.useJsonp){
+      this._config['pLoader'] = pLoader;
+    }
     this._hls = new Hlsjs(this._config);
     this._addBindings();
   }
