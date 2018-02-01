@@ -18,7 +18,7 @@ export default class pLoader extends Hlsjs.DefaultConfig.loader {
     const jsonpCallback = config.callback;
     const useJsonp = config.useJsonp;
     this.load = function (context, config, callbacks) {
-      var url = context.url;
+      const url = context.url;
       if (context.type == 'manifest' && useJsonp) {
         jsonp(url, jsonpCallback).then(url => {
           context.url = url;
