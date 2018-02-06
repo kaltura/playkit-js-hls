@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="1.5.2"></a>
+## [1.5.2](https://github.com/kaltura/playkit-js-hls/compare/v1.5.0...v1.5.2) (2018-02-06)
+
+
+### Bug Fixes
+
+* **FEC-7741:** added max buffer length to default configuration ([#41](https://github.com/kaltura/playkit-js-hls/issues/41)) ([a27dcf6](https://github.com/kaltura/playkit-js-hls/commit/a27dcf6))
+* build ([#42](https://github.com/kaltura/playkit-js-hls/issues/42)) ([fd2f7d8](https://github.com/kaltura/playkit-js-hls/commit/fd2f7d8))
+* update env (docs and namespace) ([1385f73](https://github.com/kaltura/playkit-js-hls/commit/1385f73))
+* **FEC-7873:** player shows audio and video flavour and in case of choosing audio flavour player stuck ([#43](https://github.com/kaltura/playkit-js-hls/issues/43)) ([f44d36d](https://github.com/kaltura/playkit-js-hls/commit/f44d36d))
+
+
+
 <a name="1.5.1"></a>
 ## [1.5.1](https://github.com/kaltura/playkit-js-hls/compare/v1.5.0...v1.5.1) (2018-01-10)
 
