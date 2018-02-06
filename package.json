@@ -54,7 +54,7 @@
     "karma-webpack": "^2.0.2",
     "mocha": "^3.2.0",
     "mocha-cli": "^1.0.1",
-    "playkit-js": "https://github.com/kaltura/playkit-js.git#v0.20.0",
+    "playkit-js": "https://github.com/kaltura/playkit-js.git#v0.20.1",
     "pre-push": "^0.1.1",
     "sinon": "^2.0.0",
     "sinon-chai": "^2.8.0",
@@ -67,7 +67,7 @@
   "license": "AGPL-3.0",
   "peerDependencies": {
     "hls.js": "^0.8.5",
-    "playkit-js": "https://github.com/kaltura/playkit-js.git#v0.20.0"
+    "playkit-js": "https://github.com/kaltura/playkit-js.git#v0.20.1"
   },
   "repository": {
     "type": "git",
