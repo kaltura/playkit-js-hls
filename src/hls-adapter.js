@@ -62,6 +62,13 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
   _recoverSwapAudioCodecDate: number;
 
   /**
+   * number of manifest request failures
+   * @type {number}
+   * @private
+   */
+  _failedManifestRequest: number = 0;
+
+  /**
    * The load promise
    * @member {Promise<Object>} - _loadPromise
    * @type {Promise<Object>}
@@ -89,6 +96,9 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     let hlsConfig = {};
     if (Utils.Object.hasPropertyPath(config, 'playback.options.html5.hls')) {
       hlsConfig = config.playback.options.html5.hls;
+    }
+    if (Utils.Object.hasPropertyPath(config, 'playback.options.adapters')) {
+      hlsConfig = Utils.Object.mergeDeep(hlsConfig, config.playback.options.adapters)
     }
     return new this(videoElement, source, hlsConfig);
   }
@@ -139,7 +149,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     HlsAdapter._logger.debug('Creating adapter. Hls version: ' + Hlsjs.version);
     super(videoElement, source, config);
     this._config = Utils.Object.mergeDeep({}, this._config, DefaultConfig);
-    if (this._config.useJsonp){
+    if (this._config.forceRedirectForExternalStreams) {
       this._config['pLoader'] = pLoader;
     }
     this._hls = new Hlsjs(this._config);
