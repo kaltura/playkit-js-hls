@@ -194,10 +194,38 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
           this._hls.attachMedia(this._videoElement);
           this._trigger(BaseMediaSourceAdapter.CustomEvents.ABR_MODE_CHANGED, {mode: this.isAdaptiveBitrateEnabled() ? 'auto' : 'manual'});
         }
-      });
+      })
+    }else{
+      let onLevelUpdated = () => {
+        this._hls.off(Hlsjs.Events.LEVEL_UPDATED, onLevelUpdated);
+        this._loadPromise.resolve({tracks: this._playerTracks});
+      };
+      this._hls.on(Hlsjs.Events.LEVEL_UPDATED, onLevelUpdated);
+      if (startTime) {
+        this._hls.startPosition = startTime;
+      }
+      if (this._sourceObj && this._sourceObj.url) {
+        this._hls.loadSource(this._sourceObj.url);
+        this._hls.attachMedia(this._videoElement);
+        this._trigger(BaseMediaSourceAdapter.CustomEvents.ABR_MODE_CHANGED, {mode: this.isAdaptiveBitrateEnabled() ? 'auto' : 'manual'});
+      }
     }
     return this._loadPromise;
   }
+
+
+  _reloadWithDirectManifest(config: Object, sourceObj: Object, loadPromise: Promise<*>){
+    this._failedManifestRequest++;
+    this.destroy();
+    this._loadPromise = loadPromise;
+    this._config = config;
+    this._sourceObj = sourceObj;
+    this._config['pLoader'] = pLoader;
+    this._hls = new Hlsjs(this._config);
+    this._addBindings();
+    this.load();
+  }
+
 
   /**
    * Destroys the hls adapter.
@@ -491,11 +519,15 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
       let error: typeof Error;
       switch (errorType) {
         case Hlsjs.ErrorTypes.NETWORK_ERROR:
-          error = new Error(
-            Error.Severity.CRITICAL,
-            Error.Category.NETWORK,
-            Error.Code.HTTP_ERROR,
-            errorDetails);
+          if (errorDetails === Hlsjs.ErrorDetails.MANIFEST_LOAD_ERROR && this._failedManifestRequest === 0){
+            this._reloadWithDirectManifest(this._config, this._sourceObj, this._loadPromise);
+          }else{
+            error = new Error(
+              Error.Severity.CRITICAL,
+              Error.Category.NETWORK,
+              Error.Code.HTTP_ERROR,
+              errorDetails);
+          }
           break;
         case Hlsjs.ErrorTypes.MEDIA_ERROR:
           if (this._handleMediaError()) {
@@ -520,7 +552,9 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
             errorDetails);
           break;
       }
-      this._trigger(BaseMediaSourceAdapter.Html5Events.ERROR, error);
+      if (error && error.severity){
+        this._trigger(BaseMediaSourceAdapter.Html5Events.ERROR, error);
+      }
       if (error && error.severity === Error.Severity.CRITICAL) {
         this.destroy();
       }
