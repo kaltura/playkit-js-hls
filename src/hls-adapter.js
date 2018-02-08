@@ -619,7 +619,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
         return minPosToSeek;
       }
       catch (e) {
-        HlsAdapter._logger.warn('Unable obtain the start of DVR window');
+        HlsAdapter._logger.debug('Unable obtain the start of DVR window');
         return 0;
       }
     } else {
