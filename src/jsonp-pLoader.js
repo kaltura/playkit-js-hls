@@ -15,13 +15,12 @@ export default class pLoader extends Hlsjs.DefaultConfig.loader {
   constructor(config: Object) {
     super(config);
     const load = this.load.bind(this);
-    const jsonpCallback = config.callback;
-    const useJsonp = config.useJsonp;
+    const jsonpCallback = config.redirectForExternalStreamsCallback;
     this.load = function (context, config, callbacks) {
       const url = context.url;
-      if (context.type == 'manifest' && useJsonp) {
-        jsonp(url, jsonpCallback).then(url => {
-          context.url = url;
+      if (context.type == 'manifest') {
+        jsonp(url, jsonpCallback).then(uri => {
+          context.url = uri;
           load(context, config, callbacks);
         })
       } else {

@@ -181,6 +181,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
   load(startTime: ?number): Promise<Object> {
     if (!this._loadPromise) {
       this._loadPromise = new Promise((resolve) => {
+        this._resolveLoad = resolve;
         let onLevelUpdated = () => {
           this._hls.off(Hlsjs.Events.LEVEL_UPDATED, onLevelUpdated);
           resolve({tracks: this._playerTracks});
@@ -195,10 +196,10 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
           this._trigger(BaseMediaSourceAdapter.CustomEvents.ABR_MODE_CHANGED, {mode: this.isAdaptiveBitrateEnabled() ? 'auto' : 'manual'});
         }
       })
-    }else{
+    } else {
       let onLevelUpdated = () => {
         this._hls.off(Hlsjs.Events.LEVEL_UPDATED, onLevelUpdated);
-        this._loadPromise.resolve({tracks: this._playerTracks});
+        this._resolveLoad({tracks: this._playerTracks});
       };
       this._hls.on(Hlsjs.Events.LEVEL_UPDATED, onLevelUpdated);
       if (startTime) {
@@ -214,18 +215,35 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
   }
 
 
-  _reloadWithDirectManifest(config: Object, sourceObj: Object, loadPromise: Promise<*>){
+  _reloadWithDirectManifest(config: Object, sourceObj: Object) {
     this._failedManifestRequest++;
-    this.destroy();
-    this._loadPromise = loadPromise;
-    this._config = config;
-    this._sourceObj = sourceObj;
-    this._config['pLoader'] = pLoader;
-    this._hls = new Hlsjs(this._config);
-    this._addBindings();
-    this.load();
+    this._destroyWithoutPromise().then(() => {
+        this._config = config;
+        this._sourceObj = sourceObj;
+        this._config['pLoader'] = pLoader;
+        this._hls = new Hlsjs(this._config);
+        this._addBindings();
+        this.load();
+      }
+    );
+
   }
 
+  /**
+   * Destroys the hls adapter but not destroying the Load promise.
+   * @function _destroyWithoutPromise
+   * @returns {Promise<*>} - The destroy promise.
+   * @private
+   */
+  _destroyWithoutPromise(): Promise<*> {
+    return super.destroy().then(() => {
+      HlsAdapter._logger.debug('destroy');
+      this._playerTracks = [];
+      this._removeBindings();
+      this._hls.detachMedia();
+      this._hls.destroy();
+    });
+  }
 
   /**
    * Destroys the hls adapter.
@@ -519,9 +537,9 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
       let error: typeof Error;
       switch (errorType) {
         case Hlsjs.ErrorTypes.NETWORK_ERROR:
-          if (errorDetails === Hlsjs.ErrorDetails.MANIFEST_LOAD_ERROR && this._failedManifestRequest === 0){
-            this._reloadWithDirectManifest(this._config, this._sourceObj, this._loadPromise);
-          }else{
+          if (errorDetails === Hlsjs.ErrorDetails.MANIFEST_LOAD_ERROR && this._failedManifestRequest === 0) {
+            this._reloadWithDirectManifest(this._config, this._sourceObj);
+          } else {
             error = new Error(
               Error.Severity.CRITICAL,
               Error.Category.NETWORK,
@@ -552,7 +570,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
             errorDetails);
           break;
       }
-      if (error && error.severity){
+      if (error && error.severity) {
         this._trigger(BaseMediaSourceAdapter.Html5Events.ERROR, error);
       }
       if (error && error.severity === Error.Severity.CRITICAL) {
