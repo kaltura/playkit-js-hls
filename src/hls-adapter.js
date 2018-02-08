@@ -459,7 +459,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    * @returns {void}
    * @private
    */
-  _handleWaitingUponAudioTrackSwitch(): void{
+  _handleWaitingUponAudioTrackSwitch(): void {
     const affectedBrowsers = ['IE', 'Edge'];
     if (affectedBrowsers.includes(Env.browser.name)) {
       const timeUpdateListener = () => {
