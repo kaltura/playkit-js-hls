@@ -583,6 +583,48 @@ describe('HlsAdapter Instance - _getLiveEdge', function () {
   });
 });
 
+describe('HlsAdapter Instance - getStartTimeOfDvrWindow', function () {
+
+  let hlsAdapterInstance;
+  let video;
+  let vodSource = hls_sources.ElephantsDream;
+  let liveSource = hls_sources.Live;
+  let config;
+  let sandbox;
+
+  beforeEach(function () {
+    sandbox = sinon.sandbox.create();
+    video = document.createElement('video');
+    config = {playback: {options: {html5: {hls: {}}}}};
+  });
+
+  afterEach(function (done) {
+    sandbox.restore();
+    hlsAdapterInstance.destroy().then(() => {
+      hlsAdapterInstance = null;
+      video = null;
+      TestUtils.removeVideoElementsFromTestPage();
+      done();
+    });
+  });
+
+  it('should return 0 for VOD', (done) => {
+    hlsAdapterInstance = HlsAdapter.createAdapter(video, vodSource, config);
+    hlsAdapterInstance.load().then(() => {
+      hlsAdapterInstance.getStartTimeOfDvrWindow().should.equal(0);
+      done();
+    });
+  });
+
+  it('should return the start of DVR window for live', (done) => {
+    hlsAdapterInstance = HlsAdapter.createAdapter(video, liveSource, config);
+    hlsAdapterInstance.load().then(() => {
+      hlsAdapterInstance.getStartTimeOfDvrWindow().should.not.equal(0);
+      done();
+    });
+  });
+});
+
 describe('HlsAdapter Instance - change media', function () {
 
   let hlsAdapterInstance;
