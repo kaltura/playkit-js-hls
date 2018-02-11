@@ -601,15 +601,29 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
   }
 
   /**
-   * Get the duration in seconds.
-   * @returns {Number} - The playback duration.
+   * Get the start time of DVR window in live playback in seconds.
+   * @returns {Number} - start time of DVR window.
    * @public
    */
-  get duration(): number {
+  getStartTimeOfDvrWindow(): number {
     if (this.isLive()) {
-      return this._getLiveEdge();
+      try {
+        const nextLoadLevel = this._hls.levels[this._hls.nextLoadLevel],
+          details = nextLoadLevel.details,
+          fragments = details.fragments,
+          fragLength = fragments.length,
+          start = fragments[0].start + fragments[0].duration,
+          end = fragments[fragLength - 1].start + fragments[fragLength - 1].duration,
+          maxLatency = this._hls.config.liveMaxLatencyDuration !== undefined ? this._hls.config.liveMaxLatencyDuration : this._hls.config.liveMaxLatencyDurationCount * details.targetduration,
+          minPosToSeek = Math.max(start - this._hls.config.maxFragLookUpTolerance, end - maxLatency);
+        return minPosToSeek;
+      }
+      catch (e) {
+        HlsAdapter._logger.debug('Unable obtain the start of DVR window');
+        return 0;
+      }
     } else {
-      return super.duration;
+      return 0;
     }
   }
 }
