@@ -463,7 +463,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     const affectedBrowsers = ['IE', 'Edge'];
     if (affectedBrowsers.includes(Env.browser.name)) {
       const timeUpdateListener = () => {
-        this._videoElement.dispatchEvent(new Event(BaseMediaSourceAdapter.Html5Events.PLAYING));
+        this._trigger(BaseMediaSourceAdapter.Html5Events.PLAYING);
         this._videoElement.removeEventListener(BaseMediaSourceAdapter.Html5Events.TIME_UPDATE, timeUpdateListener);
       }
       this._videoElement.addEventListener(BaseMediaSourceAdapter.Html5Events.TIME_UPDATE, timeUpdateListener)
