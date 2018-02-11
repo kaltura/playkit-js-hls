@@ -2,7 +2,7 @@
 import Hlsjs from 'hls.js'
 import DefaultConfig from './default-config'
 import {HlsJsErrorMap, type ErrorDetailsType} from "./errors"
-import {BaseMediaSourceAdapter, Utils, Error} from 'playkit-js'
+import {BaseMediaSourceAdapter, Utils, Error, Env} from 'playkit-js'
 import {Track, VideoTrack, AudioTrack, TextTrack} from 'playkit-js'
 
 /**
@@ -449,6 +449,25 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     });
     HlsAdapter._logger.debug('Audio track changed', audioTrack);
     this._onTrackChanged(audioTrack);
+    this._handleWaitingUponAudioTrackSwitch();
+  }
+
+  /**
+   * Trigger a playing event whenever an audio track is changed & time_update event is fired.
+   * This align Edge and IE behaviour to other browsers. When an audio track changed in IE & Edge, they trigger
+   * waiting event but not playing event.
+   * @returns {void}
+   * @private
+   */
+  _handleWaitingUponAudioTrackSwitch(): void {
+    const affectedBrowsers = ['IE', 'Edge'];
+    if (affectedBrowsers.includes(Env.browser.name)) {
+      const timeUpdateListener = () => {
+        this._trigger(BaseMediaSourceAdapter.Html5Events.PLAYING);
+        this._videoElement.removeEventListener(BaseMediaSourceAdapter.Html5Events.TIME_UPDATE, timeUpdateListener);
+      }
+      this._videoElement.addEventListener(BaseMediaSourceAdapter.Html5Events.TIME_UPDATE, timeUpdateListener)
+    }
   }
 
   /**
