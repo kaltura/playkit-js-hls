@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="1.5.3"></a>
+## [1.5.3](https://github.com/kaltura/playkit-js-hls/compare/v1.5.2...v1.5.3) (2018-02-11)
+
+
+### Bug Fixes
+
+* **FEC-7392, FEC-7882:** Live+DVR - unavailable time shown in the seekbar ([#46](https://github.com/kaltura/playkit-js-hls/issues/46)) ([b405683](https://github.com/kaltura/playkit-js-hls/commit/b405683))
+* **FEC-7896:** endless spinner appears right after changing audio track in IE and Edge ([#47](https://github.com/kaltura/playkit-js-hls/issues/47)) ([ce4b28d](https://github.com/kaltura/playkit-js-hls/commit/ce4b28d))
+
+
+
 <a name="1.5.2"></a>
 ## [1.5.2](https://github.com/kaltura/playkit-js-hls/compare/v1.5.0...v1.5.2) (2018-02-06)
 
