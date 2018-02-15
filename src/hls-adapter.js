@@ -371,7 +371,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
       if (this._hls.config.liveSyncDuration) {
         liveEdge = this._videoElement.duration - this._hls.config.liveSyncDuration;
       } else {
-        liveEdge = this._videoElement.duration - this._hls.config.liveSyncDurationCount * this._hls.levels[0].details.targetduration;
+        liveEdge = this._videoElement.duration - this._hls.config.liveSyncDurationCount * this._hls.levels[this._hls.currentLevel].details.targetduration;
       }
       return liveEdge > 0 ? liveEdge : 0;
     } catch (e) {
@@ -401,7 +401,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    */
   isLive(): boolean {
     try {
-      return this._hls.levels[0].details.live;
+      return this._hls.levels[this._hls.currentLevel].details.live;
     } catch (e) {
       return false;
     }
