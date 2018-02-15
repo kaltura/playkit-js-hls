@@ -375,7 +375,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
       }
       return liveEdge > 0 ? liveEdge : 0;
     } catch (e) {
-      return NaN;
+      return this._videoElement.duration;
     }
   }
 
