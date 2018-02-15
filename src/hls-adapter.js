@@ -380,12 +380,14 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
   _getLiveEdge(): number {
     try {
       let liveEdge;
-      if (this._hls.config.liveSyncDuration) {
+      if (this._hls.liveSyncPosition) {
+        liveEdge = this._hls.liveSyncPosition;
+      } else if (this._hls.config.liveSyncDuration) {
         liveEdge = this._videoElement.duration - this._hls.config.liveSyncDuration;
       } else {
         liveEdge = this._videoElement.duration - this._hls.config.liveSyncDurationCount * this._getLevelDetails().targetduration;
       }
-      return liveEdge > 0 ? liveEdge : 0;
+      return liveEdge > 0 ? liveEdge : this._videoElement.duration;
     } catch (e) {
       return this._videoElement.duration;
     }
