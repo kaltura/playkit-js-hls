@@ -362,11 +362,11 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
 
   /**
    * Returns the details of hls level
-   * @function _getDetails
+   * @function _getLevelDetails
    * @returns {Object} - Level details
    * @private
    */
-  _getDetails(): Object {
+  _getLevelDetails(): Object {
     const level = this._hls.levels[this._hls.currentLevel] || this._hls.levels[this._hls.nextLevel] || this._hls.levels[this._hls.nextAutoLevel] || this._hls.levels[this._hls.nextLoadLevel];
     return level ? level.details : {};
   }
@@ -383,7 +383,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
       if (this._hls.config.liveSyncDuration) {
         liveEdge = this._videoElement.duration - this._hls.config.liveSyncDuration;
       } else {
-        liveEdge = this._videoElement.duration - this._hls.config.liveSyncDurationCount * this._getDetails().targetduration;
+        liveEdge = this._videoElement.duration - this._hls.config.liveSyncDurationCount * this._getLevelDetails().targetduration;
       }
       return liveEdge > 0 ? liveEdge : 0;
     } catch (e) {
@@ -413,7 +413,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    */
   isLive(): boolean {
     try {
-      return this._getDetails().live;
+      return this._getLevelDetails().live;
     } catch (e) {
       return false;
     }

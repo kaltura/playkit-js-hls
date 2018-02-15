@@ -571,7 +571,7 @@ describe('HlsAdapter Instance - _getLiveEdge', function () {
     hlsAdapterInstance = HlsAdapter.createAdapter(video, liveSource, config);
     hlsAdapterInstance.load().then(() => {
       hlsAdapterInstance._videoElement.addEventListener('durationchange', () => {
-        let delay = 5 * hlsAdapterInstance._getDetails().targetduration;
+        let delay = 5 * hlsAdapterInstance._getLevelDetails().targetduration;
         if (video.duration > delay) {
           hlsAdapterInstance._getLiveEdge().should.be.equal(video.duration - delay);
           done();
