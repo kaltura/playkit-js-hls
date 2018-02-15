@@ -551,32 +551,15 @@ describe('HlsAdapter Instance - _getLiveEdge', function () {
     });
   });
 
-  it('should return live edge for liveSyncDuration = 60', (done) => {
-    config.playback.options.html5.hls.liveSyncDuration = 60;
+  it('should return live edge', (done) => {
     hlsAdapterInstance = HlsAdapter.createAdapter(video, liveSource, config);
     hlsAdapterInstance.load().then(() => {
       hlsAdapterInstance._videoElement.addEventListener('durationchange', () => {
-        if (video.duration > 60) {
-          hlsAdapterInstance._getLiveEdge().should.be.equal(video.duration - 60);
+        if (hlsAdapterInstance._hls.liveSyncPosition) {
+          hlsAdapterInstance._getLiveEdge().should.be.equal(hlsAdapterInstance._hls.liveSyncPosition);
           done();
         } else {
-          hlsAdapterInstance._getLiveEdge().should.be.equal(0);
-        }
-      });
-    });
-  });
-
-  it('should return live edge for liveSyncDurationCount = 5', (done) => {
-    config.playback.options.html5.hls.liveSyncDurationCount = 5;
-    hlsAdapterInstance = HlsAdapter.createAdapter(video, liveSource, config);
-    hlsAdapterInstance.load().then(() => {
-      hlsAdapterInstance._videoElement.addEventListener('durationchange', () => {
-        let delay = 5 * hlsAdapterInstance._hls.levels[0].details.targetduration;
-        if (video.duration > delay) {
-          hlsAdapterInstance._getLiveEdge().should.be.equal(video.duration - delay);
-          done();
-        } else {
-          hlsAdapterInstance._getLiveEdge().should.be.equal(0);
+          hlsAdapterInstance._getLiveEdge().should.be.equal(video.duration);
         }
       });
     });
