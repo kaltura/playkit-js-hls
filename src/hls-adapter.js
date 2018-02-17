@@ -368,7 +368,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    */
   _getLevelDetails(): Object {
     const level = this._hls.levels[this._hls.currentLevel] || this._hls.levels[this._hls.nextLevel] || this._hls.levels[this._hls.nextAutoLevel] || this._hls.levels[this._hls.nextLoadLevel];
-    return level ? level.details : {};
+    return level && level.details ? level.details : {};
   }
 
 
@@ -389,6 +389,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
       }
       return liveEdge > 0 ? liveEdge : this._videoElement.duration;
     } catch (e) {
+      HlsAdapter._logger.debug('Live edge calculation failed, fall back to duration');
       return this._videoElement.duration;
     }
   }
