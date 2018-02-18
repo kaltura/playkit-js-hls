@@ -168,11 +168,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
   load(startTime: ?number): Promise<Object> {
     if (!this._loadPromise) {
       this._loadPromise = new Promise((resolve) => {
-        let onLevelUpdated = () => {
-          this._hls.off(Hlsjs.Events.LEVEL_UPDATED, onLevelUpdated);
-          resolve({tracks: this._playerTracks});
-        };
-        this._hls.on(Hlsjs.Events.LEVEL_UPDATED, onLevelUpdated);
+        this._videoElement.addEventListener(EventType.LOADED_METADATA, () => resolve({tracks: this._playerTracks}));
         if (startTime) {
           this._hls.startPosition = startTime;
         }
