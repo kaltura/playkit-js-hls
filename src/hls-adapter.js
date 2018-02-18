@@ -68,6 +68,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    * @private
    */
   _loadPromise: ?Promise<Object>;
+
   /**
    * Reference to the player tracks.
    * @member {Array<Track>} - _playerTracks
@@ -75,6 +76,14 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    * @private
    */
   _playerTracks: Array<Track>;
+
+  /**
+   * Reference to _onLoadedMetadata function
+   * @member {?Function} - _onLoadedMetadataCallback
+   * @type {?Function}
+   * @private
+   */
+  _onLoadedMetadataCallback: ?Function;
 
   /**
    * Factory method to create media source adapter.
@@ -168,11 +177,8 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
   load(startTime: ?number): Promise<Object> {
     if (!this._loadPromise) {
       this._loadPromise = new Promise((resolve) => {
-        const onLoadedMetadata = () => {
-          this._videoElement.removeEventListener(EventType.LOADED_METADATA, onLoadedMetadata);
-          resolve({tracks: this._playerTracks});
-        };
-        this._videoElement.addEventListener(EventType.LOADED_METADATA, onLoadedMetadata);
+        this._onLoadedMetadataCallback = this._onLoadedMetadata.bind(this, resolve);
+        this._videoElement.addEventListener(EventType.LOADED_METADATA, this._onLoadedMetadataCallback);
         if (startTime) {
           this._hls.startPosition = startTime;
         }
@@ -184,6 +190,20 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
       });
     }
     return this._loadPromise;
+  }
+
+  /**
+   * Loaded metadata event handler.
+   * @param {Function} resolve - The resolve promise function.
+   * @private
+   * @returns {void}
+   */
+  _onLoadedMetadata(resolve: Function): void {
+    if (this._onLoadedMetadataCallback) {
+      this._videoElement.removeEventListener(EventType.LOADED_METADATA, this._onLoadedMetadataCallback);
+      this._onLoadedMetadataCallback = null;
+    }
+    resolve({tracks: this._playerTracks});
   }
 
   /**
@@ -620,6 +640,10 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     this._hls.off(Hlsjs.Events.ERROR, this._onError);
     this._hls.off(Hlsjs.Events.LEVEL_SWITCHED, this._onLevelSwitched);
     this._hls.off(Hlsjs.Events.AUDIO_TRACK_SWITCHED, this._onAudioTrackSwitched);
+    if (this._onLoadedMetadataCallback) {
+      this._videoElement.removeEventListener(EventType.LOADED_METADATA, this._onLoadedMetadataCallback);
+      this._onLoadedMetadataCallback = null;
+    }
   }
 
   /**
