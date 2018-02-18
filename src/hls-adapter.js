@@ -168,7 +168,11 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
   load(startTime: ?number): Promise<Object> {
     if (!this._loadPromise) {
       this._loadPromise = new Promise((resolve) => {
-        this._videoElement.addEventListener(EventType.LOADED_METADATA, () => resolve({tracks: this._playerTracks}));
+        const onLoadedMetadata = () => {
+          this._videoElement.removeEventListener(EventType.LOADED_METADATA, onLoadedMetadata);
+          resolve({tracks: this._playerTracks});
+        };
+        this._videoElement.addEventListener(EventType.LOADED_METADATA, onLoadedMetadata);
         if (startTime) {
           this._hls.startPosition = startTime;
         }
@@ -477,7 +481,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
       const timeUpdateListener = () => {
         this._trigger(EventType.PLAYING);
         this._videoElement.removeEventListener(EventType.TIME_UPDATE, timeUpdateListener);
-      }
+      };
       this._videoElement.addEventListener(EventType.TIME_UPDATE, timeUpdateListener)
     }
   }
