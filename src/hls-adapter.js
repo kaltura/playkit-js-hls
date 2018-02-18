@@ -199,11 +199,15 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    * @returns {void}
    */
   _onLoadedMetadata(resolve: Function): void {
+    this._removeLoadedMetadataListener();
+    resolve({tracks: this._playerTracks});
+  }
+
+  _removeLoadedMetadataListener(): void {
     if (this._onLoadedMetadataCallback) {
       this._videoElement.removeEventListener(EventType.LOADED_METADATA, this._onLoadedMetadataCallback);
       this._onLoadedMetadataCallback = null;
     }
-    resolve({tracks: this._playerTracks});
   }
 
   /**
@@ -640,10 +644,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     this._hls.off(Hlsjs.Events.ERROR, this._onError);
     this._hls.off(Hlsjs.Events.LEVEL_SWITCHED, this._onLevelSwitched);
     this._hls.off(Hlsjs.Events.AUDIO_TRACK_SWITCHED, this._onAudioTrackSwitched);
-    if (this._onLoadedMetadataCallback) {
-      this._videoElement.removeEventListener(EventType.LOADED_METADATA, this._onLoadedMetadataCallback);
-      this._onLoadedMetadataCallback = null;
-    }
+    this._removeLoadedMetadataListener();
   }
 
   /**
