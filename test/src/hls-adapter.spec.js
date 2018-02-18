@@ -5,6 +5,7 @@ import HlsAdapter from '../../src'
 import * as hls_sources from './json/hls_sources.json'
 import * as hls_tracks from './json/hls_tracks.json'
 import * as player_tracks from './json/player_tracks.json'
+import {EventType} from 'playkit-js'
 
 const targetId = 'player-placeholder_hls-adapter.spec';
 
@@ -287,7 +288,7 @@ describe('HlsAdapter Instance - Unit', function () {
     ];
 
     sandbox.stub(hlsAdapterInstance, 'dispatchEvent').callsFake(function (event) {
-      event.type.should.equal(HlsAdapter.CustomEvents.VIDEO_TRACK_CHANGED);
+      event.type.should.equal(EventType.VIDEO_TRACK_CHANGED);
       event.payload.selectedVideoTrack.should.exist;
       event.payload.selectedVideoTrack.should.deep.equal(hlsAdapterInstance._playerTracks[3]);
       done();

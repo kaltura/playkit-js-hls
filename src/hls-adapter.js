@@ -175,7 +175,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
         if (this._sourceObj && this._sourceObj.url) {
           this._hls.loadSource(this._sourceObj.url);
           this._hls.attachMedia(this._videoElement);
-          this._trigger(BaseMediaSourceAdapter.CustomEvents.ABR_MODE_CHANGED, {mode: this.isAdaptiveBitrateEnabled() ? 'auto' : 'manual'});
+          this._trigger(EventType.ABR_MODE_CHANGED, {mode: this.isAdaptiveBitrateEnabled() ? 'auto' : 'manual'});
         }
       });
     }
@@ -303,7 +303,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
   selectVideoTrack(videoTrack: VideoTrack): void {
     if (videoTrack instanceof VideoTrack && (!videoTrack.active || this.isAdaptiveBitrateEnabled()) && this._hls.levels) {
       if (this.isAdaptiveBitrateEnabled()) {
-        this._trigger(BaseMediaSourceAdapter.CustomEvents.ABR_MODE_CHANGED, {mode: 'manual'});
+        this._trigger(EventType.ABR_MODE_CHANGED, {mode: 'manual'});
       }
       this._hls.currentLevel = videoTrack.index;
     }
@@ -342,7 +342,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    */
   enableAdaptiveBitrate(): void {
     if (!this.isAdaptiveBitrateEnabled()) {
-      this._trigger(BaseMediaSourceAdapter.CustomEvents.ABR_MODE_CHANGED, {mode: 'auto'});
+      this._trigger(EventType.ABR_MODE_CHANGED, {mode: 'auto'});
       this._hls.nextLevel = -1;
     }
   }
@@ -475,10 +475,10 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     const affectedBrowsers = ['IE', 'Edge'];
     if (affectedBrowsers.includes(Env.browser.name)) {
       const timeUpdateListener = () => {
-        this._trigger(BaseMediaSourceAdapter.Html5Events.PLAYING);
-        this._videoElement.removeEventListener(BaseMediaSourceAdapter.Html5Events.TIME_UPDATE, timeUpdateListener);
+        this._trigger(EventType.PLAYING);
+        this._videoElement.removeEventListener(EventType.TIME_UPDATE, timeUpdateListener);
       }
-      this._videoElement.addEventListener(BaseMediaSourceAdapter.Html5Events.TIME_UPDATE, timeUpdateListener)
+      this._videoElement.addEventListener(EventType.TIME_UPDATE, timeUpdateListener)
     }
   }
 
@@ -537,7 +537,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
             errorDetails);
           break;
       }
-      this._trigger(BaseMediaSourceAdapter.Html5Events.ERROR, error);
+      this._trigger(EventType.ERROR, error);
       if (error && error.severity === Error.Severity.CRITICAL) {
         this.destroy();
       }
