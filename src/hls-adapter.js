@@ -203,6 +203,11 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     resolve({tracks: this._playerTracks});
   }
 
+  /**
+   * Remove the loadedmetadata listener
+   * @private
+   * @returns {void}
+   */
   _removeLoadedMetadataListener(): void {
     if (this._onLoadedMetadataCallback) {
       this._videoElement.removeEventListener(EventType.LOADED_METADATA, this._onLoadedMetadataCallback);
