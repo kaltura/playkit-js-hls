@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="1.5.4"></a>
+## [1.5.4](https://github.com/kaltura/playkit-js-hls/compare/v1.5.3...v1.5.4) (2018-02-19)
+
+
+### Bug Fixes
+
+* **FEC-7623:** preset captions are no displayed ([#50](https://github.com/kaltura/playkit-js-hls/issues/50)) ([0b9c7ae](https://github.com/kaltura/playkit-js-hls/commit/0b9c7ae))
+* **FEC-7913:** Live - player doesn't seek to live edge on resume ([#48](https://github.com/kaltura/playkit-js-hls/issues/48)) ([193fea0](https://github.com/kaltura/playkit-js-hls/commit/193fea0))
+* remove loadedmetadata listener once metadata loaded ([#52](https://github.com/kaltura/playkit-js-hls/issues/52)) ([cfcd2c1](https://github.com/kaltura/playkit-js-hls/commit/cfcd2c1))
+
+
+
 <a name="1.5.3"></a>
 ## [1.5.3](https://github.com/kaltura/playkit-js-hls/compare/v1.5.2...v1.5.3) (2018-02-11)
 
