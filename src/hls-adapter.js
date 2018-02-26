@@ -352,7 +352,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
   selectTextTrack(textTrack: TextTrack): void {
     if (textTrack instanceof TextTrack && !textTrack.active && this._videoElement.textTracks) {
       this._disableAllTextTracks();
-      this._videoElement.textTracks[textTrack.index].mode = 'hidden';
+      this._hls.subtitleTrack = textTrack.index;
       HlsAdapter._logger.debug('Text track changed', textTrack);
       this._onTrackChanged(textTrack);
     }
