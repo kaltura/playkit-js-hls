@@ -398,9 +398,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    */
   _getLevelDetails(): Object {
     const h = this._hls;
-    const levelIndex = [h.currentLevel, h.nextLevel, h.nextAutoLevel, h.nextLoadLevel].find(function (level) {
-      return level > -1;
-    });
+    const levelIndex = [h.currentLevel, h.nextLevel, h.nextAutoLevel, h.nextLoadLevel].find(level => level > -1);
     const level = levelIndex && this._hls.levels[levelIndex];
     return level && level.details ? level.details : {};
   }
