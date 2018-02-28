@@ -1,5 +1,5 @@
 //@flow
-import {Jsonp as jsonp} from 'playkit-js'
+import {jsonp} from 'playkit-js'
 import Hlsjs from 'hls.js'
 
 /**
@@ -15,7 +15,7 @@ export default class pLoader extends Hlsjs.DefaultConfig.loader {
   constructor(config: Object) {
     super(config);
     const load = this.load.bind(this);
-    const jsonpCallback = config.redirectForExternalStreamsCallback;
+    const jsonpCallback = config.redirectExternalStreamsCallback;
     this.load = function (context, config, callbacks) {
       const url = context.url;
       if (context.type == 'manifest') {
