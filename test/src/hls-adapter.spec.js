@@ -5,6 +5,7 @@ import HlsAdapter from '../../src'
 import * as hls_sources from './json/hls_sources.json'
 import * as hls_tracks from './json/hls_tracks.json'
 import * as player_tracks from './json/player_tracks.json'
+import {EventType} from 'playkit-js'
 
 const targetId = 'player-placeholder_hls-adapter.spec';
 
@@ -287,7 +288,7 @@ describe('HlsAdapter Instance - Unit', function () {
     ];
 
     sandbox.stub(hlsAdapterInstance, 'dispatchEvent').callsFake(function (event) {
-      event.type.should.equal(HlsAdapter.CustomEvents.VIDEO_TRACK_CHANGED);
+      event.type.should.equal(EventType.VIDEO_TRACK_CHANGED);
       event.payload.selectedVideoTrack.should.exist;
       event.payload.selectedVideoTrack.should.deep.equal(hlsAdapterInstance._playerTracks[3]);
       done();
@@ -527,58 +528,6 @@ describe('HlsAdapter Instance - seekToLiveEdge', function () {
   });
 });
 
-describe('HlsAdapter Instance - get duration', function () {
-
-  let hlsAdapterInstance;
-  let video;
-  let vodSource = hls_sources.ElephantsDream;
-  let liveSource = hls_sources.Live;
-  let config;
-  let sandbox;
-
-  beforeEach(function () {
-    sandbox = sinon.sandbox.create();
-    video = document.createElement('video');
-    config = {playback: {options: {html5: {hls: {}}}}};
-  });
-
-  afterEach(function (done) {
-    sandbox.restore();
-    hlsAdapterInstance.destroy().then(() => {
-      hlsAdapterInstance = null;
-      video = null;
-      TestUtils.removeVideoElementsFromTestPage();
-      done();
-    });
-  });
-
-  it('should return video tag duration for VOD', (done) => {
-    hlsAdapterInstance = HlsAdapter.createAdapter(video, vodSource, config);
-    hlsAdapterInstance.load().then(() => {
-      hlsAdapterInstance._videoElement.addEventListener('durationchange', () => {
-        if (isNaN(video.duration)) {
-          done();
-        } else {
-          hlsAdapterInstance.duration.should.be.equal(video.duration);
-          done();
-        }
-      });
-    });
-  });
-
-  it('should return live duration for live', (done) => {
-    hlsAdapterInstance = HlsAdapter.createAdapter(video, liveSource, config);
-    hlsAdapterInstance.load().then(() => {
-      hlsAdapterInstance._videoElement.addEventListener('durationchange', () => {
-        if (video.duration > 40) {
-          hlsAdapterInstance.duration.should.be.equal(video.duration - 3 * hlsAdapterInstance._hls.levels[0].details.targetduration);
-          done();
-        }
-      });
-    });
-  });
-});
-
 describe('HlsAdapter Instance - _getLiveEdge', function () {
 
   let hlsAdapterInstance;
@@ -603,34 +552,59 @@ describe('HlsAdapter Instance - _getLiveEdge', function () {
     });
   });
 
-  it('should return live edge for liveSyncDuration = 60', (done) => {
-    config.playback.options.html5.hls.liveSyncDuration = 60;
+  it('should return live edge', (done) => {
     hlsAdapterInstance = HlsAdapter.createAdapter(video, liveSource, config);
     hlsAdapterInstance.load().then(() => {
       hlsAdapterInstance._videoElement.addEventListener('durationchange', () => {
-        if (video.duration > 60) {
-          hlsAdapterInstance._getLiveEdge().should.be.equal(video.duration - 60);
+        if (hlsAdapterInstance._hls.liveSyncPosition) {
+          hlsAdapterInstance._getLiveEdge().should.be.equal(hlsAdapterInstance._hls.liveSyncPosition);
           done();
         } else {
-          hlsAdapterInstance._getLiveEdge().should.be.equal(0);
+          hlsAdapterInstance._getLiveEdge().should.be.equal(video.duration);
         }
       });
     });
   });
+});
 
-  it('should return live edge for liveSyncDurationCount = 5', (done) => {
-    config.playback.options.html5.hls.liveSyncDurationCount = 5;
+describe('HlsAdapter Instance - getStartTimeOfDvrWindow', function () {
+
+  let hlsAdapterInstance;
+  let video;
+  let vodSource = hls_sources.ElephantsDream;
+  let liveSource = hls_sources.Live;
+  let config;
+  let sandbox;
+
+  beforeEach(function () {
+    sandbox = sinon.sandbox.create();
+    video = document.createElement('video');
+    config = {playback: {options: {html5: {hls: {}}}}};
+  });
+
+  afterEach(function (done) {
+    sandbox.restore();
+    hlsAdapterInstance.destroy().then(() => {
+      hlsAdapterInstance = null;
+      video = null;
+      TestUtils.removeVideoElementsFromTestPage();
+      done();
+    });
+  });
+
+  it('should return 0 for VOD', (done) => {
+    hlsAdapterInstance = HlsAdapter.createAdapter(video, vodSource, config);
+    hlsAdapterInstance.load().then(() => {
+      hlsAdapterInstance.getStartTimeOfDvrWindow().should.equal(0);
+      done();
+    });
+  });
+
+  it('should return the start of DVR window for live', (done) => {
     hlsAdapterInstance = HlsAdapter.createAdapter(video, liveSource, config);
     hlsAdapterInstance.load().then(() => {
-      hlsAdapterInstance._videoElement.addEventListener('durationchange', () => {
-        let delay = 5 * hlsAdapterInstance._hls.levels[0].details.targetduration;
-        if (video.duration > delay) {
-          hlsAdapterInstance._getLiveEdge().should.be.equal(video.duration - delay);
-          done();
-        } else {
-          hlsAdapterInstance._getLiveEdge().should.be.equal(0);
-        }
-      });
+      hlsAdapterInstance.getStartTimeOfDvrWindow().should.not.equal(0);
+      done();
     });
   });
 });

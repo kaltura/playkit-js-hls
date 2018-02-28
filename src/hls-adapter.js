@@ -2,8 +2,9 @@
 import Hlsjs from 'hls.js'
 import DefaultConfig from './default-config'
 import {HlsJsErrorMap, type ErrorDetailsType} from "./errors"
-import {BaseMediaSourceAdapter, Utils, Error} from 'playkit-js'
+import {BaseMediaSourceAdapter, Utils, Error, Env} from 'playkit-js'
 import {Track, VideoTrack, AudioTrack, TextTrack} from 'playkit-js'
+import {EventType} from 'playkit-js'
 import pLoader from './jsonp-pLoader'
 
 /**
@@ -75,6 +76,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    * @private
    */
   _loadPromise: ?Promise<Object>;
+
   /**
    * Reference to the player tracks.
    * @member {Array<Track>} - _playerTracks
@@ -89,6 +91,14 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    * @private
    */
   _startTime: ?number = 0;
+
+  /**
+   * Reference to _onLoadedMetadata function
+   * @member {?Function} - _onLoadedMetadataCallback
+   * @type {?Function}
+   * @private
+   */
+  _onLoadedMetadataCallback: ?Function;
 
   /**
    * Factory method to create media source adapter.
@@ -197,18 +207,15 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
   }
 
   _loadInternal() {
-    let onLevelUpdated = () => {
-      this._hls.off(Hlsjs.Events.LEVEL_UPDATED, onLevelUpdated);
-      this._resolveLoad({tracks: this._playerTracks});
-    };
-    this._hls.on(Hlsjs.Events.LEVEL_UPDATED, onLevelUpdated);
+    this._onLoadedMetadataCallback = this._onLoadedMetadata.bind(this);
+    this._videoElement.addEventListener(EventType.LOADED_METADATA, this._onLoadedMetadataCallback);
     if (this._startTime) {
       this._hls.startPosition = this._startTime;
     }
     if (this._sourceObj && this._sourceObj.url) {
       this._hls.loadSource(this._sourceObj.url);
       this._hls.attachMedia(this._videoElement);
-      this._trigger(BaseMediaSourceAdapter.CustomEvents.ABR_MODE_CHANGED, {mode: this.isAdaptiveBitrateEnabled() ? 'auto' : 'manual'});
+      this._trigger(EventType.ABR_MODE_CHANGED, {mode: this.isAdaptiveBitrateEnabled() ? 'auto' : 'manual'});
     }
   }
 
@@ -222,6 +229,28 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     this._hls = new Hlsjs(this._config);
     this._addBindings();
     this._loadInternal();
+  }
+
+  /**
+   * Loaded metadata event handler.
+   * @private
+   * @returns {void}
+   */
+  _onLoadedMetadata(): void {
+    this._removeLoadedMetadataListener();
+    this._resolveLoad({tracks: this._playerTracks});
+  }
+
+  /**
+   * Remove the loadedmetadata listener
+   * @private
+   * @returns {void}
+   */
+  _removeLoadedMetadataListener(): void {
+    if (this._onLoadedMetadataCallback) {
+      this._videoElement.removeEventListener(EventType.LOADED_METADATA, this._onLoadedMetadataCallback);
+      this._onLoadedMetadataCallback = null;
+    }
   }
 
   /**
@@ -354,7 +383,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
   selectVideoTrack(videoTrack: VideoTrack): void {
     if (videoTrack instanceof VideoTrack && (!videoTrack.active || this.isAdaptiveBitrateEnabled()) && this._hls.levels) {
       if (this.isAdaptiveBitrateEnabled()) {
-        this._trigger(BaseMediaSourceAdapter.CustomEvents.ABR_MODE_CHANGED, {mode: 'manual'});
+        this._trigger(EventType.ABR_MODE_CHANGED, {mode: 'manual'});
       }
       this._hls.currentLevel = videoTrack.index;
     }
@@ -393,7 +422,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    */
   enableAdaptiveBitrate(): void {
     if (!this.isAdaptiveBitrateEnabled()) {
-      this._trigger(BaseMediaSourceAdapter.CustomEvents.ABR_MODE_CHANGED, {mode: 'auto'});
+      this._trigger(EventType.ABR_MODE_CHANGED, {mode: 'auto'});
       this._hls.nextLevel = -1;
     }
   }
@@ -409,6 +438,18 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
   }
 
   /**
+   * Returns the details of hls level
+   * @function _getLevelDetails
+   * @returns {Object} - Level details
+   * @private
+   */
+  _getLevelDetails(): Object {
+    const level = this._hls.levels[this._hls.currentLevel] || this._hls.levels[this._hls.nextLevel] || this._hls.levels[this._hls.nextAutoLevel] || this._hls.levels[this._hls.nextLoadLevel];
+    return level && level.details ? level.details : {};
+  }
+
+
+  /**
    * Returns the live edge
    * @returns {number} - live edge
    * @private
@@ -416,14 +457,17 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
   _getLiveEdge(): number {
     try {
       let liveEdge;
-      if (this._hls.config.liveSyncDuration) {
+      if (this._hls.liveSyncPosition) {
+        liveEdge = this._hls.liveSyncPosition;
+      } else if (this._hls.config.liveSyncDuration) {
         liveEdge = this._videoElement.duration - this._hls.config.liveSyncDuration;
       } else {
-        liveEdge = this._videoElement.duration - this._hls.config.liveSyncDurationCount * this._hls.levels[0].details.targetduration;
+        liveEdge = this._videoElement.duration - this._hls.config.liveSyncDurationCount * this._getLevelDetails().targetduration;
       }
-      return liveEdge > 0 ? liveEdge : 0;
+      return liveEdge > 0 ? liveEdge : this._videoElement.duration;
     } catch (e) {
-      return NaN;
+      HlsAdapter._logger.debug('Live edge calculation failed, fall back to duration');
+      return this._videoElement.duration;
     }
   }
 
@@ -449,7 +493,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    */
   isLive(): boolean {
     try {
-      return this._hls.levels[0].details.live;
+      return this._getLevelDetails().live;
     } catch (e) {
       return false;
     }
@@ -497,6 +541,25 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     });
     HlsAdapter._logger.debug('Audio track changed', audioTrack);
     this._onTrackChanged(audioTrack);
+    this._handleWaitingUponAudioTrackSwitch();
+  }
+
+  /**
+   * Trigger a playing event whenever an audio track is changed & time_update event is fired.
+   * This align Edge and IE behaviour to other browsers. When an audio track changed in IE & Edge, they trigger
+   * waiting event but not playing event.
+   * @returns {void}
+   * @private
+   */
+  _handleWaitingUponAudioTrackSwitch(): void {
+    const affectedBrowsers = ['IE', 'Edge'];
+    if (affectedBrowsers.includes(Env.browser.name)) {
+      const timeUpdateListener = () => {
+        this._trigger(EventType.PLAYING);
+        this._videoElement.removeEventListener(EventType.TIME_UPDATE, timeUpdateListener);
+      };
+      this._videoElement.addEventListener(EventType.TIME_UPDATE, timeUpdateListener)
+    }
   }
 
   /**
@@ -559,9 +622,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
             errorDetails);
           break;
       }
-      if (error && error.severity) {
-        this._trigger(BaseMediaSourceAdapter.Html5Events.ERROR, error);
-      }
+      this._trigger(EventType.ERROR, error);
       if (error && error.severity === Error.Severity.CRITICAL) {
         this.destroy();
       }
@@ -616,7 +677,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
   _recoverDecodingError(): void {
     this._recoverDecodingErrorDate = performance.now();
     HlsAdapter._logger.warn("try to recover media Error");
-    this.hls.recoverMediaError();
+    this._hls.recoverMediaError();
   }
 
   /**
@@ -627,8 +688,8 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
   _recoverSwapAudioCodec(): void {
     this._recoverSwapAudioCodecDate = performance.now();
     HlsAdapter._logger.warn("try to swap Audio Codec and recover media Error");
-    this.hls.swapAudioCodec();
-    this.hls.recoverMediaError();
+    this._hls.swapAudioCodec();
+    this._hls.recoverMediaError();
   }
 
   /**
@@ -640,6 +701,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     this._hls.off(Hlsjs.Events.ERROR, this._onError);
     this._hls.off(Hlsjs.Events.LEVEL_SWITCHED, this._onLevelSwitched);
     this._hls.off(Hlsjs.Events.AUDIO_TRACK_SWITCHED, this._onAudioTrackSwitched);
+    this._removeLoadedMetadataListener();
   }
 
   /**
@@ -656,15 +718,29 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
   }
 
   /**
-   * Get the duration in seconds.
-   * @returns {Number} - The playback duration.
+   * Get the start time of DVR window in live playback in seconds.
+   * @returns {Number} - start time of DVR window.
    * @public
    */
-  get duration(): number {
+  getStartTimeOfDvrWindow(): number {
     if (this.isLive()) {
-      return this._getLiveEdge();
+      try {
+        const nextLoadLevel = this._hls.levels[this._hls.nextLoadLevel],
+          details = nextLoadLevel.details,
+          fragments = details.fragments,
+          fragLength = fragments.length,
+          start = fragments[0].start + fragments[0].duration,
+          end = fragments[fragLength - 1].start + fragments[fragLength - 1].duration,
+          maxLatency = this._hls.config.liveMaxLatencyDuration !== undefined ? this._hls.config.liveMaxLatencyDuration : this._hls.config.liveMaxLatencyDurationCount * details.targetduration,
+          minPosToSeek = Math.max(start - this._hls.config.maxFragLookUpTolerance, end - maxLatency);
+        return minPosToSeek;
+      }
+      catch (e) {
+        HlsAdapter._logger.debug('Unable obtain the start of DVR window');
+        return 0;
+      }
     } else {
-      return super.duration;
+      return 0;
     }
   }
 }

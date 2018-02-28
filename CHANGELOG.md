@@ -2,6 +2,52 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="1.5.5"></a>
+## [1.5.5](https://github.com/kaltura/playkit-js-hls/compare/v1.5.4...v1.5.5) (2018-02-28)
+
+
+### Bug Fixes
+
+* reference typo to hls instance ([20a994e](https://github.com/kaltura/playkit-js-hls/commit/20a994e))
+
+
+
+<a name="1.5.4"></a>
+## [1.5.4](https://github.com/kaltura/playkit-js-hls/compare/v1.5.3...v1.5.4) (2018-02-19)
+
+
+### Bug Fixes
+
+* **FEC-7623:** preset captions are no displayed ([#50](https://github.com/kaltura/playkit-js-hls/issues/50)) ([0b9c7ae](https://github.com/kaltura/playkit-js-hls/commit/0b9c7ae))
+* **FEC-7913:** Live - player doesn't seek to live edge on resume ([#48](https://github.com/kaltura/playkit-js-hls/issues/48)) ([193fea0](https://github.com/kaltura/playkit-js-hls/commit/193fea0))
+* remove loadedmetadata listener once metadata loaded ([#52](https://github.com/kaltura/playkit-js-hls/issues/52)) ([cfcd2c1](https://github.com/kaltura/playkit-js-hls/commit/cfcd2c1))
+
+
+
+<a name="1.5.3"></a>
+## [1.5.3](https://github.com/kaltura/playkit-js-hls/compare/v1.5.2...v1.5.3) (2018-02-11)
+
+
+### Bug Fixes
+
+* **FEC-7392, FEC-7882:** Live+DVR - unavailable time shown in the seekbar ([#46](https://github.com/kaltura/playkit-js-hls/issues/46)) ([b405683](https://github.com/kaltura/playkit-js-hls/commit/b405683))
+* **FEC-7896:** endless spinner appears right after changing audio track in IE and Edge ([#47](https://github.com/kaltura/playkit-js-hls/issues/47)) ([ce4b28d](https://github.com/kaltura/playkit-js-hls/commit/ce4b28d))
+
+
+
+<a name="1.5.2"></a>
+## [1.5.2](https://github.com/kaltura/playkit-js-hls/compare/v1.5.0...v1.5.2) (2018-02-06)
+
+
+### Bug Fixes
+
+* **FEC-7741:** added max buffer length to default configuration ([#41](https://github.com/kaltura/playkit-js-hls/issues/41)) ([a27dcf6](https://github.com/kaltura/playkit-js-hls/commit/a27dcf6))
+* build ([#42](https://github.com/kaltura/playkit-js-hls/issues/42)) ([fd2f7d8](https://github.com/kaltura/playkit-js-hls/commit/fd2f7d8))
+* update env (docs and namespace) ([1385f73](https://github.com/kaltura/playkit-js-hls/commit/1385f73))
+* **FEC-7873:** player shows audio and video flavour and in case of choosing audio flavour player stuck ([#43](https://github.com/kaltura/playkit-js-hls/issues/43)) ([f44d36d](https://github.com/kaltura/playkit-js-hls/commit/f44d36d))
+
+
+
 <a name="1.5.1"></a>
 ## [1.5.1](https://github.com/kaltura/playkit-js-hls/compare/v1.5.0...v1.5.1) (2018-01-10)
 
