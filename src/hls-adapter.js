@@ -110,14 +110,17 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    * @static
    */
   static createAdapter(videoElement: HTMLVideoElement, source: PKMediaSourceObject, config: Object): IMediaSourceAdapter {
-    let hlsConfig = {};
+    let adapterConfig = {};
     if (Utils.Object.hasPropertyPath(config, 'playback.options.html5.hls')) {
-      hlsConfig = config.playback.options.html5.hls;
+      adapterConfig.hlsConfig = config.playback.options.html5.hls;
     }
-    if (Utils.Object.hasPropertyPath(config, 'playback.options.adapters')) {
-      hlsConfig = Utils.Object.mergeDeep(hlsConfig, config.playback.options.adapters)
+    if (Utils.Object.hasPropertyPath(config, 'sources.options')) {
+      const options = config.sources.options;
+      adapterConfig.forceRedirectExternalStreams = options.forceRedirectExternalStreams;
+      adapterConfig.redirectExternalStreamsCallback = options.redirectExternalStreamsCallback;
+      pLoader.redirectExternalStreamsCallback = adapterConfig.redirectExternalStreamsCallback;
     }
-    return new this(videoElement, source, hlsConfig);
+    return new this(videoElement, source, adapterConfig);
   }
 
   /**
@@ -167,9 +170,9 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     super(videoElement, source, config);
     this._config = Utils.Object.mergeDeep({}, this._config, DefaultConfig);
     if (this._config.forceRedirectExternalStreams) {
-      this._config['pLoader'] = pLoader;
+      this._config.hlsConfig['pLoader'] = pLoader;
     }
-    this._hls = new Hlsjs(this._config);
+    this._hls = new Hlsjs(this._config.hlsConfig);
     this._addBindings();
   }
 
@@ -225,8 +228,8 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     // reset hls.js
     this._reset();
     // re-init hls.js with the external redirect playlist loader
-    this._config['pLoader'] = pLoader;
-    this._hls = new Hlsjs(this._config);
+    this._config.hlsConfig['pLoader'] = pLoader;
+    this._hls = new Hlsjs(this._config.hlsConfig);
     this._addBindings();
     this._loadInternal();
   }
