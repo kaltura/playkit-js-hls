@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="1.5.5"></a>
+## [1.5.5](https://github.com/kaltura/playkit-js-hls/compare/v1.5.4...v1.5.5) (2018-02-28)
+
+
+### Bug Fixes
+
+* reference typo to hls instance ([20a994e](https://github.com/kaltura/playkit-js-hls/commit/20a994e))
+
+
+
 <a name="1.5.4"></a>
 ## [1.5.4](https://github.com/kaltura/playkit-js-hls/compare/v1.5.3...v1.5.4) (2018-02-19)
 
