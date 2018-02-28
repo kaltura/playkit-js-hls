@@ -625,7 +625,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
   _recoverDecodingError(): void {
     this._recoverDecodingErrorDate = performance.now();
     HlsAdapter._logger.warn("try to recover media Error");
-    this.hls.recoverMediaError();
+    this._hls.recoverMediaError();
   }
 
   /**
@@ -636,8 +636,8 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
   _recoverSwapAudioCodec(): void {
     this._recoverSwapAudioCodecDate = performance.now();
     HlsAdapter._logger.warn("try to swap Audio Codec and recover media Error");
-    this.hls.swapAudioCodec();
-    this.hls.recoverMediaError();
+    this._hls.swapAudioCodec();
+    this._hls.recoverMediaError();
   }
 
   /**
