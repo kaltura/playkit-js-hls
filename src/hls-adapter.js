@@ -209,6 +209,12 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     return this._loadPromise;
   }
 
+  /**
+   * Load the video source
+   * @function load
+   * @returns {void}
+   * @private
+   */
   _loadInternal() {
     this._onLoadedMetadataCallback = this._onLoadedMetadata.bind(this);
     this._videoElement.addEventListener(EventType.LOADED_METADATA, this._onLoadedMetadataCallback);
@@ -222,6 +228,12 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     }
   }
 
+  /**
+   * Load the video source with installed playlist loader
+   * @function _reloadWithDirectManifest
+   * @returns {void}
+   * @private
+   */
   _reloadWithDirectManifest() {
     // Mark that we tried once to redirect
     this._triedReloadWithRedirect = true;
