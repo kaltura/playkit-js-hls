@@ -1,5 +1,5 @@
 //@flow
-import {Utils} from 'playkit-js'
+import {jsonp} from 'playkit-js'
 import Hlsjs from 'hls.js'
 
 /**
@@ -25,7 +25,7 @@ export default class pLoader extends Hlsjs.DefaultConfig.loader {
     this.load = (context, config, callbacks) => {
       const url = context.url;
       if (context.type == 'manifest') {
-        Utils.jsonp(url, jsonpCallback).then(uri => {
+        jsonp(url, jsonpCallback).then(uri => {
           context.url = uri;
           load(context, config, callbacks);
         });
