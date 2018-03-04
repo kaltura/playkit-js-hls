@@ -5,7 +5,7 @@ import {HlsJsErrorMap, type ErrorDetailsType} from "./errors"
 import {BaseMediaSourceAdapter, Utils, Error, Env} from 'playkit-js'
 import {Track, VideoTrack, AudioTrack, TextTrack} from 'playkit-js'
 import {EventType} from 'playkit-js'
-import pLoader from './jsonp-pLoader'
+import pLoader from './jsonp-ploader'
 
 /**
  * Adapter of hls.js lib for hls content.
@@ -183,9 +183,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    * @returns {void}
    */
   _addBindings(): void {
-    this._hls.on(Hlsjs.Events.ERROR, (e, data) => {
-      this._onError(data);
-    });
+    this._hls.on(Hlsjs.Events.ERROR, (e, data) => this._onError(data));
     this._hls.on(Hlsjs.Events.MANIFEST_LOADED, this._onManifestLoaded.bind(this));
     this._hls.on(Hlsjs.Events.LEVEL_SWITCHED, this._onLevelSwitched.bind(this));
     this._hls.on(Hlsjs.Events.AUDIO_TRACK_SWITCHED, this._onAudioTrackSwitched.bind(this));
@@ -204,7 +202,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
       this._loadPromise = new Promise((resolve) => {
         this._resolveLoad = resolve;
         this._loadInternal();
-      })
+      });
     }
     return this._loadPromise;
   }
@@ -463,7 +461,6 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     return level && level.details ? level.details : {};
   }
 
-
   /**
    * Returns the live edge
    * @returns {number} - live edge
@@ -603,7 +600,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
       let error: typeof Error;
       switch (errorType) {
         case Hlsjs.ErrorTypes.NETWORK_ERROR:
-          if ([Hlsjs.ErrorDetails.MANIFEST_LOAD_ERROR ,Hlsjs.ErrorDetails.MANIFEST_LOAD_TIMEOUT].includes(errorDetails) &&
+          if ([Hlsjs.ErrorDetails.MANIFEST_LOAD_ERROR, Hlsjs.ErrorDetails.MANIFEST_LOAD_TIMEOUT].includes(errorDetails) &&
             !this._triedReloadWithRedirect && !this._config.forceRedirectExternalStreams) {
             this._reloadWithDirectManifest();
           } else {

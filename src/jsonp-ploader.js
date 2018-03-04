@@ -1,9 +1,10 @@
 //@flow
-import {jsonp} from 'playkit-js'
+import {Utils} from 'playkit-js'
 import Hlsjs from 'hls.js'
 
 /**
- * A plugin override for the loader function in hls.js. It checks if it should use jsonp for the manifest first, else - the regular
+ * A plugin override for the loader function in hls.js.
+ * It checks if it should use jsonp for the manifest first, else - the regular
  * loader is called.
  */
 export default class pLoader extends Hlsjs.DefaultConfig.loader {
@@ -14,23 +15,25 @@ export default class pLoader extends Hlsjs.DefaultConfig.loader {
    * @static
    */
   static redirectExternalStreamsCallback: Function = uri => uri;
+
   /**
    * @constructor
    * @param {Object} config - hlsjs config object. it also contains the jsonp callback function
    */
   constructor(config: Object) {
     super(config);
-    const load = this.load.bind(this);
-    const jsonpCallback = pLoader.redirectExternalStreamsCallback;
+    const loadOrig = this.load.bind(this);
+    const callback = pLoader.redirectExternalStreamsCallback;
     this.load = (context, config, callbacks) => {
       const url = context.url;
-      if (context.type == 'manifest') {
-        jsonp(url, jsonpCallback).then(uri => {
-          context.url = uri;
-          load(context, config, callbacks);
-        });
+      if (context.type === 'manifest') {
+        Utils.Http.jsonp(url, callback)
+          .then(uri => {
+            context.url = uri;
+            loadOrig(context, config, callbacks);
+          });
       } else {
-        load(context, config, callbacks);
+        loadOrig(context, config, callbacks);
       }
     };
   }
