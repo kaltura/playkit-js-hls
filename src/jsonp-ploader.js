@@ -9,12 +9,12 @@ import Hlsjs from 'hls.js'
  */
 export default class pLoader extends Hlsjs.DefaultConfig.loader {
   /**
-   * redirect external stream callback function
+   * redirect external stream handler function
    * @param {string} uri - the original uri
    * @returns {string} uri - the redirected URI
    * @static
    */
-  static redirectExternalStreamsCallback: Function = uri => uri;
+  static redirectExternalStreamsHandler: Function = uri => uri;
 
   /**
    * @constructor
@@ -23,7 +23,7 @@ export default class pLoader extends Hlsjs.DefaultConfig.loader {
   constructor(config: Object) {
     super(config);
     const loadOrig = this.load.bind(this);
-    const callback = pLoader.redirectExternalStreamsCallback;
+    const callback = pLoader.redirectExternalStreamsHandler;
     this.load = (context, config, callbacks) => {
       const url = context.url;
       if (context.type === 'manifest') {

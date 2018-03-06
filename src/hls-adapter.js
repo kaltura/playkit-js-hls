@@ -117,8 +117,8 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     if (Utils.Object.hasPropertyPath(config, 'sources.options')) {
       const options = config.sources.options;
       adapterConfig.forceRedirectExternalStreams = options.forceRedirectExternalStreams;
-      adapterConfig.redirectExternalStreamsCallback = options.redirectExternalStreamsCallback;
-      pLoader.redirectExternalStreamsCallback = adapterConfig.redirectExternalStreamsCallback;
+      adapterConfig.redirectExternalStreamsHandler = options.redirectExternalStreamsHandler;
+      pLoader.redirectExternalStreamsHandler = adapterConfig.redirectExternalStreamsHandler;
     }
     return new this(videoElement, source, adapterConfig);
   }
@@ -493,7 +493,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     try {
       this._videoElement.currentTime = this._getLiveEdge();
     } catch (e) {
-      return;
+
     }
   }
 
