@@ -528,8 +528,7 @@ describe('HlsAdapter Instance - seekToLiveEdge', function () {
   });
 });
 
-describe('HlsAdapter Instance - _getLiveEdge', function () {
-
+describe.skip('HlsAdapter Instance - _getLiveEdge', function () {
   let hlsAdapterInstance;
   let video;
   let liveSource = hls_sources.Live;
@@ -568,7 +567,6 @@ describe('HlsAdapter Instance - _getLiveEdge', function () {
 });
 
 describe('HlsAdapter Instance - getStartTimeOfDvrWindow', function () {
-
   let hlsAdapterInstance;
   let video;
   let vodSource = hls_sources.ElephantsDream;
