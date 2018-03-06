@@ -5,6 +5,7 @@ import {HlsJsErrorMap, type ErrorDetailsType} from "./errors"
 import {BaseMediaSourceAdapter, Utils, Error, Env} from 'playkit-js'
 import {Track, VideoTrack, AudioTrack, TextTrack} from 'playkit-js'
 import {EventType} from 'playkit-js'
+import pLoader from './jsonp-ploader'
 
 /**
  * Adapter of hls.js lib for hls content.
@@ -62,6 +63,13 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
   _recoverSwapAudioCodecDate: number;
 
   /**
+   * indicate if external redirect was performed
+   * @type {boolean}
+   * @private
+   */
+  _triedReloadWithRedirect: boolean = false;
+
+  /**
    * The load promise
    * @member {Promise<Object>} - _loadPromise
    * @type {Promise<Object>}
@@ -76,6 +84,13 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    * @private
    */
   _playerTracks: Array<Track>;
+
+  /**
+   * stream start time in seconds
+   * @type {?number}
+   * @private
+   */
+  _startTime: ?number = 0;
 
   /**
    * Reference to _onLoadedMetadata function
@@ -95,11 +110,17 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    * @static
    */
   static createAdapter(videoElement: HTMLVideoElement, source: PKMediaSourceObject, config: Object): IMediaSourceAdapter {
-    let hlsConfig = {};
+    let adapterConfig = {};
     if (Utils.Object.hasPropertyPath(config, 'playback.options.html5.hls')) {
-      hlsConfig = config.playback.options.html5.hls;
+      adapterConfig.hlsConfig = config.playback.options.html5.hls;
     }
-    return new this(videoElement, source, hlsConfig);
+    if (Utils.Object.hasPropertyPath(config, 'sources.options')) {
+      const options = config.sources.options;
+      adapterConfig.forceRedirectExternalStreams = options.forceRedirectExternalStreams;
+      adapterConfig.redirectExternalStreamsHandler = options.redirectExternalStreamsHandler;
+      pLoader.redirectExternalStreamsHandler = adapterConfig.redirectExternalStreamsHandler;
+    }
+    return new this(videoElement, source, adapterConfig);
   }
 
   /**
@@ -148,7 +169,10 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     HlsAdapter._logger.debug('Creating adapter. Hls version: ' + Hlsjs.version);
     super(videoElement, source, config);
     this._config = Utils.Object.mergeDeep({}, this._config, DefaultConfig);
-    this._hls = new Hlsjs(this._config);
+    if (this._config.forceRedirectExternalStreams) {
+      this._config.hlsConfig['pLoader'] = pLoader;
+    }
+    this._hls = new Hlsjs(this._config.hlsConfig);
     this._addBindings();
   }
 
@@ -159,9 +183,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    * @returns {void}
    */
   _addBindings(): void {
-    this._hls.on(Hlsjs.Events.ERROR, (e, data) => {
-      this._onError(data);
-    });
+    this._hls.on(Hlsjs.Events.ERROR, (e, data) => this._onError(data));
     this._hls.on(Hlsjs.Events.MANIFEST_LOADED, this._onManifestLoaded.bind(this));
     this._hls.on(Hlsjs.Events.LEVEL_SWITCHED, this._onLevelSwitched.bind(this));
     this._hls.on(Hlsjs.Events.AUDIO_TRACK_SWITCHED, this._onAudioTrackSwitched.bind(this));
@@ -176,31 +198,60 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    */
   load(startTime: ?number): Promise<Object> {
     if (!this._loadPromise) {
+      this._startTime = startTime;
       this._loadPromise = new Promise((resolve) => {
-        this._onLoadedMetadataCallback = this._onLoadedMetadata.bind(this, resolve);
-        this._videoElement.addEventListener(EventType.LOADED_METADATA, this._onLoadedMetadataCallback);
-        if (startTime) {
-          this._hls.startPosition = startTime;
-        }
-        if (this._sourceObj && this._sourceObj.url) {
-          this._hls.loadSource(this._sourceObj.url);
-          this._hls.attachMedia(this._videoElement);
-          this._trigger(EventType.ABR_MODE_CHANGED, {mode: this.isAdaptiveBitrateEnabled() ? 'auto' : 'manual'});
-        }
+        this._resolveLoad = resolve;
+        this._loadInternal();
       });
     }
     return this._loadPromise;
   }
 
   /**
+   * Load the video source
+   * @function load
+   * @returns {void}
+   * @private
+   */
+  _loadInternal() {
+    this._onLoadedMetadataCallback = this._onLoadedMetadata.bind(this);
+    this._videoElement.addEventListener(EventType.LOADED_METADATA, this._onLoadedMetadataCallback);
+    if (this._startTime) {
+      this._hls.startPosition = this._startTime;
+    }
+    if (this._sourceObj && this._sourceObj.url) {
+      this._hls.loadSource(this._sourceObj.url);
+      this._hls.attachMedia(this._videoElement);
+      this._trigger(EventType.ABR_MODE_CHANGED, {mode: this.isAdaptiveBitrateEnabled() ? 'auto' : 'manual'});
+    }
+  }
+
+  /**
+   * Load the video source with installed playlist loader
+   * @function _reloadWithDirectManifest
+   * @returns {void}
+   * @private
+   */
+  _reloadWithDirectManifest() {
+    // Mark that we tried once to redirect
+    this._triedReloadWithRedirect = true;
+    // reset hls.js
+    this._reset();
+    // re-init hls.js with the external redirect playlist loader
+    this._config.hlsConfig['pLoader'] = pLoader;
+    this._hls = new Hlsjs(this._config.hlsConfig);
+    this._addBindings();
+    this._loadInternal();
+  }
+
+  /**
    * Loaded metadata event handler.
-   * @param {Function} resolve - The resolve promise function.
    * @private
    * @returns {void}
    */
-  _onLoadedMetadata(resolve: Function): void {
+  _onLoadedMetadata(): void {
     this._removeLoadedMetadataListener();
-    resolve({tracks: this._playerTracks});
+    this._resolveLoad({tracks: this._playerTracks});
   }
 
   /**
@@ -226,10 +277,19 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
       HlsAdapter._logger.debug('destroy');
       this._loadPromise = null;
       this._playerTracks = [];
-      this._removeBindings();
-      this._hls.detachMedia();
-      this._hls.destroy();
+      this._reset();
     });
+  }
+
+  /**
+   * reset hls.js instance and its bindings
+   * @private
+   * @returns {void}
+   */
+  _reset(): void {
+    this._removeBindings();
+    this._hls.detachMedia();
+    this._hls.destroy();
   }
 
   /**
@@ -401,7 +461,6 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     return level && level.details ? level.details : {};
   }
 
-
   /**
    * Returns the live edge
    * @returns {number} - live edge
@@ -541,11 +600,16 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
       let error: typeof Error;
       switch (errorType) {
         case Hlsjs.ErrorTypes.NETWORK_ERROR:
-          error = new Error(
-            Error.Severity.CRITICAL,
-            Error.Category.NETWORK,
-            Error.Code.HTTP_ERROR,
-            errorDetails);
+          if ([Hlsjs.ErrorDetails.MANIFEST_LOAD_ERROR, Hlsjs.ErrorDetails.MANIFEST_LOAD_TIMEOUT].includes(errorDetails) &&
+            !this._triedReloadWithRedirect && !this._config.forceRedirectExternalStreams) {
+            this._reloadWithDirectManifest();
+          } else {
+            error = new Error(
+              Error.Severity.CRITICAL,
+              Error.Category.NETWORK,
+              Error.Code.HTTP_ERROR,
+              errorDetails);
+          }
           break;
         case Hlsjs.ErrorTypes.MEDIA_ERROR:
           if (this._handleMediaError()) {
