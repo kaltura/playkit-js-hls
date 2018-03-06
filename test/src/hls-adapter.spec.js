@@ -528,8 +528,45 @@ describe('HlsAdapter Instance - seekToLiveEdge', function () {
   });
 });
 
-describe('HlsAdapter Instance - getStartTimeOfDvrWindow', function () {
+describe.skip('HlsAdapter Instance - _getLiveEdge', function () {
+  let hlsAdapterInstance;
+  let video;
+  let liveSource = hls_sources.Live;
+  let config;
+  let sandbox;
 
+  beforeEach(function () {
+    sandbox = sinon.sandbox.create();
+    video = document.createElement('video');
+    config = {playback: {options: {html5: {hls: {}}}}};
+  });
+
+  afterEach(function (done) {
+    sandbox.restore();
+    hlsAdapterInstance.destroy().then(() => {
+      hlsAdapterInstance = null;
+      video = null;
+      TestUtils.removeVideoElementsFromTestPage();
+      done();
+    });
+  });
+
+  it('should return live edge', (done) => {
+    hlsAdapterInstance = HlsAdapter.createAdapter(video, liveSource, config);
+    hlsAdapterInstance.load().then(() => {
+      hlsAdapterInstance._videoElement.addEventListener('durationchange', () => {
+        if (hlsAdapterInstance._hls.liveSyncPosition) {
+          hlsAdapterInstance._getLiveEdge().should.be.equal(hlsAdapterInstance._hls.liveSyncPosition);
+          done();
+        } else {
+          hlsAdapterInstance._getLiveEdge().should.be.equal(video.duration);
+        }
+      });
+    });
+  });
+});
+
+describe('HlsAdapter Instance - getStartTimeOfDvrWindow', function () {
   let hlsAdapterInstance;
   let video;
   let vodSource = hls_sources.ElephantsDream;
