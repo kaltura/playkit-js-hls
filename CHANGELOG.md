@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="1.5.6"></a>
+## [1.5.6](https://github.com/kaltura/playkit-js-hls/compare/v1.5.5...v1.5.6) (2018-03-08)
+
+
+### Bug Fixes
+
+* **FEC-7815:** Support playManifest redirects for external streams ([#45](https://github.com/kaltura/playkit-js-hls/issues/45)) ([6c8ae11](https://github.com/kaltura/playkit-js-hls/commit/6c8ae11))
+
+
+
 <a name="1.5.5"></a>
 ## [1.5.5](https://github.com/kaltura/playkit-js-hls/compare/v1.5.4...v1.5.5) (2018-02-28)
 
