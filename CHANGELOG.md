@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="1.5.7"></a>
+## [1.5.7](https://github.com/kaltura/playkit-js-hls/compare/v1.5.6...v1.5.7) (2018-03-14)
+
+
+### Bug Fixes
+
+* **FEC-8026:** external OTT VOD/Live media doesn't works on IE 11 ([#55](https://github.com/kaltura/playkit-js-hls/issues/55)) ([713c0d5](https://github.com/kaltura/playkit-js-hls/commit/713c0d5))
+
+
+
 <a name="1.5.6"></a>
 ## [1.5.6](https://github.com/kaltura/playkit-js-hls/compare/v1.5.5...v1.5.6) (2018-03-08)
 
