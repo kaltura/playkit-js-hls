@@ -118,7 +118,9 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
       const options = config.sources.options;
       adapterConfig.forceRedirectExternalStreams = options.forceRedirectExternalStreams;
       adapterConfig.redirectExternalStreamsHandler = options.redirectExternalStreamsHandler;
+      adapterConfig.redirectExternalStreamsTimeout = options.redirectExternalStreamsTimeout;
       pLoader.redirectExternalStreamsHandler = adapterConfig.redirectExternalStreamsHandler;
+      pLoader.redirectExternalStreamsTimeout = adapterConfig.redirectExternalStreamsTimeout;
     }
     return new this(videoElement, source, adapterConfig);
   }
