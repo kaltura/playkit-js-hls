@@ -1,10 +1,18 @@
 //@flow
 import Hlsjs from 'hls.js'
 import DefaultConfig from './default-config'
-import {HlsJsErrorMap, type ErrorDetailsType} from "./errors"
-import {BaseMediaSourceAdapter, Utils, Error, Env} from 'playkit-js'
-import {Track, VideoTrack, AudioTrack, TextTrack} from 'playkit-js'
-import {EventType} from 'playkit-js'
+import {type ErrorDetailsType, HlsJsErrorMap} from "./errors"
+import {
+  AudioTrack,
+  BaseMediaSourceAdapter,
+  Env,
+  Error,
+  EventType,
+  TextTrack,
+  Track,
+  Utils,
+  VideoTrack
+} from 'playkit-js'
 import pLoader from './jsonp-ploader'
 
 /**
@@ -716,19 +724,6 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     this._hls.off(Hlsjs.Events.LEVEL_SWITCHED, this._onLevelSwitched);
     this._hls.off(Hlsjs.Events.AUDIO_TRACK_SWITCHED, this._onAudioTrackSwitched);
     this._removeLoadedMetadataListener();
-  }
-
-  /**
-   * Getter for the src that the adapter plays on the video element.
-   * In case the adapter preformed a load it will return the manifest url.
-   * @public
-   * @returns {string} - The src url.
-   */
-  get src(): string {
-    if (this._loadPromise && this._sourceObj) {
-      return this._sourceObj.url;
-    }
-    return "";
   }
 
   /**
