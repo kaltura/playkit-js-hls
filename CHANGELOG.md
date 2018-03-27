@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="1.5.8"></a>
+## [1.5.8](https://github.com/kaltura/playkit-js-hls/compare/v1.5.7...v1.5.8) (2018-03-27)
+
+
+### Bug Fixes
+
+* **FEC-8079:** move src getter to base adapter ([#56](https://github.com/kaltura/playkit-js-hls/issues/56)) ([2aa335a](https://github.com/kaltura/playkit-js-hls/commit/2aa335a))
+
+
+
 <a name="1.5.7"></a>
 ## [1.5.7](https://github.com/kaltura/playkit-js-hls/compare/v1.5.6...v1.5.7) (2018-03-14)
 
