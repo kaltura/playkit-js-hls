@@ -348,7 +348,6 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
       // Create video tracks
       let settings = {
         active: this._hls.startLevel === i,
-        label: hlsVideoTracks[i].name,
         bandwidth: hlsVideoTracks[i].bitrate,
         width: hlsVideoTracks[i].width,
         height: hlsVideoTracks[i].height,

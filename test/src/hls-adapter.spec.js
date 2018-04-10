@@ -166,6 +166,9 @@ describe('HlsAdapter Instance - Unit', function () {
       }
     };
     let videoTracks = hlsAdapterInstance._parseVideoTracks(hls_tracks.levels);
+    player_tracks.videoTracks.forEach(t => {
+      t._label = t._height + 'p';
+    });
     JSON.parse(JSON.stringify(videoTracks)).should.deep.equal(player_tracks.videoTracks);
   });
 
