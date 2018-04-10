@@ -169,8 +169,6 @@ describe('HlsAdapter Instance - Unit', function () {
     player_tracks.videoTracks.forEach(t => {
       t._label = t._height + 'p';
     });
-    console.info(JSON.stringify(videoTracks));
-    console.info(JSON.stringify(player_tracks.videoTracks));
     JSON.parse(JSON.stringify(videoTracks)).should.deep.equal(player_tracks.videoTracks);
   });
 
