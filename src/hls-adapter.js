@@ -118,10 +118,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    * @static
    */
   static createAdapter(videoElement: HTMLVideoElement, source: PKMediaSourceObject, config: Object): IMediaSourceAdapter {
-    let adapterConfig = {};
-    if (Utils.Object.hasPropertyPath(config, 'playback.options.html5.hls')) {
-      adapterConfig.hlsConfig = config.playback.options.html5.hls;
-    }
+    let adapterConfig: Object = Utils.Object.copyDeep(DefaultConfig);
     if (Utils.Object.hasPropertyPath(config, 'sources.options')) {
       const options = config.sources.options;
       adapterConfig.forceRedirectExternalStreams = options.forceRedirectExternalStreams;
@@ -129,6 +126,29 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
       adapterConfig.redirectExternalStreamsTimeout = options.redirectExternalStreamsTimeout;
       pLoader.redirectExternalStreamsHandler = adapterConfig.redirectExternalStreamsHandler;
       pLoader.redirectExternalStreamsTimeout = adapterConfig.redirectExternalStreamsTimeout;
+    }
+    if (Utils.Object.hasPropertyPath(config, 'abr')) {
+      const abr = config.abr;
+      if (typeof abr.enabled === "boolean") {
+        adapterConfig.abr.enabled = abr.enabled;
+      }
+      if (typeof abr.capLevelToPlayerSize === "boolean") {
+        adapterConfig.hlsConfig.capLevelToPlayerSize = abr.capLevelToPlayerSize;
+      }
+      if (abr.defaultBandwidthEstimate) {
+        adapterConfig.hlsConfig.abrEwmaDefaultEstimate = abr.defaultBandwidthEstimate;
+      }
+      if (abr.restrictions.minBitrate) {
+        adapterConfig.hlsConfig.minAutoBitrate = abr.restrictions.minBitrate;
+      }
+      if (abr.restrictions.maxBitrate){
+        //You can either set capping by size or bitrate, if bitrate is set then disable size capping
+        adapterConfig.hlsConfig.capLevelToPlayerSize = false;
+        adapterConfig.abr.restrictions = abr.restrictions;
+      }
+    }
+    if (Utils.Object.hasPropertyPath(config, 'playback.options.html5.hls')) {
+      Utils.Object.mergeDeep(adapterConfig.hlsConfig, config.playback.options.html5.hls);
     }
     return new this(videoElement, source, adapterConfig);
   }
@@ -530,6 +550,40 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     HlsAdapter._logger.debug('The source has been loaded successfully');
     this._hls.startLoad();
     this._playerTracks = this._parseTracks();
+    this._maybeApplyAbrRestrictions();
+  }
+
+  /**
+   * apply ABR restrictions
+   * @private
+   * @returns {void}
+   */
+  _maybeApplyAbrRestrictions(): void {
+    if (this._config.abr.enabled) {
+      if (this._config.abr.restrictions) {
+        const restrictions = this._config.abr.restrictions;
+        if (restrictions.maxBitrate) {
+          const minBitrate = restrictions.minBitrate ? restrictions.minBitrate : 0;
+          if (restrictions.maxBitrate > minBitrate) {
+            //Get the first level that is above our bitrate restriction
+            //If the corresponding level is not in the edges (level 0 or last level) then get the previous level index
+            //which has a bitrate value which is lower then the max bitrate restriction
+            let maxLevel = this._hls.levels.findIndex((level) => level.bitrate > restrictions.maxBitrate);
+            if (maxLevel > 0) {
+              maxLevel = maxLevel - 1;
+            }
+            this._hls.autoLevelCapping = maxLevel;
+          } else {
+            HlsAdapter._logger.warn(
+              'Invalid maxBitrate restriction, maxBitrate must be greater than minBitrate',
+              minBitrate,
+              restrictions.maxBitrate);
+          }
+        }
+      }
+    } else {
+      this._hls.currentLevel = 0;
+    }
   }
 
   /**
