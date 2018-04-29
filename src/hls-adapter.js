@@ -226,9 +226,6 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
   _loadInternal() {
     this._onLoadedMetadataCallback = this._onLoadedMetadata.bind(this);
     this._videoElement.addEventListener(EventType.LOADED_METADATA, this._onLoadedMetadataCallback);
-    if (this._startTime) {
-      this._hls.startPosition = this._startTime;
-    }
     if (this._sourceObj && this._sourceObj.url) {
       this._hls.loadSource(this._sourceObj.url);
       this._hls.attachMedia(this._videoElement);
@@ -529,7 +526,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    */
   _onManifestLoaded(): void {
     HlsAdapter._logger.debug('The source has been loaded successfully');
-    this._hls.startLoad();
+    this._hls.startLoad(this._startTime ? this._startTime : 0);
     this._playerTracks = this._parseTracks();
   }
 
