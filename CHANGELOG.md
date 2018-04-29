@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="1.6.0"></a>
+# [1.6.0](https://github.com/kaltura/playkit-js-hls/compare/v1.5.8...v1.6.0) (2018-04-10)
+
+
+### Features
+
+* **FEC-7330:** Enable setting custom track labels by app ([#57](https://github.com/kaltura/playkit-js-hls/issues/57)) ([edd0c79](https://github.com/kaltura/playkit-js-hls/commit/edd0c79))
+
+
+
 <a name="1.5.8"></a>
 ## [1.5.8](https://github.com/kaltura/playkit-js-hls/compare/v1.5.7...v1.5.8) (2018-03-27)
 
