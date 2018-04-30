@@ -92,14 +92,12 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    * @private
    */
   _playerTracks: Array<Track>;
-
   /**
    * stream start time in seconds
    * @type {?number}
    * @private
    */
   _startTime: ?number = 0;
-
   /**
    * Reference to _onLoadedMetadata function
    * @member {?Function} - _onLoadedMetadataCallback
@@ -129,6 +127,9 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
       adapterConfig.redirectExternalStreamsTimeout = options.redirectExternalStreamsTimeout;
       pLoader.redirectExternalStreamsHandler = adapterConfig.redirectExternalStreamsHandler;
       pLoader.redirectExternalStreamsTimeout = adapterConfig.redirectExternalStreamsTimeout;
+    }
+    if (Utils.Object.hasPropertyPath(config, 'playback.startTime')) {
+      adapterConfig.hlsConfig.startPosition = config.playback.startTime;
     }
     return new this(videoElement, source, adapterConfig);
   }
@@ -226,9 +227,6 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
   _loadInternal() {
     this._onLoadedMetadataCallback = this._onLoadedMetadata.bind(this);
     this._videoElement.addEventListener(EventType.LOADED_METADATA, this._onLoadedMetadataCallback);
-    if (this._startTime) {
-      this._hls.startPosition = this._startTime;
-    }
     if (this._sourceObj && this._sourceObj.url) {
       this._hls.loadSource(this._sourceObj.url);
       this._hls.attachMedia(this._videoElement);
@@ -528,7 +526,9 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    */
   _onManifestLoaded(): void {
     HlsAdapter._logger.debug('The source has been loaded successfully');
-    this._hls.startLoad();
+    if (!this._hls.config.autoStartLoad) {
+      this._hls.startLoad(this._startTime);
+    }
     this._playerTracks = this._parseTracks();
   }
 
