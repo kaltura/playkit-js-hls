@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="1.6.1"></a>
+## [1.6.1](https://github.com/kaltura/playkit-js-hls/compare/v1.6.0...v1.6.1) (2018-05-06)
+
+
+### Bug Fixes
+
+* **FEC-8152:** startTime configuration is not working ([#58](https://github.com/kaltura/playkit-js-hls/issues/58)) ([03dbbd1](https://github.com/kaltura/playkit-js-hls/commit/03dbbd1))
+
+
+
 <a name="1.6.0"></a>
 # [1.6.0](https://github.com/kaltura/playkit-js-hls/compare/v1.5.8...v1.6.0) (2018-04-10)
 
