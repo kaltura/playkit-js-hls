@@ -503,7 +503,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     try {
       this._videoElement.currentTime = this._getLiveEdge();
     } catch (e) {
-
+      return;
     }
   }
 
