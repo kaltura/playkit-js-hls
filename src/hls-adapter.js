@@ -129,7 +129,10 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
       pLoader.redirectExternalStreamsTimeout = adapterConfig.redirectExternalStreamsTimeout;
     }
     if (Utils.Object.hasPropertyPath(config, 'playback.startTime')) {
-      adapterConfig.hlsConfig.startPosition = config.playback.startTime;
+      const startTime = Utils.Object.getPropertyPath(config, 'playback.startTime');
+      if (startTime > -1) {
+        adapterConfig.hlsConfig.startPosition = config.playback.startTime;
+      }
     }
     return new this(videoElement, source, adapterConfig);
   }
