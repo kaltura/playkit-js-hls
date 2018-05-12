@@ -105,6 +105,13 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    * @private
    */
   _onLoadedMetadataCallback: ?Function;
+  /**
+   * Reference to _onVideoError function
+   * @member {?Function} - _onVideoErrorCallback
+   * @type {?Function}
+   * @private
+   */
+  _onVideoErrorCallback: ?Function;
 
   /**
    * Factory method to create media source adapter.
@@ -201,6 +208,29 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     this._hls.on(Hlsjs.Events.MANIFEST_LOADED, this._onManifestLoaded.bind(this));
     this._hls.on(Hlsjs.Events.LEVEL_SWITCHED, this._onLevelSwitched.bind(this));
     this._hls.on(Hlsjs.Events.AUDIO_TRACK_SWITCHED, this._onAudioTrackSwitched.bind(this));
+    this._onVideoErrorCallback = this._onVideoError.bind(this);
+    this._videoElement.addEventListener(EventType.ERROR, this._onVideoErrorCallback);
+  }
+
+  /**
+   * video error event handler.
+   * @param {Event} event - the media error event
+   * @private
+   * @returns {void}
+   */
+  _onVideoError(event: Event): void {
+    if ((event.currentTarget instanceof HTMLMediaElement) && (event.currentTarget.error instanceof MediaError)) {
+      const mediaError = event.currentTarget.error;
+      if (mediaError.code === mediaError.MEDIA_ERR_DECODE) {
+        HlsAdapter._logger.debug("The video playback was aborted due to a corruption problem or because the video used features your browser did not support.", mediaError.message);
+        const onLoadedMetadata = () => {
+          this._videoElement.removeEventListener(EventType.LOADED_METADATA, onLoadedMetadata);
+          this._videoElement.play();
+        };
+        this._videoElement.addEventListener(EventType.LOADED_METADATA, onLoadedMetadata);
+        this._handleMediaError();
+      }
+    }
   }
 
   /**
@@ -725,6 +755,8 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     this._hls.off(Hlsjs.Events.ERROR, this._onError);
     this._hls.off(Hlsjs.Events.LEVEL_SWITCHED, this._onLevelSwitched);
     this._hls.off(Hlsjs.Events.AUDIO_TRACK_SWITCHED, this._onAudioTrackSwitched);
+    this._videoElement.removeEventListener(EventType.ERROR, this._onVideoErrorCallback);
+    this._onVideoErrorCallback = null;
     this._removeLoadedMetadataListener();
   }
 
