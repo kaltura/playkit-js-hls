@@ -669,9 +669,11 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     const now: number = performance.now();
     let recover = true;
     if (this._checkTimeDeltaHasPassed(now, this._recoverDecodingErrorDate, this._config.recoverDecodingErrorDelay)) {
+      this._maybeTriggerRecoveredEvent();
       this._recoverDecodingError();
     } else {
       if (this._checkTimeDeltaHasPassed(now, this._recoverSwapAudioCodecDate, this._config.recoverSwapAudioCodecDelay)) {
+        this._maybeTriggerRecoveredEvent();
         this._recoverSwapAudioCodec();
       } else {
         recover = false;
@@ -679,6 +681,19 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
       }
     }
     return recover;
+  }
+
+  /**
+   * trigger mediarecovered event if metadata is loaded (means the recovery succeeded)
+   * @returns {void}
+   * @private
+   */
+  _maybeTriggerRecoveredEvent(): void {
+    const onLoadedMetadata = () => {
+      this._trigger(EventType.MEDIA_RECOVERED);
+      this._videoElement.removeEventListener(EventType.LOADED_METADATA, onLoadedMetadata);
+    };
+    this._videoElement.addEventListener(EventType.LOADED_METADATA, onLoadedMetadata);
   }
 
   /**
