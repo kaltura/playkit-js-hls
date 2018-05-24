@@ -199,7 +199,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
   }
 
   /**
-   * Adds the required bindings with hls.js.
+   * Adds the required bindings locally and with hls.js.
    * @function _addBindings
    * @private
    * @returns {void}
@@ -209,6 +209,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     this._hls.on(Hlsjs.Events.MANIFEST_LOADED, this._onManifestLoaded.bind(this));
     this._hls.on(Hlsjs.Events.LEVEL_SWITCHED, this._onLevelSwitched.bind(this));
     this._hls.on(Hlsjs.Events.AUDIO_TRACK_SWITCHED, this._onAudioTrackSwitched.bind(this));
+    this._onRecoveredCallback = () => this._onRecovered();
   }
 
   /**
@@ -286,6 +287,18 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
   }
 
   /**
+   * Remove the loadedmetadata listener, when recovering from media error.
+   * @private
+   * @returns {void}
+   */
+  _removeRecoveredCallbackListener(): void {
+    if (this._onRecoveredCallback) {
+      this._videoElement.removeEventListener(EventType.LOADED_METADATA, this._onRecoveredCallback);
+      this._onRecoveredCallback = null;
+    }
+  }
+
+  /**
    * Destroys the hls adapter.
    * @function destroy
    * @override
@@ -295,7 +308,6 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     return super.destroy().then(() => {
       HlsAdapter._logger.debug('destroy');
       this._loadPromise = null;
-      this._onRecoveredCallback = null;
       this._playerTracks = [];
       this._reset();
     });
@@ -687,7 +699,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
         HlsAdapter._logger.error("cannot recover, last media error recovery failed");
       }
     }
-    this._maybeTriggerRecoveredEvent();
+    this._videoElement.addEventListener(EventType.LOADED_METADATA, this._onRecoveredCallback);
     return recover;
   }
 
@@ -696,12 +708,9 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    * @returns {void}
    * @private
    */
-  _maybeTriggerRecoveredEvent(): void {
-    this._onRecoveredCallback = () => {
-      this._trigger(EventType.MEDIA_RECOVERED);
-      this._videoElement.removeEventListener(EventType.LOADED_METADATA, this._onRecoveredCallback);
-    };
-    this._videoElement.addEventListener(EventType.LOADED_METADATA, this._onRecoveredCallback);
+  _onRecovered(): void {
+    this._trigger(EventType.MEDIA_RECOVERED);
+    this._videoElement.removeEventListener(EventType.LOADED_METADATA, this._onRecoveredCallback);
   }
 
   /**
@@ -748,7 +757,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     this._hls.off(Hlsjs.Events.ERROR, this._onError);
     this._hls.off(Hlsjs.Events.LEVEL_SWITCHED, this._onLevelSwitched);
     this._hls.off(Hlsjs.Events.AUDIO_TRACK_SWITCHED, this._onAudioTrackSwitched);
-    this._removeLoadedMetadataListener();
+    this._removeRecoveredCallbackListener();
     this._videoElement.removeEventListener(EventType.LOADED_METADATA, this._onRecoveredCallback);
   }
 
