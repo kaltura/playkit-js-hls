@@ -1,14 +1,17 @@
 // @flow
 import {registerMediaSourceAdapter} from 'playkit-js'
-import HlsAdapter from './hls-adapter'
+import {Adapter} from './hls-adapter'
 
 declare var __VERSION__: string;
 declare var __NAME__: string;
 
-export default HlsAdapter;
-export {__VERSION__ as VERSION, __NAME__ as NAME};
+const VERSION = __VERSION__;
+const NAME = __NAME__;
+
+export {VERSION, NAME};
+export {Adapter};
 
 // Register hls adapter to the media source adapter provider.
-if (HlsAdapter.isSupported()) {
-  registerMediaSourceAdapter(HlsAdapter);
+if (Adapter.isSupported()) {
+  registerMediaSourceAdapter(Adapter);
 }

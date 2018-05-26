@@ -19,7 +19,7 @@ import pLoader from './jsonp-ploader'
  * Adapter of hls.js lib for hls content.
  * @classdesc
  */
-export default class HlsAdapter extends BaseMediaSourceAdapter {
+class HlsAdapter extends BaseMediaSourceAdapter {
   /**
    * The id of the adapter.
    * @member {string} id
@@ -755,3 +755,4 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     }
   }
 }
+export {HlsAdapter as Adapter};

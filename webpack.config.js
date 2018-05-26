@@ -2,7 +2,6 @@
 
 const webpack = require("webpack");
 const path = require("path");
-const PROD = (process.env.NODE_ENV === 'production');
 const packageData = require("./package.json");
 
 let plugins = [
@@ -12,45 +11,29 @@ let plugins = [
   })
 ];
 
-if (PROD) {
-  plugins.push(new webpack.optimize.UglifyJsPlugin({sourceMap: true}));
-}
-
 module.exports = {
   context: __dirname + "/src",
   entry: {"playkit-hls": "index.js"},
   output: {
     path: __dirname + "/dist",
     filename: '[name].js',
-    library: ["playkit", "hls"],
+    library: ["playkit", "adapters", "hls"],
     libraryTarget: "umd",
-    devtoolModuleFilenameTemplate: "./hls/[resource-path]",
+    devtoolModuleFilenameTemplate: "./playkit/adapters/hls/[resource-path]",
   },
   devtool: 'source-map',
+  optimization:{
+    minimize:false
+  },
   plugins: plugins,
   module: {
     rules: [{
       test: /\.js$/,
-      use: [{
-        loader: "babel-loader"
-      }],
-      exclude: [
-        /node_modules/
+      exclude: /node_modules/,
+      use: [
+        "babel-loader",
+        "eslint-loader",
       ]
-    }, {
-      test: /\.js$/,
-      exclude: [
-        /node_modules/
-      ],
-      enforce: 'pre',
-      use: [{
-        loader: 'eslint-loader',
-        options: {
-          rules: {
-            semi: 0
-          }
-        }
-      }]
     }]
   },
   devServer: {
