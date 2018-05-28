@@ -690,16 +690,17 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     const now: number = performance.now();
     let recover = true;
     if (this._checkTimeDeltaHasPassed(now, this._recoverDecodingErrorDate, this._config.recoverDecodingErrorDelay)) {
+      this._videoElement.addEventListener(EventType.LOADED_METADATA, this._onRecoveredCallback);
       this._recoverDecodingError();
     } else {
       if (this._checkTimeDeltaHasPassed(now, this._recoverSwapAudioCodecDate, this._config.recoverSwapAudioCodecDelay)) {
+        this._videoElement.addEventListener(EventType.LOADED_METADATA, this._onRecoveredCallback);
         this._recoverSwapAudioCodec();
       } else {
         recover = false;
         HlsAdapter._logger.error("cannot recover, last media error recovery failed");
       }
     }
-    this._videoElement.addEventListener(EventType.LOADED_METADATA, this._onRecoveredCallback);
     return recover;
   }
 
