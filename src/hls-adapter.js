@@ -105,6 +105,13 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    * @private
    */
   _onLoadedMetadataCallback: ?Function;
+  /**
+   * Reference to _onVideoError function
+   * @member {?Function} - _onVideoErrorCallback
+   * @type {?Function}
+   * @private
+   */
+  _onVideoErrorCallback: ?Function;
 
   /**
    * Reference to _onRecoveredCallback function
@@ -210,6 +217,24 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     this._hls.on(Hlsjs.Events.LEVEL_SWITCHED, this._onLevelSwitched.bind(this));
     this._hls.on(Hlsjs.Events.AUDIO_TRACK_SWITCHED, this._onAudioTrackSwitched.bind(this));
     this._onRecoveredCallback = () => this._onRecovered();
+    this._onVideoErrorCallback = (e) => this._onVideoError(e);
+    this._videoElement.addEventListener(EventType.ERROR, this._onVideoErrorCallback);
+  }
+
+  /**
+   * video error event handler.
+   * @param {Event} event - the media error event
+   * @private
+   * @returns {void}
+   */
+  _onVideoError(event: Event): void {
+    if ((event.currentTarget instanceof HTMLMediaElement) && (event.currentTarget.error instanceof MediaError)) {
+      const mediaError = event.currentTarget.error;
+      if (mediaError.code === mediaError.MEDIA_ERR_DECODE) {
+        HlsAdapter._logger.debug("The video playback was aborted due to a corruption problem or because the video used features your browser did not support.", mediaError.message);
+        this._handleMediaError();
+      }
+    }
   }
 
   /**
@@ -272,6 +297,18 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
   _onLoadedMetadata(): void {
     this._removeLoadedMetadataListener();
     this._resolveLoad({tracks: this._playerTracks});
+  }
+
+  /**
+   * Remove the error listener
+   * @private
+   * @returns {void}
+   */
+  _removeVideoErrorListener(): void {
+    if (this._onVideoErrorCallback) {
+      this._videoElement.removeEventListener(EventType.ERROR, this._onVideoErrorCallback);
+      this._onVideoErrorCallback = null;
+    }
   }
 
   /**
@@ -759,6 +796,8 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     this._hls.off(Hlsjs.Events.LEVEL_SWITCHED, this._onLevelSwitched);
     this._hls.off(Hlsjs.Events.AUDIO_TRACK_SWITCHED, this._onAudioTrackSwitched);
     this._removeRecoveredCallbackListener();
+    this._removeVideoErrorListener();
+    this._removeLoadedMetadataListener();
   }
 
   /**

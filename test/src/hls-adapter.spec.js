@@ -189,8 +189,7 @@ describe('HlsAdapter Instance - Unit', function () {
   it('should parse all hls tracks into player tracks', function () {
     hlsAdapterInstance._videoElement = {
       textTracks: hls_tracks.subtitles,
-      removeEventListener: function () {
-      }
+      removeEventListener: () => {}
     };
     hlsAdapterInstance._hls = {
       audioTracks: hls_tracks.audioTracks,
@@ -214,8 +213,7 @@ describe('HlsAdapter Instance - Unit', function () {
   it('should disable all text tracks', function () {
     hlsAdapterInstance._videoElement = {
       textTracks: hls_tracks.subtitles,
-      removeEventListener: function () {
-      }
+      removeEventListener: () => {}
     };
     hlsAdapterInstance._disableAllTextTracks();
     for (let i = 0; i < hlsAdapterInstance._videoElement.textTracks.length; i++) {
@@ -226,8 +224,7 @@ describe('HlsAdapter Instance - Unit', function () {
   it('should hide the active text track', function () {
     hlsAdapterInstance._videoElement = {
       textTracks: hls_tracks.subtitles,
-      removeEventListener: function () {
-      }
+      removeEventListener: () => {}
     };
     hlsAdapterInstance._videoElement.textTracks[0].mode = 'showing';
     hlsAdapterInstance.hideTextTrack();
