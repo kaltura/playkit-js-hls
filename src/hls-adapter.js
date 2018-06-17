@@ -15,6 +15,9 @@ import {
 } from 'playkit-js'
 import pLoader from './jsonp-ploader'
 
+// expose Hls.js's global to allow plugins interaction
+window.Hls = Hlsjs;
+
 /**
  * Adapter of hls.js lib for hls content.
  * @classdesc
