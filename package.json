@@ -1,6 +1,6 @@
 {
   "name": "playkit-js-hls",
-  "version": "1.6.2",
+  "version": "1.7.0",
   "description": "",
   "main": "dist/playkit-hls.js",
   "scripts": {

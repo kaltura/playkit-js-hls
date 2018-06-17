@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="1.7.0"></a>
+# [1.7.0](https://github.com/kaltura/playkit-js-hls/compare/v1.6.2...v1.7.0) (2018-06-17)
+
+
+### Bug Fixes
+
+* **FEC-8233:** handle media & error recovering ([#61](https://github.com/kaltura/playkit-js-hls/issues/61)) ([df02d4b](https://github.com/kaltura/playkit-js-hls/commit/df02d4b))
+
+
+### Features
+
+* **FEC-8209:** handle MEDIA_ERR_DECODE errors ([#60](https://github.com/kaltura/playkit-js-hls/issues/60)) ([9cc68bd](https://github.com/kaltura/playkit-js-hls/commit/9cc68bd))
+
+
+
 <a name="1.6.2"></a>
 ## [1.6.2](https://github.com/kaltura/playkit-js-hls/compare/v1.6.1...v1.6.2) (2018-05-10)
 
