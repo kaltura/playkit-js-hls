@@ -9,6 +9,12 @@ import {EventType} from 'playkit-js'
 
 const targetId = 'player-placeholder_hls-adapter.spec';
 
+describe('HlsAdapter', function () {
+  it('should expose Hls to window', function () {
+    window.Hls.should.be.ok;
+  });
+});
+
 describe('HlsAdapter.canPlayDrm', function () {
   it('should return false for any input', function () {
     HlsAdapter.canPlayDrm().should.be.false;
