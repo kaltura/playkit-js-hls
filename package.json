@@ -39,7 +39,7 @@
     "eslint-plugin-import": "^2.2.0",
     "eslint-plugin-mocha-no-only": "^0.0.5",
     "flow-bin": "latest",
-    "hls.js": "^0.8.9",
+    "hls.js": "^0.10.1",
     "istanbul": "^0.4.5",
     "karma": "^1.5.0",
     "karma-chai": "^0.1.0",
@@ -54,7 +54,7 @@
     "karma-webpack": "^2.0.2",
     "mocha": "^3.2.0",
     "mocha-cli": "^1.0.1",
-    "playkit-js": "https://github.com/kaltura/playkit-js.git#v0.29.0",
+    "playkit-js": "https://github.com/kaltura/playkit-js.git#master",
     "pre-push": "^0.1.1",
     "sinon": "^2.0.0",
     "sinon-chai": "^2.8.0",
@@ -66,8 +66,8 @@
   "keywords": [],
   "license": "AGPL-3.0",
   "peerDependencies": {
-    "hls.js": "^0.8.9",
-    "playkit-js": "https://github.com/kaltura/playkit-js.git#v0.29.0"
+    "hls.js": "^0.10.1",
+    "playkit-js": "https://github.com/kaltura/playkit-js.git#master"
   },
   "repository": {
     "type": "git",
