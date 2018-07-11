@@ -210,29 +210,6 @@ describe('HlsAdapter Instance - Unit', function () {
     JSON.parse(JSON.stringify(tracks)).should.deep.equal(allTracks);
   });
 
-  it('should disable all text tracks', function () {
-    hlsAdapterInstance._videoElement = {
-      textTracks: hls_tracks.subtitles,
-      removeEventListener: () => {}
-    };
-    hlsAdapterInstance._disableAllTextTracks();
-    for (let i = 0; i < hlsAdapterInstance._videoElement.textTracks.length; i++) {
-      hlsAdapterInstance._videoElement.textTracks[i].mode.should.equal('disabled');
-    }
-  });
-
-  it('should hide the active text track', function () {
-    hlsAdapterInstance._videoElement = {
-      textTracks: hls_tracks.subtitles,
-      removeEventListener: () => {}
-    };
-    hlsAdapterInstance._videoElement.textTracks[0].mode = 'showing';
-    hlsAdapterInstance.hideTextTrack();
-    for (let i = 0; i < hlsAdapterInstance._videoElement.textTracks.length; i++) {
-      hlsAdapterInstance._videoElement.textTracks[i].mode.should.equal('disabled');
-    }
-  });
-
   it('should enable adaptive bitrate', function () {
     hlsAdapterInstance._hls = {
       on: function () {
