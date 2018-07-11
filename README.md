@@ -7,7 +7,7 @@ PlayKit JS HLS adapter integrates [HLS.JS] with the [PlayKit JS Player].
 PlayKit JS HLS is written in [ECMAScript6], statically analysed using [Flow] and transpiled in ECMAScript5 using [Babel].
 
 [HLS.JS]: https://github.com/video-dev/hls.js
-[HLS.JS API docs]: https://github.com/video-dev/hls.js/blob/master/doc/API.md
+[HLS.JS API docs]: https://github.com/video-dev/hls.js/blob/master/docs/API.md
 [Flow]: https://flow.org/
 [ECMAScript6]: https://github.com/ericdouglas/ES6-Learning#articles--tutorials
 [Babel]: https://babeljs.io
