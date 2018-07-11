@@ -149,6 +149,9 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
         adapterConfig.hlsConfig.startPosition = config.playback.startTime;
       }
     }
+    if (Utils.Object.hasPropertyPath(config, 'playback.useNativeTextTrack')) {
+      adapterConfig.subtitleDisplay = Utils.Object.getPropertyPath(config, 'playback.useNativeTextTrack');
+    }
     return new this(videoElement, source, adapterConfig);
   }
 
@@ -202,6 +205,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
       this._config.hlsConfig['pLoader'] = pLoader;
     }
     this._hls = new Hlsjs(this._config.hlsConfig);
+    this._hls.subtitleDisplay = this._config.subtitleDisplay;
     this._addBindings();
   }
 
@@ -479,7 +483,6 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    */
   selectTextTrack(textTrack: TextTrack): void {
     if (textTrack instanceof TextTrack && !textTrack.active && this._videoElement.textTracks) {
-      this._disableAllTextTracks();
       this._hls.subtitleTrack = textTrack.index;
       HlsAdapter._logger.debug('Text track changed', textTrack);
       this._onTrackChanged(textTrack);
