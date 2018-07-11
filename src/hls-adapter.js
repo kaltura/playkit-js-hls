@@ -492,7 +492,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    * @public
    */
   hideTextTrack(): void {
-    this._disableAllTextTracks();
+    this._hls.subtitleTrack = -1;
   }
 
   /**
@@ -641,18 +641,6 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
         this._videoElement.removeEventListener(EventType.TIME_UPDATE, timeUpdateListener);
       };
       this._videoElement.addEventListener(EventType.TIME_UPDATE, timeUpdateListener)
-    }
-  }
-
-  /**
-   * Disables all the video tag text tracks.
-   * @returns {void}
-   * @private
-   */
-  _disableAllTextTracks() {
-    let vidTextTracks = this._videoElement.textTracks;
-    for (let i = 0; i < vidTextTracks.length; i++) {
-      vidTextTracks[i].mode = 'disabled';
     }
   }
 
