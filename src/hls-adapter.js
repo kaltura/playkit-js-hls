@@ -197,7 +197,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
   constructor(videoElement: HTMLVideoElement, source: PKMediaSourceObject, config: Object) {
     HlsAdapter._logger.debug('Creating adapter. Hls version: ' + Hlsjs.version);
     super(videoElement, source, config);
-    this._config = Utils.Object.mergeDeep({}, this._config, DefaultConfig);
+    this._config = Utils.Object.mergeDeep({}, DefaultConfig, this._config);
     if (this._config.forceRedirectExternalStreams) {
       this._config.hlsConfig['pLoader'] = pLoader;
     }
