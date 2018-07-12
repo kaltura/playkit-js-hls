@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="1.7.2"></a>
+## [1.7.2](https://github.com/kaltura/playkit-js-hls/compare/v1.7.1...v1.7.2) (2018-07-12)
+
+
+### Bug Fixes
+
+* **FEC-7935:** fix text selection logic with hlsjs ([#65](https://github.com/kaltura/playkit-js-hls/issues/65)) ([3074d19](https://github.com/kaltura/playkit-js-hls/commit/3074d19)), closes [kaltura/playkit-js#263](https://github.com/kaltura/playkit-js/issues/263)
+* **FEC-8396:** media source adapters default config overrides the player supplied config ([#66](https://github.com/kaltura/playkit-js-hls/issues/66)) ([eec593d](https://github.com/kaltura/playkit-js-hls/commit/eec593d))
+
+
+
 <a name="1.7.1"></a>
 ## [1.7.1](https://github.com/kaltura/playkit-js-hls/compare/v1.7.0...v1.7.1) (2018-07-09)
 
