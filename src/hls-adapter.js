@@ -220,9 +220,28 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     this._hls.on(Hlsjs.Events.MANIFEST_LOADED, this._onManifestLoaded.bind(this));
     this._hls.on(Hlsjs.Events.LEVEL_SWITCHED, this._onLevelSwitched.bind(this));
     this._hls.on(Hlsjs.Events.AUDIO_TRACK_SWITCHED, this._onAudioTrackSwitched.bind(this));
+    this._onFragParsed = this._onFragParsed.bind(this);
+    this._hls.on(Hlsjs.Events.FRAG_PARSED, this._onFragParsed);
     this._onRecoveredCallback = () => this._onRecovered();
     this._onVideoErrorCallback = (e) => this._onVideoError(e);
     this._videoElement.addEventListener(EventType.ERROR, this._onVideoErrorCallback);
+  }
+
+  _onFragParsed(): void {
+    // parse 608/708 captions that not exposed on hls.subtitleTracks
+    const textTrack = this._playerTracks.find((track) => {
+      return (track instanceof TextTrack);
+    });
+    if (textTrack) {
+      // There is at least 1 text track from hls or 608/708 already parsed
+      this._hls.off(Hlsjs.Events.FRAG_PARSED, this._onFragParsed);
+    } else {
+      const nativeTextTracks = this._parseNativeTextTracks(this._videoElement.textTracks);
+      if (nativeTextTracks.length) {
+        this._playerTracks = this._playerTracks.concat(nativeTextTracks);
+        this._trigger(EventType.TRACKS_CHANGED, {tracks: this._playerTracks});
+      }
+    }
   }
 
   /**
@@ -446,6 +465,32 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
   }
 
   /**
+   * Parse the video element text tracks which not expose on hlsjs api (608/708) into player text tracks.
+   * @param {Array<Object>} nativeTextTracks - The video element text tracks.
+   * @returns {Array<TextTrack>} - The parsed text tracks.
+   * @private
+   */
+  _parseNativeTextTracks(nativeTextTracks: Array<Object>): Array<TextTrack> {
+    let textTracks = [];
+    for (let i = 0; i < nativeTextTracks.length; i++) {
+      if (nativeTextTracks[i].cues && nativeTextTracks[i].cues.length &&
+        (nativeTextTracks[i].kind === 'subtitles' || nativeTextTracks[i].kind === 'captions')) {
+        // do not parse tracks from previous playback, or metadata tracks
+        let settings = {
+          id: nativeTextTracks[i].id,
+          active: nativeTextTracks[i].mode === 'showing',
+          label: nativeTextTracks[i].label,
+          kind: nativeTextTracks[i].kind,
+          language: nativeTextTracks[i].language,
+          index: i
+        };
+        textTracks.push(new TextTrack(settings));
+      }
+    }
+    return textTracks;
+  }
+
+  /**
    * Select an audio track.
    * @function selectAudioTrack
    * @param {AudioTrack} audioTrack - the audio track to select.
@@ -482,12 +527,45 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    * @public
    */
   selectTextTrack(textTrack: TextTrack): void {
-    if (textTrack instanceof TextTrack && !textTrack.active && this._videoElement.textTracks) {
-      this._hls.subtitleTrack = textTrack.index;
+    if (textTrack instanceof TextTrack && !textTrack.active) {
+      if (this._hls.subtitleTracks.length) {
+        this._hls.subtitleTrack = textTrack.id;
+        HlsAdapter._logger.debug('Text track changed', textTrack);
+        this._onTrackChanged(textTrack);
+      } else {
+        this._selectNativeTextTrack(textTrack);
+      }
+    }
+  }
+
+  /**
+   * Select a video element text track.
+   * @function _selectNativeTextTrack
+   * @param {TextTrack} textTrack - the track to select.
+   * @returns {void}
+   * @private
+   */
+  _selectNativeTextTrack(textTrack: TextTrack): void {
+    const selectedTrack = Array.from(this._videoElement.textTracks).find(track => track.language === textTrack.language);
+    if (selectedTrack) {
+      this._disableNativeTextTracks();
+      selectedTrack.mode = this._config.subtitleDisplay ? 'showing' : 'hidden';
       HlsAdapter._logger.debug('Text track changed', textTrack);
       this._onTrackChanged(textTrack);
     }
   }
+
+  /**
+   * Disables all the video element text tracks.
+   * @private
+   * @returns {void}
+   */
+  _disableNativeTextTracks(): void {
+    Array.from(this._videoElement.textTracks).forEach(track => {
+      track.mode = 'disabled';
+    });
+  }
+
 
   /** Hide the text track
    * @function hideTextTrack
@@ -786,6 +864,8 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     this._hls.off(Hlsjs.Events.ERROR, this._onError);
     this._hls.off(Hlsjs.Events.LEVEL_SWITCHED, this._onLevelSwitched);
     this._hls.off(Hlsjs.Events.AUDIO_TRACK_SWITCHED, this._onAudioTrackSwitched);
+    this._hls.off(Hlsjs.Events.MANIFEST_LOADED, this._onManifestLoaded);
+    this._hls.off(Hlsjs.Events.FRAG_PARSED, this._onFragParsed);
     this._removeRecoveredCallbackListener();
     this._removeVideoErrorListener();
     this._removeLoadedMetadataListener();
