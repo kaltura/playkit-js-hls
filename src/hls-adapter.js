@@ -152,21 +152,11 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     if (Utils.Object.hasPropertyPath(config, 'playback.useNativeTextTrack')) {
       adapterConfig.subtitleDisplay = Utils.Object.getPropertyPath(config, 'playback.useNativeTextTrack');
     }
-    if (Utils.Object.hasPropertyPath(config, 'playback.enableCEA708Captions')) {
-      adapterConfig.hlsConfig.enableCEA708Captions = config.playback.enableCEA708Captions;
-    }
-    if (Utils.Object.hasPropertyPath(config, 'playback.captionsTextTrack1Label')) {
-      adapterConfig.hlsConfig.captionsTextTrack1Label = config.playback.captionsTextTrack1Label;
-    }
-    if (Utils.Object.hasPropertyPath(config, 'playback.captionsTextTrack1LanguageCode')) {
-      adapterConfig.hlsConfig.captionsTextTrack1LanguageCode = config.playback.captionsTextTrack1LanguageCode;
-    }
-    if (Utils.Object.hasPropertyPath(config, 'playback.captionsTextTrack2Label')) {
-      adapterConfig.hlsConfig.captionsTextTrack2Label = config.playback.captionsTextTrack2Label;
-    }
-    if (Utils.Object.hasPropertyPath(config, 'playback.captionsTextTrack2LanguageCode')) {
-      adapterConfig.hlsConfig.captionsTextTrack2LanguageCode = config.playback.captionsTextTrack2LanguageCode;
-    }
+    adapterConfig.hlsConfig.enableCEA708Captions = config.playback.enableCEA708Captions;
+    adapterConfig.hlsConfig.captionsTextTrack1Label = config.playback.captionsTextTrack1Label;
+    adapterConfig.hlsConfig.captionsTextTrack1LanguageCode = config.playback.captionsTextTrack1LanguageCode;
+    adapterConfig.hlsConfig.captionsTextTrack2Label = config.playback.captionsTextTrack2Label;
+    adapterConfig.hlsConfig.captionsTextTrack2LanguageCode = config.playback.captionsTextTrack2LanguageCode;
     return new this(videoElement, source, adapterConfig);
   }
 
