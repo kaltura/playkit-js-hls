@@ -152,6 +152,21 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     if (Utils.Object.hasPropertyPath(config, 'playback.useNativeTextTrack')) {
       adapterConfig.subtitleDisplay = Utils.Object.getPropertyPath(config, 'playback.useNativeTextTrack');
     }
+    if (Utils.Object.hasPropertyPath(config, 'playback.enableCEACaptions')) {
+      adapterConfig.hlsConfig.enableCEA708Captions = config.playback.enableCEACaptions;
+    }
+    if (Utils.Object.hasPropertyPath(config, 'playback.captionsTextTrack1Label')) {
+      adapterConfig.hlsConfig.captionsTextTrack1Label = config.playback.captionsTextTrack1Label;
+    }
+    if (Utils.Object.hasPropertyPath(config, 'playback.captionsTextTrack1LanguageCode')) {
+      adapterConfig.hlsConfig.captionsTextTrack1LanguageCode = config.playback.captionsTextTrack1LanguageCode;
+    }
+    if (Utils.Object.hasPropertyPath(config, 'playback.captionsTextTrack2Label')) {
+      adapterConfig.hlsConfig.captionsTextTrack2Label = config.playback.captionsTextTrack2Label;
+    }
+    if (Utils.Object.hasPropertyPath(config, 'playback.captionsTextTrack2LanguageCode')) {
+      adapterConfig.hlsConfig.captionsTextTrack2LanguageCode = config.playback.captionsTextTrack2LanguageCode;
+    }
     return new this(videoElement, source, adapterConfig);
   }
 
@@ -220,25 +235,21 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     this._hls.on(Hlsjs.Events.MANIFEST_LOADED, this._onManifestLoaded.bind(this));
     this._hls.on(Hlsjs.Events.LEVEL_SWITCHED, this._onLevelSwitched.bind(this));
     this._hls.on(Hlsjs.Events.AUDIO_TRACK_SWITCHED, this._onAudioTrackSwitched.bind(this));
-    this._onFragParsed = this._onFragParsed.bind(this);
-    this._hls.on(Hlsjs.Events.FRAG_PARSED, this._onFragParsed);
     this._onRecoveredCallback = () => this._onRecovered();
     this._onVideoErrorCallback = (e) => this._onVideoError(e);
     this._videoElement.addEventListener(EventType.ERROR, this._onVideoErrorCallback);
+    this._onAddTrack = this._onAddTrack.bind(this);
+    this._videoElement.addEventListener('addtrack', this._onAddTrack);
+    this._videoElement.textTracks.onaddtrack = this._onAddTrack;
   }
 
-  _onFragParsed(): void {
-    // parse 608/708 captions that not exposed on hls.subtitleTracks
-    const textTrack = this._playerTracks.find((track) => {
-      return (track instanceof TextTrack);
-    });
-    if (textTrack) {
-      // There is at least 1 text track from hls or 608/708 already parsed
-      this._hls.off(Hlsjs.Events.FRAG_PARSED, this._onFragParsed);
-    } else {
-      const nativeTextTracks = this._parseNativeTextTracks(this._videoElement.textTracks);
-      if (nativeTextTracks.length) {
-        this._playerTracks = this._playerTracks.concat(nativeTextTracks);
+  _onAddTrack(event: any) {
+    if (!this._hls.subtitleTracks.length) {
+      // parse CEA 608/708 captions that not exposed on hls.subtitleTracks API
+      const CEATextTrack = this._parseCEATextTrack(event.track);
+      if (CEATextTrack) {
+        HlsAdapter._logger.debug('A CEA 608/708 caption has found', CEATextTrack);
+        this._playerTracks.push(CEATextTrack);
         this._trigger(EventType.TRACKS_CHANGED, {tracks: this._playerTracks});
       }
     }
@@ -465,29 +476,24 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
   }
 
   /**
-   * Parse the video element text tracks which not expose on hlsjs api (608/708) into player text tracks.
-   * @param {Array<Object>} nativeTextTracks - The video element text tracks.
-   * @returns {Array<TextTrack>} - The parsed text tracks.
+   * Parse a CEA 608/708 text track which not expose on hlsjs api into player text tracks.
+   * @param {Object} CEATextTrack - A video element text track.
+   * @returns {?TextTrack} - A parsed text track if the param is a CEA 608/708 caption.
    * @private
    */
-  _parseNativeTextTracks(nativeTextTracks: Array<Object>): Array<TextTrack> {
-    let textTracks = [];
-    for (let i = 0; i < nativeTextTracks.length; i++) {
-      if (nativeTextTracks[i].cues && nativeTextTracks[i].cues.length &&
-        (nativeTextTracks[i].kind === 'subtitles' || nativeTextTracks[i].kind === 'captions')) {
-        // do not parse tracks from previous playback, or metadata tracks
-        let settings = {
-          id: nativeTextTracks[i].id,
-          active: nativeTextTracks[i].mode === 'showing',
-          label: nativeTextTracks[i].label,
-          kind: nativeTextTracks[i].kind,
-          language: nativeTextTracks[i].language,
-          index: i
-        };
-        textTracks.push(new TextTrack(settings));
-      }
+  _parseCEATextTrack(CEATextTrack: Object): ?TextTrack {
+    let textTrack = null;
+    if (CEATextTrack.kind === 'captions') {
+      const settings = {
+        id: CEATextTrack.id,
+        active: CEATextTrack.mode === 'showing',
+        label: CEATextTrack.label,
+        kind: CEATextTrack.kind,
+        language: CEATextTrack.language
+      };
+      textTrack = new TextTrack(settings);
     }
-    return textTracks;
+    return textTrack;
   }
 
   /**
@@ -530,8 +536,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     if (textTrack instanceof TextTrack && !textTrack.active) {
       if (this._hls.subtitleTracks.length) {
         this._hls.subtitleTrack = textTrack.id;
-        HlsAdapter._logger.debug('Text track changed', textTrack);
-        this._onTrackChanged(textTrack);
+        this._notifyTrackChanged(textTrack);
       } else {
         this._selectNativeTextTrack(textTrack);
       }
@@ -550,9 +555,13 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     if (selectedTrack) {
       this._disableNativeTextTracks();
       selectedTrack.mode = this._config.subtitleDisplay ? 'showing' : 'hidden';
-      HlsAdapter._logger.debug('Text track changed', textTrack);
-      this._onTrackChanged(textTrack);
+      this._notifyTrackChanged(textTrack);
     }
+  }
+
+  _notifyTrackChanged(textTrack: TextTrack): void {
+    HlsAdapter._logger.debug('Text track changed', textTrack);
+    this._onTrackChanged(textTrack);
   }
 
   /**
@@ -865,7 +874,8 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     this._hls.off(Hlsjs.Events.LEVEL_SWITCHED, this._onLevelSwitched);
     this._hls.off(Hlsjs.Events.AUDIO_TRACK_SWITCHED, this._onAudioTrackSwitched);
     this._hls.off(Hlsjs.Events.MANIFEST_LOADED, this._onManifestLoaded);
-    this._hls.off(Hlsjs.Events.FRAG_PARSED, this._onFragParsed);
+    this._videoElement.textTracks.onaddtrack = null;
+    this._videoElement.removeEventListener('addtrack', this._onAddTrack);
     this._removeRecoveredCallbackListener();
     this._removeVideoErrorListener();
     this._removeLoadedMetadataListener();
