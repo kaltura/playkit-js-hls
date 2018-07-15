@@ -489,7 +489,8 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
         active: CEATextTrack.mode === 'showing',
         label: CEATextTrack.label,
         kind: CEATextTrack.kind,
-        language: CEATextTrack.language
+        language: CEATextTrack.language,
+        index: this._playerTracks.filter((track) => track instanceof TextTrack).length
       };
       textTrack = new TextTrack(settings);
     }
