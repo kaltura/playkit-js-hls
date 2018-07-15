@@ -574,7 +574,11 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    * @public
    */
   hideTextTrack(): void {
-    this._hls.subtitleTrack = -1;
+    if (this._hls.subtitleTracks.length) {
+      this._hls.subtitleTrack = -1;
+    } else {
+      this._disableNativeTextTracks();
+    }
   }
 
   /**
