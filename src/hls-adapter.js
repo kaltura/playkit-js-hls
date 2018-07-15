@@ -120,6 +120,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    * @private
    */
   _onRecoveredCallback: ?Function;
+  _onAddTrack: Function;
 
   /**
    * Factory method to create media source adapter.
