@@ -1,25 +1,27 @@
 # PlayKit JS HLS - [HLS.JS] Adapter for the [PlayKit JS Player]
 
 [![Build Status](https://travis-ci.org/kaltura/playkit-js-hls.svg?branch=master)](https://travis-ci.org/kaltura/playkit-js-hls)
+[![code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg?style=flat-square)](https://github.com/prettier/prettier)
 
 PlayKit JS HLS adapter integrates [HLS.JS] with the [PlayKit JS Player].
- 
+
 PlayKit JS HLS is written in [ECMAScript6], statically analysed using [Flow] and transpiled in ECMAScript5 using [Babel].
 
-[HLS.JS]: https://github.com/video-dev/hls.js
-[HLS.JS API docs]: https://github.com/video-dev/hls.js/blob/master/docs/API.md
-[Flow]: https://flow.org/
-[ECMAScript6]: https://github.com/ericdouglas/ES6-Learning#articles--tutorials
-[Babel]: https://babeljs.io
+[hls.js]: https://github.com/video-dev/hls.js
+[hls.js api docs]: https://github.com/video-dev/hls.js/blob/master/docs/API.md
+[flow]: https://flow.org/
+[ecmascript6]: https://github.com/ericdouglas/ES6-Learning#articles--tutorials
+[babel]: https://babeljs.io
 
 ## Getting Started
 
 ### Prerequisites
+
 The adapter requires [PlayKit JS Player] to be loaded first.
 
 The adapter uses the [HLS.JS] javascript library.
 
-[Playkit JS Player]: https://github.com/kaltura/playkit-js
+[playkit js player]: https://github.com/kaltura/playkit-js
 
 ### Installing
 
@@ -66,7 +68,7 @@ The configuration is exposed via the playback section:
 
 ```javascript
 {
-  playback:{
+  playback: {
     options: {
       html5: {
         hls: {
@@ -76,18 +78,20 @@ The configuration is exposed via the playback section:
     }
   }
 }
-``` 
+```
 
 ## Running the tests
 
 Tests can be run locally via [Karma], which will run on Chrome, Firefox and Safari
 
-[Karma]: https://karma-runner.github.io/1.0/index.html
+[karma]: https://karma-runner.github.io/1.0/index.html
+
 ```
 yarn run test
 ```
 
 You can test individual browsers:
+
 ```
 yarn run test:chrome
 yarn run test:firefox
@@ -102,7 +106,6 @@ See [ESLint config](.eslintrc.json) for full configuration.
 
 We also use [.editorconfig](.editorconfig) to maintain consistent coding styles and settings, please make sure you comply with the styling.
 
-
 ## Compatibility
 
 TBD
@@ -113,7 +116,7 @@ Please read [CONTRIBUTING.md](https://gist.github.com/PurpleBooth/b24679402957c6
 
 ## Versioning
 
-We use [SemVer](http://semver.org/) for versioning. For the versions available, see the [tags on this repository](https://github.com/kaltura/playkit-js-hls/tags). 
+We use [SemVer](http://semver.org/) for versioning. For the versions available, see the [tags on this repository](https://github.com/kaltura/playkit-js-hls/tags).
 
 ## License
 

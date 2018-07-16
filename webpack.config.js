@@ -1,9 +1,9 @@
 'use strict';
 
-const webpack = require("webpack");
-const path = require("path");
-const PROD = (process.env.NODE_ENV === 'production');
-const packageData = require("./package.json");
+const webpack = require('webpack');
+const path = require('path');
+const PROD = process.env.NODE_ENV === 'production';
+const packageData = require('./package.json');
 
 let plugins = [
   new webpack.DefinePlugin({
@@ -17,63 +17,63 @@ if (PROD) {
 }
 
 module.exports = {
-  context: __dirname + "/src",
-  entry: {"playkit-hls": "index.js"},
+  context: __dirname + '/src',
+  entry: {'playkit-hls': 'index.js'},
   output: {
-    path: __dirname + "/dist",
+    path: __dirname + '/dist',
     filename: '[name].js',
-    library: ["playkit", "hls"],
-    libraryTarget: "umd",
-    devtoolModuleFilenameTemplate: "./hls/[resource-path]",
+    library: ['playkit', 'hls'],
+    libraryTarget: 'umd',
+    devtoolModuleFilenameTemplate: './hls/[resource-path]'
   },
   devtool: 'source-map',
   plugins: plugins,
   module: {
-    rules: [{
-      test: /\.js$/,
-      use: [{
-        loader: "babel-loader"
-      }],
-      exclude: [
-        /node_modules/
-      ]
-    }, {
-      test: /\.js$/,
-      exclude: [
-        /node_modules/
-      ],
-      enforce: 'pre',
-      use: [{
-        loader: 'eslint-loader',
-        options: {
-          rules: {
-            semi: 0
+    rules: [
+      {
+        test: /\.js$/,
+        use: [
+          {
+            loader: 'babel-loader'
           }
-        }
-      }]
-    }]
-  },
-  devServer: {
-    contentBase: __dirname + "/src"
-  },
-  resolve: {
-    modules: [
-      path.resolve(__dirname, "src"),
-      "node_modules"
+        ],
+        exclude: [/node_modules/]
+      },
+      {
+        test: /\.js$/,
+        exclude: [/node_modules/],
+        enforce: 'pre',
+        use: [
+          {
+            loader: 'eslint-loader',
+            options: {
+              rules: {
+                semi: 0
+              }
+            }
+          }
+        ]
+      }
     ]
   },
+  devServer: {
+    contentBase: __dirname + '/src'
+  },
+  resolve: {
+    modules: [path.resolve(__dirname, 'src'), 'node_modules']
+  },
   externals: {
-    "playkit-js": {
-      commonjs: "playkit-js",
-      commonjs2: "playkit-js",
-      amd: "playkit-js",
-      root: ["playkit", "core"]
+    'playkit-js': {
+      commonjs: 'playkit-js',
+      commonjs2: 'playkit-js',
+      amd: 'playkit-js',
+      root: ['playkit', 'core']
     },
-    "hls.js": {
-      commonjs: "hls.js",
-      commonjs2: "hls.js",
-      amd: "hls.js",
-      root: "Hls"
+    'hls.js': {
+      commonjs: 'hls.js',
+      commonjs2: 'hls.js',
+      amd: 'hls.js',
+      root: 'Hls'
     }
   }
 };
