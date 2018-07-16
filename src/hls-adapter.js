@@ -474,7 +474,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
         label: CEATextTrack.label,
         kind: CEATextTrack.kind,
         language: CEATextTrack.language,
-        index: this._playerTracks.filter((track) => track instanceof TextTrack).length
+        index: this._playerTracks.filter(track => track instanceof TextTrack).length
       };
       textTrack = new TextTrack(settings);
     }
@@ -559,7 +559,6 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
       track.mode = 'disabled';
     });
   }
-
 
   /** Hide the text track
    * @function hideTextTrack
