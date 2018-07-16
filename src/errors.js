@@ -1,6 +1,6 @@
 // @flow
-import Hlsjs from 'hls.js'
-import {Error} from 'playkit-js'
+import Hlsjs from 'hls.js';
+import {Error} from 'playkit-js';
 
 type ErrorDetailsType = {category: number, code: number};
 type HlsJsErrorMapType = {[name: string]: ErrorDetailsType};
