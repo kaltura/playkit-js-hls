@@ -89,13 +89,6 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    */
   _startTime: ?number = 0;
   /**
-   * Reference to _onLoadedMetadata function
-   * @member {?Function} - _onLoadedMetadataCallback
-   * @type {?Function}
-   * @private
-   */
-  _onLoadedMetadataCallback: ?Function;
-  /**
    * Reference to _onVideoError function
    * @member {?Function} - _onVideoErrorCallback
    * @type {?Function}
@@ -280,8 +273,6 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    * @private
    */
   _loadInternal() {
-    this._onLoadedMetadataCallback = this._onLoadedMetadata.bind(this);
-    this._videoElement.addEventListener(EventType.LOADED_METADATA, this._onLoadedMetadataCallback);
     if (this._sourceObj && this._sourceObj.url) {
       this._hls.loadSource(this._sourceObj.url);
       this._hls.attachMedia(this._videoElement);
@@ -308,16 +299,6 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
   }
 
   /**
-   * Loaded metadata event handler.
-   * @private
-   * @returns {void}
-   */
-  _onLoadedMetadata(): void {
-    this._removeLoadedMetadataListener();
-    this._resolveLoad({tracks: this._playerTracks});
-  }
-
-  /**
    * Remove the error listener
    * @private
    * @returns {void}
@@ -326,18 +307,6 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     if (this._onVideoErrorCallback) {
       this._videoElement.removeEventListener(EventType.ERROR, this._onVideoErrorCallback);
       this._onVideoErrorCallback = null;
-    }
-  }
-
-  /**
-   * Remove the loadedmetadata listener
-   * @private
-   * @returns {void}
-   */
-  _removeLoadedMetadataListener(): void {
-    if (this._onLoadedMetadataCallback) {
-      this._videoElement.removeEventListener(EventType.LOADED_METADATA, this._onLoadedMetadataCallback);
-      this._onLoadedMetadataCallback = null;
     }
   }
 
@@ -673,6 +642,13 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
       this._hls.startLoad(this._startTime);
     }
     this._playerTracks = this._parseTracks();
+    if (this._hls.audioTracks.length) {
+      this._hls.once(Hlsjs.Events.AUDIO_TRACK_SWITCHING, () => {
+        this._resolveLoad({tracks: this._playerTracks});
+      });
+    } else {
+      this._resolveLoad({tracks: this._playerTracks});
+    }
   }
 
   /**
@@ -853,7 +829,6 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     this._videoElement.removeEventListener('addtrack', this._onAddTrack);
     this._removeRecoveredCallbackListener();
     this._removeVideoErrorListener();
-    this._removeLoadedMetadataListener();
   }
 
   /**
