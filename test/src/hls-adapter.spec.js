@@ -447,7 +447,7 @@ describe('HlsAdapter Instance - isLive', () => {
     hlsAdapterInstance.isLive().should.be.false;
   });
 
-  it('should return true for live', done => {
+  it.skip('should return true for live', done => {
     hlsAdapterInstance = HlsAdapter.createAdapter(video, liveSource, config);
     hlsAdapterInstance.load().then(() => {
       try {
@@ -569,7 +569,7 @@ describe('HlsAdapter Instance - getStartTimeOfDvrWindow', function() {
     });
   });
 
-  it('should return the start of DVR window for live', done => {
+  it.skip('should return the start of DVR window for live', done => {
     hlsAdapterInstance = HlsAdapter.createAdapter(video, liveSource, config);
     hlsAdapterInstance.load().then(() => {
       try {
