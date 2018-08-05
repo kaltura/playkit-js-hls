@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="1.8.1"></a>
+## [1.8.1](https://github.com/kaltura/playkit-js-hls/compare/v1.8.0...v1.8.1) (2018-08-05)
+
+
+### Bug Fixes
+
+* **FEC-8404:**  workaround for hlsjs audio switching bug ([#69](https://github.com/kaltura/playkit-js-hls/issues/69)) ([98877e6](https://github.com/kaltura/playkit-js-hls/commit/98877e6))
+
+
+
 <a name="1.8.0"></a>
 # [1.8.0](https://github.com/kaltura/playkit-js-hls/compare/v1.7.2...v1.8.0) (2018-07-23)
 
