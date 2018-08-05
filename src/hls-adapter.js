@@ -829,7 +829,6 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     this._videoElement.removeEventListener('addtrack', this._onAddTrack);
     this._removeRecoveredCallbackListener();
     this._removeVideoErrorListener();
-    this._removeLoadedMetadataListener();
   }
 
   /**
