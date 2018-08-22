@@ -1,5 +1,5 @@
 {
-  "name": "playkit-js-hls",
+  "name": "@playkit-js/playkit-js-hls",
   "version": "1.8.1",
   "description": "",
   "main": "dist/playkit-hls.js",
@@ -11,7 +11,7 @@
     "watch": "webpack --progress --colors --watch",
     "test": "NODE_ENV=test karma start --color",
     "release": "standard-version",
-    "publish": "git push --follow-tags --no-verify origin master",
+    "pushTaggedRelease": "git push --follow-tags --no-verify origin master",
     "eslint": "eslint . --color",
     "flow": "flow check",
     "commit:dist": "git add --force --all dist && (git commit -m 'chore: update dist' || exit 0)",
@@ -27,10 +27,8 @@
       "git add"
     ]
   },
-  "standard-version": {
-    "scripts": {
-      "postbump": "yarn run build && npm run commit:dist"
-    }
+  "publishConfig": {
+    "access": "public"
   },
   "devDependencies": {
     "babel-cli": "^6.18.0",
@@ -79,12 +77,20 @@
     "webpack": "latest",
     "webpack-dev-server": "latest"
   },
-  "keywords": [],
-  "license": "AGPL-3.0",
   "peerDependencies": {
     "hls.js": "^0.10.1",
     "playkit-js": "https://github.com/kaltura/playkit-js.git#v0.35.0"
   },
+  "keywords": [
+    "hls",
+    "m3u8",
+    "kaltura",
+    "player",
+    "playkit-js",
+    "playkit-js-hls",
+    "html5 player"
+  ],
+  "license": "AGPL-3.0",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/kaltura/playkit-js-hls.git"
@@ -93,11 +99,7 @@
     "url": "https://github.com/kaltura/playkit-js-hls/issues"
   },
   "homepage": "https://github.com/kaltura/playkit-js-hls#readme",
-  "dependencies": {
-    "eslint-config-prettier": "^2.9.0",
-    "eslint-plugin-prettier": "^2.6.2",
-    "husky": "^0.14.3",
-    "lint-staged": "^7.2.0",
-    "prettier": "^1.13.7"
+  "kcc": {
+    "name": "playkit-hls"
   }
 }
