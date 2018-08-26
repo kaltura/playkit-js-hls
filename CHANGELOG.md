@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="1.8.2"></a>
+## [1.8.2](https://github.com/kaltura/playkit-js-hls/compare/v1.8.1...v1.8.2) (2018-08-26)
+
+
+### Bug Fixes
+
+* **FEC-8506:** fail to resolve manifest load with multi-audio streams ([#72](https://github.com/kaltura/playkit-js-hls/issues/72)) ([c7a61c0](https://github.com/kaltura/playkit-js-hls/commit/c7a61c0))
+
+
+
 <a name="1.8.1"></a>
 ## [1.8.1](https://github.com/kaltura/playkit-js-hls/compare/v1.8.0...v1.8.1) (2018-08-05)
 
