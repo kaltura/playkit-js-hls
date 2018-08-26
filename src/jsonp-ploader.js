@@ -1,6 +1,6 @@
 //@flow
-import {Utils} from 'playkit-js'
-import Hlsjs from 'hls.js'
+import {Utils} from 'playkit-js';
+import Hlsjs from 'hls.js';
 
 /**
  * A plugin override for the loader function in hls.js.
@@ -27,11 +27,14 @@ export default class pLoader extends Hlsjs.DefaultConfig.loader {
     this.load = (context, config, callbacks) => {
       const url = context.url;
       if (context.type === 'manifest') {
-        Utils.Http.jsonp(url, callback)
+        Utils.Http.jsonp(url, callback, {
+          timeout: pLoader.redirectExternalStreamsTimeout
+        })
           .then(uri => {
             context.url = uri;
             loadOrig(context, config, callbacks);
-          });
+          })
+          .catch(() => loadOrig(context, config, callbacks));
       } else {
         loadOrig(context, config, callbacks);
       }

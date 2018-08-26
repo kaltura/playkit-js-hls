@@ -2,6 +2,112 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="1.8.1"></a>
+## [1.8.1](https://github.com/kaltura/playkit-js-hls/compare/v1.8.0...v1.8.1) (2018-08-05)
+
+
+### Bug Fixes
+
+* **FEC-8404:**  workaround for hlsjs audio switching bug ([#69](https://github.com/kaltura/playkit-js-hls/issues/69)) ([98877e6](https://github.com/kaltura/playkit-js-hls/commit/98877e6))
+
+
+
+<a name="1.8.0"></a>
+# [1.8.0](https://github.com/kaltura/playkit-js-hls/compare/v1.7.2...v1.8.0) (2018-07-23)
+
+
+### Features
+
+* **FEC-8390, FEC-8246:** support 608/708 captions ([#67](https://github.com/kaltura/playkit-js-hls/issues/67)) ([39e8e09](https://github.com/kaltura/playkit-js-hls/commit/39e8e09))
+
+
+
+<a name="1.7.2"></a>
+## [1.7.2](https://github.com/kaltura/playkit-js-hls/compare/v1.7.1...v1.7.2) (2018-07-12)
+
+
+### Bug Fixes
+
+* **FEC-7935:** fix text selection logic with hlsjs ([#65](https://github.com/kaltura/playkit-js-hls/issues/65)) ([3074d19](https://github.com/kaltura/playkit-js-hls/commit/3074d19)), closes [kaltura/playkit-js#263](https://github.com/kaltura/playkit-js/issues/263)
+* **FEC-8396:** media source adapters default config overrides the player supplied config ([#66](https://github.com/kaltura/playkit-js-hls/issues/66)) ([eec593d](https://github.com/kaltura/playkit-js-hls/commit/eec593d))
+
+
+
+<a name="1.7.1"></a>
+## [1.7.1](https://github.com/kaltura/playkit-js-hls/compare/v1.7.0...v1.7.1) (2018-07-09)
+
+
+### Bug Fixes
+
+* **FEC-7887, FEC-7953, SUP-14111:** upgrade hlsjs to 0.10.1 ([#64](https://github.com/kaltura/playkit-js-hls/issues/64)) ([1ded885](https://github.com/kaltura/playkit-js-hls/commit/1ded885))
+
+
+
+<a name="1.7.0"></a>
+# [1.7.0](https://github.com/kaltura/playkit-js-hls/compare/v1.6.2...v1.7.0) (2018-06-17)
+
+
+### Bug Fixes
+
+* **FEC-8233:** handle media & error recovering ([#61](https://github.com/kaltura/playkit-js-hls/issues/61)) ([df02d4b](https://github.com/kaltura/playkit-js-hls/commit/df02d4b))
+
+
+### Features
+
+* **FEC-8209:** handle MEDIA_ERR_DECODE errors ([#60](https://github.com/kaltura/playkit-js-hls/issues/60)) ([9cc68bd](https://github.com/kaltura/playkit-js-hls/commit/9cc68bd))
+
+
+
+<a name="1.6.2"></a>
+## [1.6.2](https://github.com/kaltura/playkit-js-hls/compare/v1.6.1...v1.6.2) (2018-05-10)
+
+
+### Bug Fixes
+
+* **FEC-8203:** Live with DVR is not playing live edge in first play ([#59](https://github.com/kaltura/playkit-js-hls/issues/59)) ([da39a07](https://github.com/kaltura/playkit-js-hls/commit/da39a07))
+
+
+
+<a name="1.6.1"></a>
+## [1.6.1](https://github.com/kaltura/playkit-js-hls/compare/v1.6.0...v1.6.1) (2018-05-06)
+
+
+### Bug Fixes
+
+* **FEC-8152:** startTime configuration is not working ([#58](https://github.com/kaltura/playkit-js-hls/issues/58)) ([03dbbd1](https://github.com/kaltura/playkit-js-hls/commit/03dbbd1))
+
+
+
+<a name="1.6.0"></a>
+# [1.6.0](https://github.com/kaltura/playkit-js-hls/compare/v1.5.8...v1.6.0) (2018-04-10)
+
+
+### Features
+
+* **FEC-7330:** Enable setting custom track labels by app ([#57](https://github.com/kaltura/playkit-js-hls/issues/57)) ([edd0c79](https://github.com/kaltura/playkit-js-hls/commit/edd0c79))
+
+
+
+<a name="1.5.8"></a>
+## [1.5.8](https://github.com/kaltura/playkit-js-hls/compare/v1.5.7...v1.5.8) (2018-03-27)
+
+
+### Bug Fixes
+
+* **FEC-8079:** move src getter to base adapter ([#56](https://github.com/kaltura/playkit-js-hls/issues/56)) ([2aa335a](https://github.com/kaltura/playkit-js-hls/commit/2aa335a))
+
+
+
+<a name="1.5.7"></a>
+## [1.5.7](https://github.com/kaltura/playkit-js-hls/compare/v1.5.6...v1.5.7) (2018-03-14)
+
+
+### Bug Fixes
+
+* **FEC-8026:** external OTT VOD/Live media doesn't works on IE 11 ([#55](https://github.com/kaltura/playkit-js-hls/issues/55)) ([713c0d5](https://github.com/kaltura/playkit-js-hls/commit/713c0d5))
+
+
+
 <a name="1.5.6"></a>
 ## [1.5.6](https://github.com/kaltura/playkit-js-hls/compare/v1.5.5...v1.5.6) (2018-03-08)
 
