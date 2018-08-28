@@ -229,24 +229,20 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
 
   /**
    * video error event handler.
-   * @param {Event} event - the media error event
-   * @private
+   * @param {MediaError} error - the media error
+   * @public
    * @returns {boolean} if hls-adapter will try to recover
    */
-  handleMediaError(event: Event): boolean {
-    if (event.currentTarget instanceof HTMLMediaElement && event.currentTarget.error instanceof MediaError) {
-      const mediaError = event.currentTarget.error;
-      if (mediaError.code === mediaError.MEDIA_ERR_DECODE) {
-        HlsAdapter._logger.debug(
-          'The video playback was aborted due to a corruption problem or because the video used features your browser did not support.',
-          mediaError.message
-        );
-        return this._handleMediaError();
-      } else {
-        return false;
-      }
+  handleMediaError(error: MediaError): boolean {
+    if (error.code === error.MEDIA_ERR_DECODE) {
+      HlsAdapter._logger.debug(
+        'The video playback was aborted due to a corruption problem or because the video used features your browser did not support.',
+        error.message
+      );
+      return this._handleMediaError();
+    } else {
+      return false;
     }
-    return false;
   }
 
   /**
