@@ -233,7 +233,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    * @private
    * @returns {boolean} if hls-adapter will try to recover
    */
-  canRecover(event: Event): void {
+  handleMediaError(event: Event): boolean {
     if (event.currentTarget instanceof HTMLMediaElement && event.currentTarget.error instanceof MediaError) {
       const mediaError = event.currentTarget.error;
       if (mediaError.code === mediaError.MEDIA_ERR_DECODE) {
@@ -246,6 +246,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
         return false;
       }
     }
+    return false;
   }
 
   /**
@@ -296,18 +297,6 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     this._hls = new Hlsjs(this._config.hlsConfig);
     this._addBindings();
     this._loadInternal();
-  }
-
-  /**
-   * Remove the error listener
-   * @private
-   * @returns {void}
-   */
-  _removeVideoErrorListener(): void {
-    if (this._onVideoErrorCallback) {
-      this._videoElement.removeEventListener(EventType.ERROR, this._onVideoErrorCallback);
-      this._onVideoErrorCallback = null;
-    }
   }
 
   /**
@@ -828,7 +817,6 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     this._videoElement.textTracks.onaddtrack = null;
     this._videoElement.removeEventListener('addtrack', this._onAddTrack);
     this._removeRecoveredCallbackListener();
-    this._removeVideoErrorListener();
   }
 
   /**
