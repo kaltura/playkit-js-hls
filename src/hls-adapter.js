@@ -627,13 +627,33 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
       this._hls.startLoad(this._startTime);
     }
     this._playerTracks = this._parseTracks();
-    if (this._hls.audioTracks.length > 1) {
-      this._hls.once(Hlsjs.Events.AUDIO_TRACK_SWITCHING, () => {
-        this._resolveLoad({tracks: this._playerTracks});
-      });
-    } else {
+    //TODO: workaround for various hls.js issues with the initial track selection logic.
+    //TODO: once https://github.com/video-dev/hls.js/issues/1948 is solved and we move to next hls.js version we need to reomve this if clause
+    if (!this._maybeHandleInitialTracksWorkaround()) {
       this._resolveLoad({tracks: this._playerTracks});
     }
+  }
+
+  _maybeHandleInitialTracksWorkaround(): boolean {
+    const hasDefaultTextTrack = this._hls.subtitleTracks.some(track => track.default);
+    if (this._hls.audioTracks.length > 1 || hasDefaultTextTrack) {
+      let numberOfEventsToWait = 0;
+      const handler = () => {
+        if (--numberOfEventsToWait == 0) {
+          this._resolveLoad({tracks: this._playerTracks});
+        }
+      };
+      if (hasDefaultTextTrack) {
+        numberOfEventsToWait++;
+        this._hls.once(Hlsjs.Events.SUBTITLE_FRAG_PROCESSED, handler);
+      }
+      if (this._hls.audioTracks.length > 1) {
+        numberOfEventsToWait++;
+        this._hls.once(Hlsjs.Events.AUDIO_TRACK_SWITCHING, handler);
+      }
+      return true;
+    }
+    return false;
   }
 
   /**
