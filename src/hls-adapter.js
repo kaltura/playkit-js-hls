@@ -627,10 +627,27 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
       this._hls.startLoad(this._startTime);
     }
     this._playerTracks = this._parseTracks();
-    if (this._hls.audioTracks.length > 1) {
-      this._hls.once(Hlsjs.Events.AUDIO_TRACK_SWITCHING, () => {
-        this._resolveLoad({tracks: this._playerTracks});
-      });
+    //TODO: workaround for various hls.js issues with the initial track selection logic.
+    //TODO: once https://github.com/video-dev/hls.js/issues/1948 is solved and we move to next hls.js version we need to reomve this if clause
+    const hasDefaultTextTrack = this._hls.subtitleTracks.some(track => track.default);
+    if (this._hls.audioTracks.length > 1 || hasDefaultTextTrack) {
+      let numberOfEventsToWait = 0;
+      if (hasDefaultTextTrack) {
+        numberOfEventsToWait++;
+        this._hls.once(Hlsjs.Events.SUBTITLE_FRAG_PROCESSED, () => {
+          if (--numberOfEventsToWait == 0) {
+            this._resolveLoad({tracks: this._playerTracks});
+          }
+        });
+      }
+      if (this._hls.audioTracks.length > 1) {
+        numberOfEventsToWait++;
+        this._hls.once(Hlsjs.Events.AUDIO_TRACK_SWITCHING, () => {
+          if (--numberOfEventsToWait == 0) {
+            this._resolveLoad({tracks: this._playerTracks});
+          }
+        });
+      }
     } else {
       this._resolveLoad({tracks: this._playerTracks});
     }
