@@ -8,22 +8,7 @@ All notable changes to this project will be documented in this file. See [standa
 
 ### Bug Fixes
 
-* **FEC-7887, FEC-7953, SUP-14111:** upgrade hlsjs to 0.10.1 ([#64](https://github.com/kaltura/playkit-js-hls/issues/64)) ([1ded885](https://github.com/kaltura/playkit-js-hls/commit/1ded885))
-* **FEC-7935:** fix text selection logic with hlsjs ([#65](https://github.com/kaltura/playkit-js-hls/issues/65)) ([3074d19](https://github.com/kaltura/playkit-js-hls/commit/3074d19)), closes [kaltura/playkit-js#263](https://github.com/kaltura/playkit-js/issues/263)
-* **FEC-8203:** Live with DVR is not playing live edge in first play ([#59](https://github.com/kaltura/playkit-js-hls/issues/59)) ([da39a07](https://github.com/kaltura/playkit-js-hls/commit/da39a07))
-* **FEC-8233:** handle media & error recovering ([#61](https://github.com/kaltura/playkit-js-hls/issues/61)) ([df02d4b](https://github.com/kaltura/playkit-js-hls/commit/df02d4b))
-* **FEC-8396:** media source adapters default config overrides the player supplied config ([#66](https://github.com/kaltura/playkit-js-hls/issues/66)) ([eec593d](https://github.com/kaltura/playkit-js-hls/commit/eec593d))
-* **FEC-8404:**  workaround for hlsjs audio switching bug ([#69](https://github.com/kaltura/playkit-js-hls/issues/69)) ([98877e6](https://github.com/kaltura/playkit-js-hls/commit/98877e6))
-* **FEC-8506:** fail to resolve manifest load with multi-audio streams ([#72](https://github.com/kaltura/playkit-js-hls/issues/72)) ([c7a61c0](https://github.com/kaltura/playkit-js-hls/commit/c7a61c0))
-* **FEC-8510:** listen to the html video element error event only once ([#73](https://github.com/kaltura/playkit-js-hls/issues/73)) ([1070245](https://github.com/kaltura/playkit-js-hls/commit/1070245))
 * **FEC-8557:** workaround for hls.js text track selection issues ([#74](https://github.com/kaltura/playkit-js-hls/issues/74)) ([d176bb0](https://github.com/kaltura/playkit-js-hls/commit/d176bb0))
-
-
-### Features
-
-* **FEC-8209:** handle MEDIA_ERR_DECODE errors ([#60](https://github.com/kaltura/playkit-js-hls/issues/60)) ([9cc68bd](https://github.com/kaltura/playkit-js-hls/commit/9cc68bd))
-* **FEC-8390, FEC-8246:** support 608/708 captions ([#67](https://github.com/kaltura/playkit-js-hls/issues/67)) ([39e8e09](https://github.com/kaltura/playkit-js-hls/commit/39e8e09))
-
 
 
 <a name="1.8.3"></a>
