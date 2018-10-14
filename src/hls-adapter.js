@@ -3,13 +3,13 @@ import Hlsjs from 'hls.js';
 import DefaultConfig from './default-config';
 import {type ErrorDetailsType, HlsJsErrorMap} from './errors';
 import {AudioTrack, BaseMediaSourceAdapter, Env, Error, EventType, TextTrack, Track, Utils, VideoTrack} from 'playkit-js';
-import pLoader from './jsonp-ploader';
+import {pLoader} from './jsonp-ploader';
 
 /**
  * Adapter of hls.js lib for hls content.
  * @classdesc
  */
-export default class HlsAdapter extends BaseMediaSourceAdapter {
+class HlsAdapter extends BaseMediaSourceAdapter {
   /**
    * The id of the adapter.
    * @member {string} id
@@ -597,7 +597,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     try {
       this._videoElement.currentTime = this._getLiveEdge();
     } catch (e) {
-      return;
+      this.logger.warn('Seek to live edge failed', e);
     }
   }
 
@@ -864,3 +864,5 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     }
   }
 }
+
+export {HlsAdapter};

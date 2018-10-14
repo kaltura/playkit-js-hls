@@ -7,7 +7,7 @@ import Hlsjs from 'hls.js';
  * It checks if it should use jsonp for the manifest first, else - the regular
  * loader is called.
  */
-export default class pLoader extends Hlsjs.DefaultConfig.loader {
+class pLoader extends Hlsjs.DefaultConfig.loader {
   /**
    * redirect external stream handler function
    * @param {string} uri - the original uri
@@ -41,3 +41,5 @@ export default class pLoader extends Hlsjs.DefaultConfig.loader {
     };
   }
 }
+
+export {pLoader};
