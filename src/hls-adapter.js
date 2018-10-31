@@ -140,7 +140,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
       adapterConfig.recoverDecodingErrorDelay = config.playback.recoverDecodingErrorDelay;
     }
     if (Utils.Object.hasPropertyPath(config, 'playback.recoverSwapAudioCodecDelay')) {
-      adapterConfig.recoverDecodingErrorDelay = config.playback.recoverDecodingErrorDelay;
+      adapterConfig.recoverSwapAudioCodecDelay = config.playback.recoverSwapAudioCodecDelay;
     }
     adapterConfig.hlsConfig.enableCEA708Captions = config.playback.enableCEA708Captions;
     adapterConfig.hlsConfig.captionsTextTrack1Label = config.playback.captionsTextTrack1Label;
@@ -200,7 +200,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
       this._config.hlsConfig['pLoader'] = pLoader;
     }
     this._hls = new Hlsjs(this._config.hlsConfig);
-    this._capabilites.fpsControl = true;
+    this._capabilities.fpsControl = true;
     this._hls.subtitleDisplay = this._config.subtitleDisplay;
     this._addBindings();
   }
