@@ -206,18 +206,6 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
   }
 
   /**
-   * Get the current bandiwidth that is playing
-   * @returns {number} the current bandwidth
-   */
-  getCurrentQuality(): number {
-    const currentLevel = this._hls.currentLevel;
-    if (currentLevel) {
-      return this._hls.levels[currentLevel].bitrate;
-    }
-    return 0;
-  }
-
-  /**
    * Adds the required bindings locally and with hls.js.
    * @function _addBindings
    * @private
