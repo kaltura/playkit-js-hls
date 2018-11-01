@@ -1,11 +1,11 @@
-import loadPlayer from 'playkit-js';
-import {VideoTrack, AudioTrack, TextTrack} from 'playkit-js';
-import * as TestUtils from 'playkit-js/test/src/utils/test-utils';
+import loadPlayer from '@playkit-js/playkit-js';
+import {VideoTrack, AudioTrack, TextTrack} from '@playkit-js/playkit-js';
+import * as TestUtils from '../utils/test-utils';
 import HlsAdapter from '../../src';
 import * as hls_sources from './json/hls_sources.json';
 import * as hls_tracks from './json/hls_tracks.json';
 import * as player_tracks from './json/player_tracks.json';
-import {EventType} from 'playkit-js';
+import {EventType} from '@playkit-js/playkit-js';
 
 const targetId = 'player-placeholder_hls-adapter.spec';
 
@@ -98,7 +98,13 @@ describe('HlsAdapter Instance - Unit', function() {
     sandbox = sinon.sandbox.create();
     video = document.createElement('video');
     sourceObj = hls_sources.ElephantsDream;
-    config = {playback: {options: {html5: {hls: {}}}}};
+    config = {
+      playback: {
+        options: {html5: {hls: {}}},
+        recoverDecodingErrorDelay: 0,
+        recoverSwapAudioCodecDelay: 0
+      }
+    };
     hlsAdapterInstance = HlsAdapter.createAdapter(video, sourceObj, config);
   });
 

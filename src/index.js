@@ -1,5 +1,5 @@
 // @flow
-import {registerMediaSourceAdapter} from 'playkit-js';
+import {registerMediaSourceAdapter} from '@playkit-js/playkit-js';
 import HlsAdapter from './hls-adapter';
 
 declare var __VERSION__: string;
