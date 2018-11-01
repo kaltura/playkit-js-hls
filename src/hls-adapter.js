@@ -136,11 +136,14 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     if (Utils.Object.hasPropertyPath(config, 'playback.useNativeTextTrack')) {
       adapterConfig.subtitleDisplay = Utils.Object.getPropertyPath(config, 'playback.useNativeTextTrack');
     }
-    if (Utils.Object.hasPropertyPath(config, 'playback.fpsDroppedFramesInterval')) {
+    if (Utils.Object.hasPropertyPath(config, 'abr.fpsDroppedFramesInterval')) {
       adapterConfig.fpsDroppedFramesInterval = config.playback.fpsDroppedFramesInterval;
     }
-    if (Utils.Object.hasPropertyPath(config, 'playback.fpsDroppedMonitoringThreshold')) {
+    if (Utils.Object.hasPropertyPath(config, 'abr.fpsDroppedMonitoringThreshold')) {
       adapterConfig.fpsDroppedMonitoringThreshold = config.playback.fpsDroppedMonitoringThreshold;
+    }
+    if (Utils.Object.hasPropertyPath(config, 'abr.capLevelOnFPSDrop')) {
+      adapterConfig.capLevelOnFPSDrop = config.abr.capLevelOnFPSDrop;
     }
     adapterConfig.hlsConfig.enableCEA708Captions = config.playback.enableCEA708Captions;
     adapterConfig.hlsConfig.captionsTextTrack1Label = config.playback.captionsTextTrack1Label;
