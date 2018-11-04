@@ -136,6 +136,15 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     if (Utils.Object.hasPropertyPath(config, 'playback.useNativeTextTrack')) {
       adapterConfig.subtitleDisplay = Utils.Object.getPropertyPath(config, 'playback.useNativeTextTrack');
     }
+    if (Utils.Object.hasPropertyPath(config, 'abr.fpsDroppedFramesInterval')) {
+      adapterConfig.hlsConfig.fpsDroppedFramesInterval = config.abr.fpsDroppedFramesInterval;
+    }
+    if (Utils.Object.hasPropertyPath(config, 'abr.fpsDroppedMonitoringThreshold')) {
+      adapterConfig.hlsConfig.fpsDroppedMonitoringThreshold = config.abr.fpsDroppedMonitoringThreshold;
+    }
+    if (Utils.Object.hasPropertyPath(config, 'abr.capLevelOnFPSDrop')) {
+      adapterConfig.hlsConfig.capLevelOnFPSDrop = config.abr.capLevelOnFPSDrop;
+    }
     adapterConfig.hlsConfig.enableCEA708Captions = config.playback.enableCEA708Captions;
     adapterConfig.hlsConfig.captionsTextTrack1Label = config.playback.captionsTextTrack1Label;
     adapterConfig.hlsConfig.captionsTextTrack1LanguageCode = config.playback.captionsTextTrack1LanguageCode;
@@ -194,6 +203,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
       this._config.hlsConfig['pLoader'] = pLoader;
     }
     this._hls = new Hlsjs(this._config.hlsConfig);
+    this._capabilities.fpsControl = true;
     this._hls.subtitleDisplay = this._config.subtitleDisplay;
     this._addBindings();
   }
@@ -209,10 +219,15 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     this._hls.on(Hlsjs.Events.MANIFEST_LOADED, this._onManifestLoaded.bind(this));
     this._hls.on(Hlsjs.Events.LEVEL_SWITCHED, this._onLevelSwitched.bind(this));
     this._hls.on(Hlsjs.Events.AUDIO_TRACK_SWITCHED, this._onAudioTrackSwitched.bind(this));
+    this._hls.on(Hlsjs.Events.FPS_DROP, (e, data) => this._onFpsDrop(data));
     this._onRecoveredCallback = () => this._onRecovered();
     this._onAddTrack = this._onAddTrack.bind(this);
     this._videoElement.addEventListener('addtrack', this._onAddTrack);
     this._videoElement.textTracks.onaddtrack = this._onAddTrack;
+  }
+
+  _onFpsDrop(data: Object): void {
+    this._trigger(EventType.FPS_DROP, data);
   }
 
   _onAddTrack(event: any) {
@@ -830,6 +845,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     this._hls.off(Hlsjs.Events.LEVEL_SWITCHED, this._onLevelSwitched);
     this._hls.off(Hlsjs.Events.AUDIO_TRACK_SWITCHED, this._onAudioTrackSwitched);
     this._hls.off(Hlsjs.Events.MANIFEST_LOADED, this._onManifestLoaded);
+    this._hls.off(Hlsjs.Events.FPS_DROP, this._onFpsDrop);
     this._videoElement.textTracks.onaddtrack = null;
     this._videoElement.removeEventListener('addtrack', this._onAddTrack);
     this._removeRecoveredCallbackListener();
