@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="1.10.0"></a>
+# [1.10.0](https://github.com/kaltura/playkit-js-hls/compare/v1.8.1...v1.10.0) (2018-11-05)
+
+
+### Bug Fixes
+
+* **FEC-8506:** fail to resolve manifest load with multi-audio streams ([#72](https://github.com/kaltura/playkit-js-hls/issues/72)) ([c7a61c0](https://github.com/kaltura/playkit-js-hls/commit/c7a61c0))
+* **FEC-8510:** listen to the html video element error event only once ([#73](https://github.com/kaltura/playkit-js-hls/issues/73)) ([1070245](https://github.com/kaltura/playkit-js-hls/commit/1070245))
+* **FEC-8557:** workaround for hls.js text track selection issues ([#74](https://github.com/kaltura/playkit-js-hls/issues/74)) ([d176bb0](https://github.com/kaltura/playkit-js-hls/commit/d176bb0))
+
+
+### Features
+
+* **FEC-7808:** quality watcher for the player ([#75](https://github.com/kaltura/playkit-js-hls/issues/75)) ([ef5741f](https://github.com/kaltura/playkit-js-hls/commit/ef5741f))
+
+
+
 <a name="1.9.0"></a>
 # [1.9.0](https://github.com/kaltura/playkit-js-hls/compare/v1.8.3...v1.9.0) (2018-10-11)
 
