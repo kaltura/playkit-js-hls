@@ -666,6 +666,9 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
         numberOfEventsToWait++;
         this._hls.once(Hlsjs.Events.AUDIO_TRACK_SWITCHING, handler);
       }
+      setTimeout(() => {
+        this._resolveLoad({tracks: this._playerTracks});
+      }, 1000);
       return true;
     }
     return false;
