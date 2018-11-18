@@ -104,6 +104,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    */
   _onRecoveredCallback: ?Function;
   _onAddTrack: Function;
+  _resolveLoadTimeout: number;
 
   /**
    * Factory method to create media source adapter.
@@ -344,6 +345,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    */
   _reset(): void {
     this._removeBindings();
+    clearTimeout(this._resolveLoadTimeout);
     this._hls.detachMedia();
     this._hls.destroy();
   }
@@ -666,6 +668,9 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
         numberOfEventsToWait++;
         this._hls.once(Hlsjs.Events.AUDIO_TRACK_SWITCHING, handler);
       }
+      this._resolveLoadTimeout = setTimeout(() => {
+        this._resolveLoad({tracks: this._playerTracks});
+      }, 1000);
       return true;
     }
     return false;
