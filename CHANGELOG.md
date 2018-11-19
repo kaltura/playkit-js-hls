@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="1.10.2"></a>
+## [1.10.2](https://github.com/kaltura/playkit-js-hls/compare/v1.10.1...v1.10.2) (2018-11-19)
+
+
+### Bug Fixes
+
+* **FEC-8690:** player stuck with endless spinner on change media ([#77](https://github.com/kaltura/playkit-js-hls/issues/77)) ([1d9be20](https://github.com/kaltura/playkit-js-hls/commit/1d9be20))
+
+
+
 <a name="1.10.1"></a>
 ## [1.10.1](https://github.com/kaltura/playkit-js-hls/compare/v1.10.0...v1.10.1) (2018-11-05)
 
