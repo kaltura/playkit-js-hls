@@ -160,13 +160,16 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
       if (abr.defaultBandwidthEstimate) {
         adapterConfig.hlsConfig.abrEwmaDefaultEstimate = abr.defaultBandwidthEstimate;
       }
-      if (abr.restrictions.minBitrate > 0) {
-        adapterConfig.hlsConfig.minAutoBitrate = abr.restrictions.minBitrate;
-      }
-      if (abr.restrictions.maxBitrate < Infinity) {
-        //You can either set capping by size or bitrate, if bitrate is set then disable size capping
-        adapterConfig.hlsConfig.capLevelToPlayerSize = false;
-        adapterConfig.abr.restrictions = abr.restrictions;
+
+      if (abr.restrictions) {
+        if (abr.restrictions.minBitrate > 0) {
+          adapterConfig.hlsConfig.minAutoBitrate = abr.restrictions.minBitrate;
+        }
+        if (abr.restrictions.maxBitrate < Infinity) {
+          //You can either set capping by size or bitrate, if bitrate is set then disable size capping
+          adapterConfig.hlsConfig.capLevelToPlayerSize = false;
+          adapterConfig.abr.restrictions = abr.restrictions;
+        }
       }
     }
     if (Utils.Object.hasPropertyPath(config, 'playback.options.html5.hls')) {
