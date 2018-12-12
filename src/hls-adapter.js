@@ -105,6 +105,8 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
   _onRecoveredCallback: ?Function;
   _onAddTrack: Function;
   _resolveLoadTimeout: number;
+  _hlsMediaAttachedResolver: Function;
+  _mediaAttachedPromise: Promise<*>;
 
   /**
    * Factory method to create media source adapter.
