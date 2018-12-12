@@ -230,6 +230,9 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     this._hls = new Hlsjs(this._config.hlsConfig);
     this._capabilities.fpsControl = true;
     this._hls.subtitleDisplay = this._config.subtitleDisplay;
+    this._mediaAttachedPromise = new Promise(resolve => {
+      this._hlsMediaAttachedResolver = resolve;
+    });
     this._addBindings();
   }
 
@@ -245,6 +248,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     this._hls.on(Hlsjs.Events.LEVEL_SWITCHED, this._onLevelSwitched.bind(this));
     this._hls.on(Hlsjs.Events.AUDIO_TRACK_SWITCHED, this._onAudioTrackSwitched.bind(this));
     this._hls.on(Hlsjs.Events.FPS_DROP, (e, data) => this._onFpsDrop(data));
+    this._hls.on(Hlsjs.Events.MEDIA_ATTACHED, () => this._hlsMediaAttachedResolver());
     this._onRecoveredCallback = () => this._onRecovered();
     this._onAddTrack = this._onAddTrack.bind(this);
     this._videoElement.addEventListener('addtrack', this._onAddTrack);
@@ -515,8 +519,10 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
   selectTextTrack(textTrack: TextTrack): void {
     if (textTrack instanceof TextTrack && !textTrack.active) {
       if (this._hls.subtitleTracks.length) {
-        this._hls.subtitleTrack = textTrack.id;
-        this._notifyTrackChanged(textTrack);
+        this._mediaAttachedPromise.then(() => {
+          this._hls.subtitleTrack = textTrack.id;
+          this._notifyTrackChanged(textTrack);
+        });
       } else {
         this._selectNativeTextTrack(textTrack);
       }
@@ -668,9 +674,11 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
       this._hls.startLoad(this._startTime);
     }
     this._playerTracks = this._parseTracks();
-    //TODO: workaround for various hls.js issues with the initial track selection logic.
-    //TODO: once https://github.com/video-dev/hls.js/issues/1948 is solved and we move to next hls.js version we need to reomve this if clause
-    if (!this._maybeHandleInitialTracksWorkaround()) {
+    if (this._hls.audioTracks.length > 1) {
+      this._hls.once(Hlsjs.Events.AUDIO_TRACK_SWITCHING, () => {
+        this._resolveLoad({tracks: this._playerTracks});
+      });
+    } else {
       this._resolveLoad({tracks: this._playerTracks});
     }
   }
