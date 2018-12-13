@@ -521,10 +521,8 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
   selectTextTrack(textTrack: TextTrack): void {
     if (textTrack instanceof TextTrack && !textTrack.active) {
       if (this._hls.subtitleTracks.length) {
-        this._mediaAttachedPromise.then(() => {
-          this._hls.subtitleTrack = textTrack.id;
-          this._notifyTrackChanged(textTrack);
-        });
+        this._hls.subtitleTrack = textTrack.id;
+        this._notifyTrackChanged(textTrack);
       } else {
         this._selectNativeTextTrack(textTrack);
       }
@@ -676,39 +674,10 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
       this._hls.startLoad(this._startTime);
     }
     this._playerTracks = this._parseTracks();
-    if (this._hls.audioTracks.length > 1) {
-      this._hls.once(Hlsjs.Events.AUDIO_TRACK_SWITCHING, () => {
-        this._resolveLoad({tracks: this._playerTracks});
-      });
-    } else {
+    this._maybeApplyAbrRestrictions();
+    this._mediaAttachedPromise.then(() => {
       this._resolveLoad({tracks: this._playerTracks});
-    }
-  }
-
-  _maybeHandleInitialTracksWorkaround(): boolean {
-    const hasDefaultTextTrack = this._hls.subtitleTracks.some(track => track.default);
-    if (this._hls.audioTracks.length > 1 || hasDefaultTextTrack) {
-      let numberOfEventsToWait = 0;
-      const handler = () => {
-        if (--numberOfEventsToWait == 0) {
-          this._maybeApplyAbrRestrictions();
-          this._resolveLoad({tracks: this._playerTracks});
-        }
-      };
-      if (hasDefaultTextTrack) {
-        numberOfEventsToWait++;
-        this._hls.once(Hlsjs.Events.SUBTITLE_FRAG_PROCESSED, handler);
-      }
-      if (this._hls.audioTracks.length > 1) {
-        numberOfEventsToWait++;
-        this._hls.once(Hlsjs.Events.AUDIO_TRACK_SWITCHING, handler);
-      }
-      this._resolveLoadTimeout = setTimeout(() => {
-        this._resolveLoad({tracks: this._playerTracks});
-      }, 1000);
-      return true;
-    }
-    return false;
+    });
   }
 
   /**
