@@ -105,7 +105,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
   _onRecoveredCallback: ?Function;
   _onAddTrack: Function;
   _resolveLoadTimeout: number;
-  _hlsMediaAttachedResolver: Function;
+  _onMediaAttached: Function;
   _mediaAttachedPromise: Promise<*>;
 
   /**
@@ -232,9 +232,6 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     this._hls = new Hlsjs(this._config.hlsConfig);
     this._capabilities.fpsControl = true;
     this._hls.subtitleDisplay = this._config.subtitleDisplay;
-    this._mediaAttachedPromise = new Promise(resolve => {
-      this._hlsMediaAttachedResolver = resolve;
-    });
     this._addBindings();
   }
 
@@ -250,7 +247,8 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     this._hls.on(Hlsjs.Events.LEVEL_SWITCHED, this._onLevelSwitched.bind(this));
     this._hls.on(Hlsjs.Events.AUDIO_TRACK_SWITCHED, this._onAudioTrackSwitched.bind(this));
     this._hls.on(Hlsjs.Events.FPS_DROP, (e, data) => this._onFpsDrop(data));
-    this._hls.on(Hlsjs.Events.MEDIA_ATTACHED, () => this._hlsMediaAttachedResolver());
+    this._mediaAttachedPromise = new Promise(resolve => (this._onMediaAttached = resolve));
+    this._hls.on(Hlsjs.Events.MEDIA_ATTACHED, () => this._onMediaAttached());
     this._onRecoveredCallback = () => this._onRecovered();
     this._onAddTrack = this._onAddTrack.bind(this);
     this._videoElement.addEventListener('addtrack', this._onAddTrack);
