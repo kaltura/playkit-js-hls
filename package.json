@@ -51,7 +51,7 @@
     "eslint-plugin-mocha-no-only": "^0.0.5",
     "eslint-plugin-prettier": "^2.6.2",
     "flow-bin": "latest",
-    "hls.js": "^0.10.1",
+    "hls.js": "^0.12.0",
     "husky": "^0.14.3",
     "istanbul": "^0.4.5",
     "karma": "^1.5.0",
@@ -78,8 +78,8 @@
     "webpack-dev-server": "latest"
   },
   "peerDependencies": {
-    "hls.js": "^0.10.1",
-    "@playkit-js/playkit-js": "^0.38.0"
+    "@playkit-js/playkit-js": "^0.38.0",
+    "hls.js": "0.12.0"
   },
   "keywords": [
     "hls",
