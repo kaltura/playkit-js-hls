@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="1.12.0"></a>
+# [1.12.0](https://github.com/kaltura/playkit-js-hls/compare/v1.11.0...v1.12.0) (2018-12-16)
+
+
+### Bug Fixes
+
+* **FEC-8764:** after change media / refresh the video has no subtitles ([#79](https://github.com/kaltura/playkit-js-hls/issues/79)) ([4b044b1](https://github.com/kaltura/playkit-js-hls/commit/4b044b1))
+
+
+### Features
+
+* **FEC-8507:** update to hlsjs 12.1  ([#80](https://github.com/kaltura/playkit-js-hls/issues/80)) ([04659c3](https://github.com/kaltura/playkit-js-hls/commit/04659c3))
+
+
+
 <a name="1.11.0"></a>
 # [1.11.0](https://github.com/kaltura/playkit-js-hls/compare/v1.10.2...v1.11.0) (2018-12-12)
 
