@@ -95,6 +95,13 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    * @private
    */
   _onVideoErrorCallback: ?Function;
+  /**
+   * Flag to mark that the first 'play' event of the video tag was sent.
+   * @member {?Function} - _onVideoErrorCallback
+   * @type {?Function}
+   * @private
+   */
+  _firstPlayEvent: boolean;
 
   /**
    * Reference to _onRecoveredCallback function
@@ -253,6 +260,15 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     this._onAddTrack = this._onAddTrack.bind(this);
     this._videoElement.addEventListener('addtrack', this._onAddTrack);
     this._videoElement.textTracks.onaddtrack = this._onAddTrack;
+    this._firstPlayEvent = true;
+    this._videoElement.addEventListener(EventType.PLAY, () => this._onPlay());
+  }
+
+  _onPlay() {
+    if (this._firstPlayEvent) {
+      this._hls.startLoad(this._startTime);
+      this._firstPlayEvent = false;
+    }
   }
 
   _onFpsDrop(data: Object): void {
@@ -315,6 +331,9 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    */
   _loadInternal() {
     if (this._sourceObj && this._sourceObj.url) {
+      if (this._videoElement.preload === 'metadata') {
+        this._hls.config.autoStartLoad = false;
+      }
       this._hls.loadSource(this._sourceObj.url);
       this._hls.attachMedia(this._videoElement);
       this._trigger(EventType.ABR_MODE_CHANGED, {mode: this.isAdaptiveBitrateEnabled() ? 'auto' : 'manual'});
@@ -668,7 +687,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    */
   _onManifestLoaded(): void {
     HlsAdapter._logger.debug('The source has been loaded successfully');
-    if (!this._hls.config.autoStartLoad) {
+    if (!this._hls.config.autoStartLoad || this._videoElement.preload === 'auto') {
       this._hls.startLoad(this._startTime);
     }
     this._playerTracks = this._parseTracks();
