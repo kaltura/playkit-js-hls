@@ -261,7 +261,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
   }
 
   _onFragParsingMetadata(data: Object): void {
-    this._trigger(EventType.TIMED_METADATA, data);
+    this._trigger('hlsFragParsingMetadata', data);
   }
 
   _onAddTrack(event: any) {
