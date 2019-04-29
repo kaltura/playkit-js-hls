@@ -24,6 +24,7 @@ module.exports = {
     filename: '[name].js',
     library: ['playkit', 'hls'],
     libraryTarget: 'umd',
+    umdNamedDefine: true,
     devtoolModuleFilenameTemplate: './hls/[resource-path]'
   },
   devtool: 'source-map',
