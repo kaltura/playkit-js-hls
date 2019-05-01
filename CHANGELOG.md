@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="1.13.1"></a>
+## [1.13.1](https://github.com/kaltura/playkit-js-hls/compare/v1.13.0...v1.13.1) (2019-05-01)
+
+
+
 <a name="1.13.0"></a>
 # [1.13.0](https://github.com/kaltura/playkit-js-hls/compare/v1.12.1...v1.13.0) (2019-04-15)
 
