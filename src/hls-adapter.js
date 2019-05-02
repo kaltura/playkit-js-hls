@@ -834,7 +834,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    */
   _onError(data: any): void {
     const errorType = data.type;
-    const errorCode = data.details;
+    const errorName = data.details;
     const errorFatal = data.fatal;
     let errorDataObject = this._getErrorDataObject(data);
     if (errorFatal) {
@@ -842,7 +842,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
       switch (errorType) {
         case Hlsjs.ErrorTypes.NETWORK_ERROR:
           if (
-            [Hlsjs.ErrorDetails.MANIFEST_LOAD_ERROR, Hlsjs.ErrorDetails.MANIFEST_LOAD_TIMEOUT].includes(errorCode) &&
+            [Hlsjs.ErrorDetails.MANIFEST_LOAD_ERROR, Hlsjs.ErrorDetails.MANIFEST_LOAD_TIMEOUT].includes(errorName) &&
             !this._triedReloadWithRedirect &&
             !this._config.forceRedirectExternalStreams
           ) {
@@ -867,7 +867,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
         this.destroy();
       }
     } else {
-      const {category, code}: ErrorDetailsType = HlsJsErrorMap[errorCode] || {category: 0, code: 0};
+      const {category, code}: ErrorDetailsType = HlsJsErrorMap[errorName] || {category: 0, code: 0};
       HlsAdapter._logger.warn(new Error(Error.Severity.RECOVERABLE, category, code, errorDataObject));
     }
   }
