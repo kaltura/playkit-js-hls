@@ -798,11 +798,11 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
         errorDataObject.reason = data.reason;
         break;
       case Hlsjs.ErrorDetails.FRAG_LOAD_ERROR:
-        errorDataObject.fragוUrl = data.frag ? data.frag.url : null;
+        errorDataObject.fragUrl = data.frag ? data.frag.url : null;
         errorDataObject.responseCode = data.response ? data.response.code : null;
         break;
       case Hlsjs.ErrorDetails.FRAG_LOAD_TIMEOUT:
-        errorDataObject.fragוUrl = data.frag ? data.frag.url : null;
+        errorDataObject.fragUrl = data.frag ? data.frag.url : null;
         break;
       case Hlsjs.ErrorDetails.FRAG_DECRYPT_ERROR:
       case Hlsjs.ErrorDetails.FRAG_PARSING_ERROR:
