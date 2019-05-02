@@ -769,15 +769,15 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
   }
 
   /**
-   * Creates a detailed Error Object according to the relevant error code
+   * Creates a detailed Error Object according to the relevant error name
    * @param {any} data - The event data object.
    * @private
    * @returns {any} - the relevant error data object
    */
   _getErrorDataObject(data: any): any {
     let errorDataObject = {};
-    errorDataObject.code = data.details;
-    switch (errorDataObject.code) {
+    errorDataObject.name = data.details;
+    switch (errorDataObject.name) {
       case Hlsjs.ErrorDetails.MANIFEST_LOAD_ERROR:
       case Hlsjs.ErrorDetails.LEVEL_LOAD_ERROR:
       case Hlsjs.ErrorDetails.AUDIO_TRACK_LOAD_ERROR:
