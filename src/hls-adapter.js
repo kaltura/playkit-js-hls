@@ -243,7 +243,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    */
   _addBindings(): void {
     this._hls.on(Hlsjs.Events.ERROR, (e, data) => this._onError(data));
-    this._hls.on(Hlsjs.Events.MANIFEST_LOADED, this._onManifestLoaded.bind(this));
+    this._hls.on(Hlsjs.Events.MANIFEST_LOADED, (e, data) => this._onManifestLoaded(data));
     this._hls.on(Hlsjs.Events.LEVEL_SWITCHED, this._onLevelSwitched.bind(this));
     this._hls.on(Hlsjs.Events.AUDIO_TRACK_SWITCHED, this._onAudioTrackSwitched.bind(this));
     this._hls.on(Hlsjs.Events.FPS_DROP, (e, data) => this._onFpsDrop(data));
@@ -669,10 +669,11 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
   /**
    * Fired after manifest has been loaded.
    * @function _onManifestLoaded
+   * @param {any} data - the data of the manifest load event
    * @private
    * @returns {void}
    */
-  _onManifestLoaded(): void {
+  _onManifestLoaded(data: any): void {
     HlsAdapter._logger.debug('The source has been loaded successfully');
     if (!this._hls.config.autoStartLoad) {
       this._hls.startLoad(this._startTime);
@@ -682,6 +683,8 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     this._mediaAttachedPromise.then(() => {
       this._resolveLoad({tracks: this._playerTracks});
     });
+    const manifestDownloadTime = data.stats.tload - data.stats.trequest;
+    this.handleManifestLoaded(manifestDownloadTime);
   }
 
   /**
