@@ -938,6 +938,6 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    */
   _onFragLoaded(data): void {
     const fragmentDownloadTime = data.stats.tload - data.stats.trequest;
-    this.handleFragementLoaded(fragmentDownloadTime);
+    this.handleFragementLoaded(fragmentDownloadTime, data.stats.loaded);
   }
 }
