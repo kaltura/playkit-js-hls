@@ -684,7 +684,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
       this._resolveLoad({tracks: this._playerTracks});
     });
     const manifestDownloadTime = data.stats.tload - data.stats.trequest;
-    this.handleManifestLoaded(manifestDownloadTime);
+    this._trigger(EventType.MANIFEST_LOADED, {miliSeconds: manifestDownloadTime});
   }
 
   /**
@@ -938,6 +938,6 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    */
   _onFragLoaded(data): void {
     const fragmentDownloadTime = data.stats.tload - data.stats.trequest;
-    this.handleFragementLoaded(fragmentDownloadTime, data.stats.loaded);
+    this._trigger(EventType.FRAG_LOADED, {miliSeconds: fragmentDownloadTime, bytes: data.stats.loaded});
   }
 }
