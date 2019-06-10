@@ -940,4 +940,8 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     const fragmentDownloadTime = data.stats.tload - data.stats.trequest;
     this._trigger(EventType.FRAG_LOADED, {miliSeconds: fragmentDownloadTime, bytes: data.stats.loaded});
   }
+
+  get targetBuffer(): number {
+    return Math.min(this._hls.config.maxMaxBufferLength, this._videoElement.duration - this._videoElement.currentTime);
+  }
 }
