@@ -941,7 +941,27 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     this._trigger(EventType.FRAG_LOADED, {miliSeconds: fragmentDownloadTime, bytes: data.stats.loaded});
   }
 
+  /**
+   * returns value the player targets the buffer
+   * @returns {number} buffer target length in seconds
+   */
   get targetBuffer(): number {
-    return Math.min(this._hls.config.maxMaxBufferLength, this._videoElement.duration - this._videoElement.currentTime);
+    let targetBufferVal = NaN;
+    if (this.isLive()) {
+      targetBufferVal = this._getLiveTargetBuffer() - (this._videoElement.currentTime - this._getLiveEdge());
+      targetBufferVal = Math.min(targetBufferVal, this._hls.config.maxMaxBufferLength);
+    } else {
+      targetBufferVal = this._hls.config.maxMaxBufferLength;
+    }
+    return targetBufferVal;
+  }
+
+  _getLiveTargetBuffer() {
+    // if defined in the configuration object, liveSyncDuration will take precedence over the default liveSyncDurationCount
+    if (this._hls.config.liveSyncDuration) {
+      return this._hls.config.liveSyncDuration;
+    } else {
+      return this._hls.config.liveSyncDurationCount * this._getLevelDetails().targetduration;
+    }
   }
 }
