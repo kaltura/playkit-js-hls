@@ -936,7 +936,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    * @param {any} data - the event data of the loaded fragment
    * @returns {void}
    */
-  _onFragLoaded(data): void {
+  _onFragLoaded(data: any): void {
     const fragmentDownloadTime = data.stats.tload - data.stats.trequest;
     this._trigger(EventType.FRAG_LOADED, {miliSeconds: fragmentDownloadTime, bytes: data.stats.loaded});
   }
