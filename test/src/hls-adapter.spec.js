@@ -1,18 +1,18 @@
-import loadPlayer, {VideoTrack, AudioTrack, TextTrack, EventType} from '@playkit-js/playkit-js';
+import loadPlayer, {VideoTrack, AudioTrack, TextTrack, EventType, registerMediaSourceAdapter} from '@playkit-js/playkit-js';
 import * as TestUtils from '../utils/test-utils';
-import HlsAdapter from '../../src';
+import {Adapter} from '../../src';
 import * as hls_sources from './json/hls_sources.json';
 import * as hls_tracks from './json/hls_tracks.json';
 import * as player_tracks from './json/player_tracks.json';
 
 const targetId = 'player-placeholder_hls-adapter.spec';
 
-describe('HlsAdapter.canPlayDrm', function() {
+describe('Adapter.canPlayDrm', function() {
   it('should return false for any input', function() {
-    HlsAdapter.canPlayDrm().should.be.false;
-    HlsAdapter.canPlayDrm(null).should.be.false;
-    HlsAdapter.canPlayDrm(null).should.be.false;
-    HlsAdapter.canPlayDrm([
+    Adapter.canPlayDrm().should.be.false;
+    Adapter.canPlayDrm(null).should.be.false;
+    Adapter.canPlayDrm(null).should.be.false;
+    Adapter.canPlayDrm([
       {
         certificate: undefined,
         licenseUrl:
@@ -29,64 +29,64 @@ describe('HlsAdapter.canPlayDrm', function() {
   });
 });
 
-describe('HlsAdapter.canPlayType', function() {
+describe('Adapter.canPlayType', function() {
   it('should return true to application/x-mpegurl', function() {
-    HlsAdapter.canPlayType('application/x-mpegurl').should.be.true;
+    Adapter.canPlayType('application/x-mpegurl').should.be.true;
   });
 
   it('should return true to application/X-MpegUrl', function() {
-    HlsAdapter.canPlayType('application/X-MpegUrl').should.be.true;
+    Adapter.canPlayType('application/X-MpegUrl').should.be.true;
   });
 
   it('should return true to application/vnd.apple.mpegurl', function() {
-    HlsAdapter.canPlayType('application/vnd.apple.mpegurl').should.be.true;
+    Adapter.canPlayType('application/vnd.apple.mpegurl').should.be.true;
   });
 
   it('should return true to audio/mpegurl', function() {
-    HlsAdapter.canPlayType('audio/mpegurl').should.be.true;
+    Adapter.canPlayType('audio/mpegurl').should.be.true;
   });
 
   it('should return true to audio/x-mpegurl', function() {
-    HlsAdapter.canPlayType('audio/x-mpegurl').should.be.true;
+    Adapter.canPlayType('audio/x-mpegurl').should.be.true;
   });
 
   it('should return true to video/x-mpegurl', function() {
-    HlsAdapter.canPlayType('video/x-mpegurl').should.be.true;
+    Adapter.canPlayType('video/x-mpegurl').should.be.true;
   });
 
   it('should return true to video/mpegurl', function() {
-    HlsAdapter.canPlayType('video/mpegurl').should.be.true;
+    Adapter.canPlayType('video/mpegurl').should.be.true;
   });
 
   it('should return true to application/mpegurl', function() {
-    HlsAdapter.canPlayType('application/mpegurl').should.be.true;
+    Adapter.canPlayType('application/mpegurl').should.be.true;
   });
 
   it('should return false to video/mp4', function() {
-    HlsAdapter.canPlayType('video/mp4').should.be.false;
+    Adapter.canPlayType('video/mp4').should.be.false;
   });
 
   it('should return false to invalid mimetype', function() {
-    HlsAdapter.canPlayType('dummy').should.be.false;
+    Adapter.canPlayType('dummy').should.be.false;
   });
 
   it('should return false to nullable mimetype', function() {
-    HlsAdapter.canPlayType(null).should.be.false;
+    Adapter.canPlayType(null).should.be.false;
   });
 
   it('should return false to empty mimetype', function() {
-    HlsAdapter.canPlayType().should.be.false;
+    Adapter.canPlayType().should.be.false;
   });
 });
 
 describe('HlsAdapter.id', function() {
   it('should be named HlsAdapter', function() {
-    HlsAdapter.id.should.equal('HlsAdapter');
+    Adapter.id.should.equal('HlsAdapter');
   });
 });
 
-describe('HlsAdapter Instance - Unit', function() {
-  let hlsAdapterInstance;
+describe('Adapter Instance - Unit', function() {
+  let AdapterInstance;
   let video;
   let sourceObj;
   let config;
@@ -103,13 +103,13 @@ describe('HlsAdapter Instance - Unit', function() {
         recoverSwapAudioCodecDelay: 0
       }
     };
-    hlsAdapterInstance = HlsAdapter.createAdapter(video, sourceObj, config);
+    AdapterInstance = Adapter.createAdapter(video, sourceObj, config);
   });
 
   afterEach(function(done) {
     sandbox.restore();
-    hlsAdapterInstance.destroy().then(() => {
-      hlsAdapterInstance = null;
+    AdapterInstance.destroy().then(() => {
+      AdapterInstance = null;
       video = null;
       TestUtils.removeVideoElementsFromTestPage();
       done();
@@ -117,28 +117,28 @@ describe('HlsAdapter Instance - Unit', function() {
   });
 
   it('should create hls adapter properties', function() {
-    hlsAdapterInstance._videoElement.should.deep.equal(video);
-    hlsAdapterInstance._config.should.exist;
-    hlsAdapterInstance._sourceObj.should.deep.equal(sourceObj);
-    hlsAdapterInstance._hls.should.exist;
-    hlsAdapterInstance.src.should.be.empty;
+    AdapterInstance._videoElement.should.deep.equal(video);
+    AdapterInstance._config.should.exist;
+    AdapterInstance._sourceObj.should.deep.equal(sourceObj);
+    AdapterInstance._hls.should.exist;
+    AdapterInstance.src.should.be.empty;
   });
 
   it('should load the adapter', function(done) {
-    hlsAdapterInstance.load().then((/* data */) => {
-      hlsAdapterInstance._playerTracks.should.be.array;
-      hlsAdapterInstance.src.should.equal(hls_sources.ElephantsDream.url);
+    AdapterInstance.load().then((/* data */) => {
+      AdapterInstance._playerTracks.should.be.an('array');
+      AdapterInstance.src.should.equal(hls_sources.ElephantsDream.url);
       done();
     });
   });
 
   it('should destroy the adapter', function(done) {
-    hlsAdapterInstance.load().then((/* data */) => {
-      let detachMediaSpier = sandbox.spy(hlsAdapterInstance._hls, 'detachMedia');
-      let destroySpier = sandbox.spy(hlsAdapterInstance._hls, 'destroy');
-      hlsAdapterInstance.destroy().then(() => {
-        (hlsAdapterInstance._loadPromise === null).should.be.true;
-        (hlsAdapterInstance._sourceObj === null).should.be.true;
+    AdapterInstance.load().then((/* data */) => {
+      let detachMediaSpier = sandbox.spy(AdapterInstance._hls, 'detachMedia');
+      let destroySpier = sandbox.spy(AdapterInstance._hls, 'destroy');
+      AdapterInstance.destroy().then(() => {
+        (AdapterInstance._loadPromise === null).should.be.true;
+        (AdapterInstance._sourceObj === null).should.be.true;
         detachMediaSpier.should.have.been.called;
         destroySpier.should.have.been.called;
         done();
@@ -147,7 +147,7 @@ describe('HlsAdapter Instance - Unit', function() {
   });
 
   it('should parse the hls audio tracks into player audio tracks', function() {
-    hlsAdapterInstance._hls = {
+    AdapterInstance._hls = {
       audioTrack: 1,
       detachMedia: function() {},
       destroy: function() {
@@ -155,12 +155,12 @@ describe('HlsAdapter Instance - Unit', function() {
       },
       off: function() {}
     };
-    let audioTracks = hlsAdapterInstance._parseAudioTracks(hls_tracks.audioTracks);
+    let audioTracks = AdapterInstance._parseAudioTracks(hls_tracks.audioTracks);
     JSON.parse(JSON.stringify(audioTracks)).should.deep.equal(player_tracks.audioTracks);
   });
 
   it('should parse the hls levels into player video tracks', function() {
-    hlsAdapterInstance._hls = {
+    AdapterInstance._hls = {
       startLevel: 1,
       detachMedia: function() {},
       destroy: function() {
@@ -168,7 +168,7 @@ describe('HlsAdapter Instance - Unit', function() {
       },
       off: function() {}
     };
-    let videoTracks = hlsAdapterInstance._parseVideoTracks(hls_tracks.levels);
+    let videoTracks = AdapterInstance._parseVideoTracks(hls_tracks.levels);
     player_tracks.videoTracks.forEach(t => {
       t._label = t._height + 'p';
     });
@@ -176,23 +176,23 @@ describe('HlsAdapter Instance - Unit', function() {
   });
 
   it('should parse the video tag text tracks into player text tracks', function() {
-    hlsAdapterInstance._hls = {
+    AdapterInstance._hls = {
       detachMedia: function() {},
       destroy: function() {
         return Promise.resolve();
       },
       off: function() {}
     };
-    let textTracks = hlsAdapterInstance._parseTextTracks(hls_tracks.subtitles);
+    let textTracks = AdapterInstance._parseTextTracks(hls_tracks.subtitles);
     JSON.parse(JSON.stringify(textTracks)).should.deep.equal(player_tracks.textTracks);
   });
 
   it('should parse all hls tracks into player tracks', function() {
-    hlsAdapterInstance._videoElement = {
+    AdapterInstance._videoElement = {
       textTracks: hls_tracks.subtitles,
       removeEventListener: () => {}
     };
-    hlsAdapterInstance._hls = {
+    AdapterInstance._hls = {
       audioTracks: hls_tracks.audioTracks,
       subtitleTracks: hls_tracks.subtitles,
       levels: hls_tracks.levels,
@@ -204,13 +204,13 @@ describe('HlsAdapter Instance - Unit', function() {
       },
       off: function() {}
     };
-    let tracks = hlsAdapterInstance._parseTracks();
+    let tracks = AdapterInstance._parseTracks();
     let allTracks = player_tracks.audioTracks.concat(player_tracks.videoTracks).concat(player_tracks.textTracks);
     JSON.parse(JSON.stringify(tracks)).should.deep.equal(allTracks);
   });
 
   it('should enable adaptive bitrate', function() {
-    hlsAdapterInstance._hls = {
+    AdapterInstance._hls = {
       on: function() {},
       nextLevel: 0,
       detachMedia: function() {},
@@ -219,13 +219,13 @@ describe('HlsAdapter Instance - Unit', function() {
       },
       off: function() {}
     };
-    hlsAdapterInstance.enableAdaptiveBitrate();
-    hlsAdapterInstance._hls.nextLevel.should.equal(-1);
+    AdapterInstance.enableAdaptiveBitrate();
+    AdapterInstance._hls.nextLevel.should.equal(-1);
   });
 
   it('should dispatch event with the selected video track', function(done) {
     let data = {level: 3};
-    hlsAdapterInstance._hls = {
+    AdapterInstance._hls = {
       autoLevelEnabled: true,
       detachMedia: function() {},
       destroy: function() {
@@ -233,7 +233,7 @@ describe('HlsAdapter Instance - Unit', function() {
       },
       off: function() {}
     };
-    hlsAdapterInstance._playerTracks = [
+    AdapterInstance._playerTracks = [
       new VideoTrack({
         bandwidth: 2962000,
         active: false,
@@ -264,17 +264,17 @@ describe('HlsAdapter Instance - Unit', function() {
       })
     ];
 
-    sandbox.stub(hlsAdapterInstance, 'dispatchEvent').callsFake(function(event) {
+    sandbox.stub(AdapterInstance, 'dispatchEvent').callsFake(function(event) {
       event.type.should.equal(EventType.VIDEO_TRACK_CHANGED);
       event.payload.selectedVideoTrack.should.exist;
-      event.payload.selectedVideoTrack.should.deep.equal(hlsAdapterInstance._playerTracks[3]);
+      event.payload.selectedVideoTrack.should.deep.equal(AdapterInstance._playerTracks[3]);
       done();
     });
-    hlsAdapterInstance._onLevelSwitched('hlsLevelSwitched', data);
+    AdapterInstance._onLevelSwitched('hlsLevelSwitched', data);
   });
 });
 
-describe('HlsAdapter Instance - Integration', function() {
+describe('Adapter Instance - Integration', function() {
   let playerContainer;
   let player;
   let tracks;
@@ -287,6 +287,7 @@ describe('HlsAdapter Instance - Integration', function() {
   });
 
   beforeEach(function() {
+    registerMediaSourceAdapter(Adapter);
     player = loadPlayer({
       sources: {
         hls: [hls_sources.ElephantsDream]
@@ -353,7 +354,7 @@ describe('HlsAdapter Instance - Integration', function() {
     player.load();
     player.ready().then(() => {
       let mediaSourceAdapter = player._engine._mediaSourceAdapter;
-      if (mediaSourceAdapter instanceof HlsAdapter) {
+      if (mediaSourceAdapter instanceof Adapter) {
         player.play();
         tracks = player.getTracks();
         videoTracks = player.getTracks(player.Track.VIDEO);
@@ -376,7 +377,7 @@ describe('HlsAdapter Instance - Integration', function() {
     player.load();
     player.ready().then(() => {
       let mediaSourceAdapter = player._engine._mediaSourceAdapter;
-      if (mediaSourceAdapter instanceof HlsAdapter) {
+      if (mediaSourceAdapter instanceof Adapter) {
         player.play();
         mediaSourceAdapter.enableAdaptiveBitrate();
         mediaSourceAdapter.isAdaptiveBitrateEnabled().should.be.true;
@@ -400,7 +401,7 @@ describe('HlsAdapter Instance - Integration', function() {
     player.load();
     player.ready().then(() => {
       let mediaSourceAdapter = player._engine._mediaSourceAdapter;
-      if (mediaSourceAdapter instanceof HlsAdapter) {
+      if (mediaSourceAdapter instanceof Adapter) {
         player.play();
         videoTracks = player.getTracks(player.Track.VIDEO);
         mode = 'manual';
@@ -414,8 +415,8 @@ describe('HlsAdapter Instance - Integration', function() {
   });
 });
 
-describe('HlsAdapter Instance - isLive', () => {
-  let hlsAdapterInstance;
+describe('Adapter Instance - isLive', () => {
+  let AdapterInstance;
   let video;
   let vodSource = hls_sources.ElephantsDream;
   let liveSource = hls_sources.Live;
@@ -430,8 +431,8 @@ describe('HlsAdapter Instance - isLive', () => {
 
   afterEach(function(done) {
     sandbox.restore();
-    hlsAdapterInstance.destroy().then(() => {
-      hlsAdapterInstance = null;
+    AdapterInstance.destroy().then(() => {
+      AdapterInstance = null;
       video = null;
       TestUtils.removeVideoElementsFromTestPage();
       done();
@@ -439,23 +440,23 @@ describe('HlsAdapter Instance - isLive', () => {
   });
 
   it('should return false for VOD', done => {
-    hlsAdapterInstance = HlsAdapter.createAdapter(video, vodSource, config);
-    hlsAdapterInstance.load().then((/* data */) => {
-      hlsAdapterInstance.isLive().should.be.false;
+    AdapterInstance = Adapter.createAdapter(video, vodSource, config);
+    AdapterInstance.load().then((/* data */) => {
+      AdapterInstance.isLive().should.be.false;
       done();
     });
   });
 
   it('should return false for live before load', () => {
-    hlsAdapterInstance = HlsAdapter.createAdapter(video, liveSource, config);
-    hlsAdapterInstance.isLive().should.be.false;
+    AdapterInstance = Adapter.createAdapter(video, liveSource, config);
+    AdapterInstance.isLive().should.be.false;
   });
 
   it.skip('should return true for live', done => {
-    hlsAdapterInstance = HlsAdapter.createAdapter(video, liveSource, config);
-    hlsAdapterInstance.load().then(() => {
+    AdapterInstance = Adapter.createAdapter(video, liveSource, config);
+    AdapterInstance.load().then(() => {
       try {
-        hlsAdapterInstance.isLive().should.be.true;
+        AdapterInstance.isLive().should.be.true;
         done();
       } catch (e) {
         done(e);
@@ -464,8 +465,8 @@ describe('HlsAdapter Instance - isLive', () => {
   });
 });
 
-describe('HlsAdapter Instance - seekToLiveEdge', function() {
-  let hlsAdapterInstance;
+describe('Adapter Instance - seekToLiveEdge', function() {
+  let AdapterInstance;
   let video;
   let liveSource = hls_sources.Live;
   let config;
@@ -479,8 +480,8 @@ describe('HlsAdapter Instance - seekToLiveEdge', function() {
 
   afterEach(function(done) {
     sandbox.restore();
-    hlsAdapterInstance.destroy().then(() => {
-      hlsAdapterInstance = null;
+    AdapterInstance.destroy().then(() => {
+      AdapterInstance = null;
       video = null;
       TestUtils.removeVideoElementsFromTestPage();
       done();
@@ -488,14 +489,14 @@ describe('HlsAdapter Instance - seekToLiveEdge', function() {
   });
 
   it('should seek to live edge', done => {
-    hlsAdapterInstance = HlsAdapter.createAdapter(video, liveSource, config);
-    hlsAdapterInstance.load().then(() => {
-      hlsAdapterInstance._videoElement.addEventListener('durationchange', () => {
-        if (hlsAdapterInstance._getLiveEdge() > 0) {
+    AdapterInstance = Adapter.createAdapter(video, liveSource, config);
+    AdapterInstance.load().then(() => {
+      AdapterInstance._videoElement.addEventListener('durationchange', () => {
+        if (AdapterInstance._getLiveEdge() > 0) {
           video.currentTime = 0;
-          (hlsAdapterInstance._getLiveEdge() - hlsAdapterInstance._videoElement.currentTime > 1).should.be.true;
-          hlsAdapterInstance.seekToLiveEdge();
-          (hlsAdapterInstance._getLiveEdge() - hlsAdapterInstance._videoElement.currentTime < 1).should.be.true;
+          (AdapterInstance._getLiveEdge() - AdapterInstance._videoElement.currentTime > 1).should.be.true;
+          AdapterInstance.seekToLiveEdge();
+          (AdapterInstance._getLiveEdge() - AdapterInstance._videoElement.currentTime < 1).should.be.true;
           done();
         }
       });
@@ -503,8 +504,8 @@ describe('HlsAdapter Instance - seekToLiveEdge', function() {
   });
 });
 
-describe.skip('HlsAdapter Instance - _getLiveEdge', function() {
-  let hlsAdapterInstance;
+describe.skip('Adapter Instance - _getLiveEdge', function() {
+  let AdapterInstance;
   let video;
   let liveSource = hls_sources.Live;
   let config;
@@ -518,8 +519,8 @@ describe.skip('HlsAdapter Instance - _getLiveEdge', function() {
 
   afterEach(function(done) {
     sandbox.restore();
-    hlsAdapterInstance.destroy().then(() => {
-      hlsAdapterInstance = null;
+    AdapterInstance.destroy().then(() => {
+      AdapterInstance = null;
       video = null;
       TestUtils.removeVideoElementsFromTestPage();
       done();
@@ -527,22 +528,22 @@ describe.skip('HlsAdapter Instance - _getLiveEdge', function() {
   });
 
   it('should return live edge', done => {
-    hlsAdapterInstance = HlsAdapter.createAdapter(video, liveSource, config);
-    hlsAdapterInstance.load().then(() => {
-      hlsAdapterInstance._videoElement.addEventListener('durationchange', () => {
-        if (hlsAdapterInstance._hls.liveSyncPosition) {
-          hlsAdapterInstance._getLiveEdge().should.be.equal(hlsAdapterInstance._hls.liveSyncPosition);
+    AdapterInstance = Adapter.createAdapter(video, liveSource, config);
+    AdapterInstance.load().then(() => {
+      AdapterInstance._videoElement.addEventListener('durationchange', () => {
+        if (AdapterInstance._hls.liveSyncPosition) {
+          AdapterInstance._getLiveEdge().should.be.equal(AdapterInstance._hls.liveSyncPosition);
           done();
         } else {
-          hlsAdapterInstance._getLiveEdge().should.be.equal(video.duration);
+          AdapterInstance._getLiveEdge().should.be.equal(video.duration);
         }
       });
     });
   });
 });
 
-describe('HlsAdapter Instance - getStartTimeOfDvrWindow', function() {
-  let hlsAdapterInstance;
+describe('Adapter Instance - getStartTimeOfDvrWindow', function() {
+  let AdapterInstance;
   let video;
   let vodSource = hls_sources.ElephantsDream;
   let liveSource = hls_sources.Live;
@@ -557,8 +558,8 @@ describe('HlsAdapter Instance - getStartTimeOfDvrWindow', function() {
 
   afterEach(function(done) {
     sandbox.restore();
-    hlsAdapterInstance.destroy().then(() => {
-      hlsAdapterInstance = null;
+    AdapterInstance.destroy().then(() => {
+      AdapterInstance = null;
       video = null;
       TestUtils.removeVideoElementsFromTestPage();
       done();
@@ -566,18 +567,18 @@ describe('HlsAdapter Instance - getStartTimeOfDvrWindow', function() {
   });
 
   it('should return 0 for VOD', done => {
-    hlsAdapterInstance = HlsAdapter.createAdapter(video, vodSource, config);
-    hlsAdapterInstance.load().then(() => {
-      hlsAdapterInstance.getStartTimeOfDvrWindow().should.equal(0);
+    AdapterInstance = Adapter.createAdapter(video, vodSource, config);
+    AdapterInstance.load().then(() => {
+      AdapterInstance.getStartTimeOfDvrWindow().should.equal(0);
       done();
     });
   });
 
   it.skip('should return the start of DVR window for live', done => {
-    hlsAdapterInstance = HlsAdapter.createAdapter(video, liveSource, config);
-    hlsAdapterInstance.load().then(() => {
+    AdapterInstance = Adapter.createAdapter(video, liveSource, config);
+    AdapterInstance.load().then(() => {
       try {
-        hlsAdapterInstance.getStartTimeOfDvrWindow().should.not.equal(0);
+        AdapterInstance.getStartTimeOfDvrWindow().should.not.equal(0);
         done();
       } catch (e) {
         done(e);
@@ -586,8 +587,8 @@ describe('HlsAdapter Instance - getStartTimeOfDvrWindow', function() {
   });
 });
 
-describe('HlsAdapter Instance - change media', function() {
-  let hlsAdapterInstance;
+describe('Adapter Instance - change media', function() {
+  let AdapterInstance;
   let video;
   let source1 = hls_sources.ElephantsDream;
   let source2 = hls_sources.BigBugBunnuy;
@@ -602,8 +603,8 @@ describe('HlsAdapter Instance - change media', function() {
 
   afterEach(function(done) {
     sandbox.restore();
-    hlsAdapterInstance.destroy().then(() => {
-      hlsAdapterInstance = null;
+    AdapterInstance.destroy().then(() => {
+      AdapterInstance = null;
       video = null;
       TestUtils.removeVideoElementsFromTestPage();
       done();
@@ -611,12 +612,12 @@ describe('HlsAdapter Instance - change media', function() {
   });
 
   it('should clean the text tracks on change media', done => {
-    hlsAdapterInstance = HlsAdapter.createAdapter(video, source1, config);
-    hlsAdapterInstance.load().then(data => {
+    AdapterInstance = Adapter.createAdapter(video, source1, config);
+    AdapterInstance.load().then(data => {
       data.tracks.filter(track => track instanceof TextTrack).length.should.equal(6);
-      hlsAdapterInstance.destroy().then(() => {
-        hlsAdapterInstance = HlsAdapter.createAdapter(video, source2, config);
-        hlsAdapterInstance.load().then(data => {
+      AdapterInstance.destroy().then(() => {
+        AdapterInstance = Adapter.createAdapter(video, source2, config);
+        AdapterInstance.load().then(data => {
           data.tracks.filter(track => track instanceof TextTrack).length.should.equal(0);
           done();
         });
@@ -625,7 +626,7 @@ describe('HlsAdapter Instance - change media', function() {
   });
 });
 
-describe.skip('HlsAdapter [debugging and testing manually]', function(done) {
+describe.skip('Adapter [debugging and testing manually]', function(done) {
   let tracks;
   let videoTracks = [];
   let textTracks = [];
@@ -664,6 +665,7 @@ describe.skip('HlsAdapter [debugging and testing manually]', function(done) {
   }
 
   it('should play hls stream', () => {
+    registerMediaSourceAdapter(Adapter);
     player = loadPlayer(targetId, {
       sources: {
         hls: [hls_sources.ElephantsDream]
