@@ -1,19 +1,9 @@
 //@flow
-import Hlsjs from 'hls.js'
-import DefaultConfig from './default-config'
-import {type ErrorDetailsType, HlsJsErrorMap} from "./errors"
-import {
-  AudioTrack,
-  BaseMediaSourceAdapter,
-  Env,
-  Error,
-  EventType,
-  TextTrack,
-  Track,
-  Utils,
-  VideoTrack
-} from 'playkit-js'
-import pLoader from './jsonp-ploader'
+import Hlsjs from 'hls.js';
+import DefaultConfig from './default-config';
+import {type ErrorDetailsType, HlsJsErrorMap} from './errors';
+import {AudioTrack, BaseMediaSourceAdapter, Env, Error, EventType, TextTrack, Track, Utils, VideoTrack} from '@playkit-js/playkit-js';
+import {pLoader} from './jsonp-ploader';
 
 /**
  * Adapter of hls.js lib for hls content.
@@ -99,12 +89,24 @@ class HlsAdapter extends BaseMediaSourceAdapter {
    */
   _startTime: ?number = 0;
   /**
-   * Reference to _onLoadedMetadata function
-   * @member {?Function} - _onLoadedMetadataCallback
+   * Reference to _onVideoError function
+   * @member {?Function} - _onVideoErrorCallback
    * @type {?Function}
    * @private
    */
-  _onLoadedMetadataCallback: ?Function;
+  _onVideoErrorCallback: ?Function;
+
+  /**
+   * Reference to _onRecoveredCallback function
+   * @member {?Function} - _onRecoveredCallback
+   * @type {?Function}
+   * @private
+   */
+  _onRecoveredCallback: ?Function;
+  _onAddTrack: Function;
+  _resolveLoadTimeout: number;
+  _onMediaAttached: Function;
+  _mediaAttachedPromise: Promise<*>;
 
   /**
    * Factory method to create media source adapter.
@@ -116,10 +118,7 @@ class HlsAdapter extends BaseMediaSourceAdapter {
    * @static
    */
   static createAdapter(videoElement: HTMLVideoElement, source: PKMediaSourceObject, config: Object): IMediaSourceAdapter {
-    let adapterConfig = {};
-    if (Utils.Object.hasPropertyPath(config, 'playback.options.html5.hls')) {
-      adapterConfig.hlsConfig = config.playback.options.html5.hls;
-    }
+    let adapterConfig: Object = Utils.Object.copyDeep(DefaultConfig);
     if (Utils.Object.hasPropertyPath(config, 'sources.options')) {
       const options = config.sources.options;
       adapterConfig.forceRedirectExternalStreams = options.forceRedirectExternalStreams;
@@ -134,6 +133,50 @@ class HlsAdapter extends BaseMediaSourceAdapter {
         adapterConfig.hlsConfig.startPosition = config.playback.startTime;
       }
     }
+    if (Utils.Object.hasPropertyPath(config, 'playback.useNativeTextTrack')) {
+      adapterConfig.subtitleDisplay = Utils.Object.getPropertyPath(config, 'playback.useNativeTextTrack');
+    }
+    if (Utils.Object.hasPropertyPath(config, 'abr.fpsDroppedFramesInterval')) {
+      adapterConfig.hlsConfig.fpsDroppedFramesInterval = config.abr.fpsDroppedFramesInterval;
+    }
+    if (Utils.Object.hasPropertyPath(config, 'abr.fpsDroppedMonitoringThreshold')) {
+      adapterConfig.hlsConfig.fpsDroppedMonitoringThreshold = config.abr.fpsDroppedMonitoringThreshold;
+    }
+    if (Utils.Object.hasPropertyPath(config, 'abr.capLevelOnFPSDrop')) {
+      adapterConfig.hlsConfig.capLevelOnFPSDrop = config.abr.capLevelOnFPSDrop;
+    }
+    adapterConfig.hlsConfig.enableCEA708Captions = config.playback.enableCEA708Captions;
+    adapterConfig.hlsConfig.captionsTextTrack1Label = config.playback.captionsTextTrack1Label;
+    adapterConfig.hlsConfig.captionsTextTrack1LanguageCode = config.playback.captionsTextTrack1LanguageCode;
+    adapterConfig.hlsConfig.captionsTextTrack2Label = config.playback.captionsTextTrack2Label;
+    adapterConfig.hlsConfig.captionsTextTrack2LanguageCode = config.playback.captionsTextTrack2LanguageCode;
+
+    if (Utils.Object.hasPropertyPath(config, 'abr')) {
+      const abr = config.abr;
+      if (typeof abr.enabled === 'boolean') {
+        adapterConfig.abr.enabled = abr.enabled;
+      }
+      if (typeof abr.capLevelToPlayerSize === 'boolean') {
+        adapterConfig.hlsConfig.capLevelToPlayerSize = abr.capLevelToPlayerSize;
+      }
+      if (abr.defaultBandwidthEstimate) {
+        adapterConfig.hlsConfig.abrEwmaDefaultEstimate = abr.defaultBandwidthEstimate;
+      }
+
+      if (abr.restrictions) {
+        if (abr.restrictions.minBitrate > 0) {
+          adapterConfig.hlsConfig.minAutoBitrate = abr.restrictions.minBitrate;
+        }
+        if (abr.restrictions.maxBitrate < Infinity) {
+          //You can either set capping by size or bitrate, if bitrate is set then disable size capping
+          adapterConfig.hlsConfig.capLevelToPlayerSize = false;
+          adapterConfig.abr.restrictions = abr.restrictions;
+        }
+      }
+    }
+    if (Utils.Object.hasPropertyPath(config, 'playback.options.html5.hls')) {
+      Utils.Object.mergeDeep(adapterConfig.hlsConfig, config.playback.options.html5.hls);
+    }
     return new this(videoElement, source, adapterConfig);
   }
 
@@ -145,7 +188,7 @@ class HlsAdapter extends BaseMediaSourceAdapter {
    * @static
    */
   static canPlayType(mimeType: string): boolean {
-    let canHlsPlayType = (typeof mimeType === 'string') ? HlsAdapter._hlsMimeTypes.includes(mimeType.toLowerCase()) : false;
+    let canHlsPlayType = typeof mimeType === 'string' ? HlsAdapter._hlsMimeTypes.includes(mimeType.toLowerCase()) : false;
     HlsAdapter._logger.debug('canPlayType result for mimeType:' + mimeType + ' is ' + canHlsPlayType.toString());
     return canHlsPlayType;
   }
@@ -182,16 +225,18 @@ class HlsAdapter extends BaseMediaSourceAdapter {
   constructor(videoElement: HTMLVideoElement, source: PKMediaSourceObject, config: Object) {
     HlsAdapter._logger.debug('Creating adapter. Hls version: ' + Hlsjs.version);
     super(videoElement, source, config);
-    this._config = Utils.Object.mergeDeep({}, this._config, DefaultConfig);
+    this._config = Utils.Object.mergeDeep({}, DefaultConfig, this._config);
     if (this._config.forceRedirectExternalStreams) {
       this._config.hlsConfig['pLoader'] = pLoader;
     }
     this._hls = new Hlsjs(this._config.hlsConfig);
+    this._capabilities.fpsControl = true;
+    this._hls.subtitleDisplay = this._config.subtitleDisplay;
     this._addBindings();
   }
 
   /**
-   * Adds the required bindings with hls.js.
+   * Adds the required bindings locally and with hls.js.
    * @function _addBindings
    * @private
    * @returns {void}
@@ -201,6 +246,47 @@ class HlsAdapter extends BaseMediaSourceAdapter {
     this._hls.on(Hlsjs.Events.MANIFEST_LOADED, this._onManifestLoaded.bind(this));
     this._hls.on(Hlsjs.Events.LEVEL_SWITCHED, this._onLevelSwitched.bind(this));
     this._hls.on(Hlsjs.Events.AUDIO_TRACK_SWITCHED, this._onAudioTrackSwitched.bind(this));
+    this._hls.on(Hlsjs.Events.FPS_DROP, (e, data) => this._onFpsDrop(data));
+    this._mediaAttachedPromise = new Promise(resolve => (this._onMediaAttached = resolve));
+    this._hls.on(Hlsjs.Events.MEDIA_ATTACHED, () => this._onMediaAttached());
+    this._onRecoveredCallback = () => this._onRecovered();
+    this._onAddTrack = this._onAddTrack.bind(this);
+    this._videoElement.addEventListener('addtrack', this._onAddTrack);
+    this._videoElement.textTracks.onaddtrack = this._onAddTrack;
+  }
+
+  _onFpsDrop(data: Object): void {
+    this._trigger(EventType.FPS_DROP, data);
+  }
+
+  _onAddTrack(event: any) {
+    if (!this._hls.subtitleTracks.length) {
+      // parse CEA 608/708 captions that not exposed on hls.subtitleTracks API
+      const CEATextTrack = this._parseCEATextTrack(event.track);
+      if (CEATextTrack) {
+        HlsAdapter._logger.debug('A CEA 608/708 caption has found', CEATextTrack);
+        this._playerTracks.push(CEATextTrack);
+        this._trigger(EventType.TRACKS_CHANGED, {tracks: this._playerTracks});
+      }
+    }
+  }
+
+  /**
+   * video error event handler.
+   * @param {MediaError} error - the media error
+   * @public
+   * @returns {boolean} if hls-adapter will try to recover
+   */
+  handleMediaError(error: MediaError): boolean {
+    if (error.code === error.MEDIA_ERR_DECODE) {
+      HlsAdapter._logger.debug(
+        'The video playback was aborted due to a corruption problem or because the video used features your browser did not support.',
+        error.message
+      );
+      return this._handleMediaError();
+    } else {
+      return false;
+    }
   }
 
   /**
@@ -213,7 +299,7 @@ class HlsAdapter extends BaseMediaSourceAdapter {
   load(startTime: ?number): Promise<Object> {
     if (!this._loadPromise) {
       this._startTime = startTime;
-      this._loadPromise = new Promise((resolve) => {
+      this._loadPromise = new Promise(resolve => {
         this._resolveLoad = resolve;
         this._loadInternal();
       });
@@ -228,8 +314,6 @@ class HlsAdapter extends BaseMediaSourceAdapter {
    * @private
    */
   _loadInternal() {
-    this._onLoadedMetadataCallback = this._onLoadedMetadata.bind(this);
-    this._videoElement.addEventListener(EventType.LOADED_METADATA, this._onLoadedMetadataCallback);
     if (this._sourceObj && this._sourceObj.url) {
       this._hls.loadSource(this._sourceObj.url);
       this._hls.attachMedia(this._videoElement);
@@ -256,24 +340,14 @@ class HlsAdapter extends BaseMediaSourceAdapter {
   }
 
   /**
-   * Loaded metadata event handler.
+   * Remove the loadedmetadata listener, when recovering from media error.
    * @private
    * @returns {void}
    */
-  _onLoadedMetadata(): void {
-    this._removeLoadedMetadataListener();
-    this._resolveLoad({tracks: this._playerTracks});
-  }
-
-  /**
-   * Remove the loadedmetadata listener
-   * @private
-   * @returns {void}
-   */
-  _removeLoadedMetadataListener(): void {
-    if (this._onLoadedMetadataCallback) {
-      this._videoElement.removeEventListener(EventType.LOADED_METADATA, this._onLoadedMetadataCallback);
-      this._onLoadedMetadataCallback = null;
+  _removeRecoveredCallbackListener(): void {
+    if (this._onRecoveredCallback) {
+      this._videoElement.removeEventListener(EventType.LOADED_METADATA, this._onRecoveredCallback);
+      this._onRecoveredCallback = null;
     }
   }
 
@@ -299,6 +373,7 @@ class HlsAdapter extends BaseMediaSourceAdapter {
    */
   _reset(): void {
     this._removeBindings();
+    clearTimeout(this._resolveLoadTimeout);
     this._hls.detachMedia();
     this._hls.destroy();
   }
@@ -384,6 +459,28 @@ class HlsAdapter extends BaseMediaSourceAdapter {
   }
 
   /**
+   * Parse a CEA 608/708 text track which not expose on hlsjs api into player text tracks.
+   * @param {Object} CEATextTrack - A video element text track.
+   * @returns {?TextTrack} - A parsed text track if the param is a CEA 608/708 caption.
+   * @private
+   */
+  _parseCEATextTrack(CEATextTrack: Object): ?TextTrack {
+    let textTrack = null;
+    if (CEATextTrack.kind === 'captions') {
+      const settings = {
+        id: CEATextTrack.id,
+        active: CEATextTrack.mode === 'showing',
+        label: CEATextTrack.label,
+        kind: CEATextTrack.kind,
+        language: CEATextTrack.language,
+        index: this._playerTracks.filter(track => track instanceof TextTrack).length
+      };
+      textTrack = new TextTrack(settings);
+    }
+    return textTrack;
+  }
+
+  /**
    * Select an audio track.
    * @function selectAudioTrack
    * @param {AudioTrack} audioTrack - the audio track to select.
@@ -420,12 +517,46 @@ class HlsAdapter extends BaseMediaSourceAdapter {
    * @public
    */
   selectTextTrack(textTrack: TextTrack): void {
-    if (textTrack instanceof TextTrack && !textTrack.active && this._videoElement.textTracks) {
-      this._disableAllTextTracks();
-      this._videoElement.textTracks[textTrack.index].mode = 'hidden';
-      HlsAdapter._logger.debug('Text track changed', textTrack);
-      this._onTrackChanged(textTrack);
+    if (textTrack instanceof TextTrack && !textTrack.active) {
+      if (this._hls.subtitleTracks.length) {
+        this._hls.subtitleTrack = textTrack.id;
+        this._notifyTrackChanged(textTrack);
+      } else {
+        this._selectNativeTextTrack(textTrack);
+      }
     }
+  }
+
+  /**
+   * Select a video element text track.
+   * @function _selectNativeTextTrack
+   * @param {TextTrack} textTrack - the track to select.
+   * @returns {void}
+   * @private
+   */
+  _selectNativeTextTrack(textTrack: TextTrack): void {
+    const selectedTrack = Array.from(this._videoElement.textTracks).find(track => track.language === textTrack.language);
+    if (selectedTrack) {
+      this._disableNativeTextTracks();
+      selectedTrack.mode = this._config.subtitleDisplay ? 'showing' : 'hidden';
+      this._notifyTrackChanged(textTrack);
+    }
+  }
+
+  _notifyTrackChanged(textTrack: TextTrack): void {
+    HlsAdapter._logger.debug('Text track changed', textTrack);
+    this._onTrackChanged(textTrack);
+  }
+
+  /**
+   * Disables all the video element text tracks.
+   * @private
+   * @returns {void}
+   */
+  _disableNativeTextTracks(): void {
+    Array.from(this._videoElement.textTracks).forEach(track => {
+      track.mode = 'disabled';
+    });
   }
 
   /** Hide the text track
@@ -434,7 +565,11 @@ class HlsAdapter extends BaseMediaSourceAdapter {
    * @public
    */
   hideTextTrack(): void {
-    this._disableAllTextTracks();
+    if (this._hls.subtitleTracks.length) {
+      this._hls.subtitleTrack = -1;
+    } else {
+      this._disableNativeTextTracks();
+    }
   }
 
   /**
@@ -467,7 +602,11 @@ class HlsAdapter extends BaseMediaSourceAdapter {
    * @private
    */
   _getLevelDetails(): Object {
-    const level = this._hls.levels[this._hls.currentLevel] || this._hls.levels[this._hls.nextLevel] || this._hls.levels[this._hls.nextAutoLevel] || this._hls.levels[this._hls.nextLoadLevel];
+    const level =
+      this._hls.levels[this._hls.currentLevel] ||
+      this._hls.levels[this._hls.nextLevel] ||
+      this._hls.levels[this._hls.nextAutoLevel] ||
+      this._hls.levels[this._hls.nextLoadLevel];
     return level && level.details ? level.details : {};
   }
 
@@ -515,7 +654,7 @@ class HlsAdapter extends BaseMediaSourceAdapter {
    */
   isLive(): boolean {
     try {
-      return !!(this._getLevelDetails().live);
+      return !!this._getLevelDetails().live;
     } catch (e) {
       return false;
     }
@@ -533,6 +672,44 @@ class HlsAdapter extends BaseMediaSourceAdapter {
       this._hls.startLoad(this._startTime);
     }
     this._playerTracks = this._parseTracks();
+    this._maybeApplyAbrRestrictions();
+    this._mediaAttachedPromise.then(() => {
+      this._resolveLoad({tracks: this._playerTracks});
+    });
+  }
+
+  /**
+   * apply ABR restrictions
+   * @private
+   * @returns {void}
+   */
+  _maybeApplyAbrRestrictions(): void {
+    if (this._config.abr.enabled) {
+      if (this._config.abr.restrictions) {
+        const restrictions = this._config.abr.restrictions;
+        if (restrictions.maxBitrate) {
+          const minBitrate = restrictions.minBitrate ? restrictions.minBitrate : 0;
+          if (restrictions.maxBitrate > minBitrate) {
+            //Get the first level that is above our bitrate restriction
+            //If the corresponding level is not in the edges (level 0 or last level) then get the previous level index
+            //which has a bitrate value which is lower then the max bitrate restriction
+            let maxLevel = this._hls.levels.findIndex(level => level.bitrate > restrictions.maxBitrate);
+            if (maxLevel > 0) {
+              maxLevel = maxLevel - 1;
+            }
+            this._hls.autoLevelCapping = maxLevel;
+          } else {
+            HlsAdapter._logger.warn(
+              'Invalid maxBitrate restriction, maxBitrate must be greater than minBitrate',
+              minBitrate,
+              restrictions.maxBitrate
+            );
+          }
+        }
+      }
+    } else {
+      this._hls.currentLevel = 0;
+    }
   }
 
   /**
@@ -544,8 +721,8 @@ class HlsAdapter extends BaseMediaSourceAdapter {
    * @returns {void}
    */
   _onLevelSwitched(event: string, data: any): void {
-    let videoTrack = this._playerTracks.find((track) => {
-      return (track instanceof VideoTrack && track.index === data.level);
+    let videoTrack = this._playerTracks.find(track => {
+      return track instanceof VideoTrack && track.index === data.level;
     });
     HlsAdapter._logger.debug('Video track changed', videoTrack);
     this._onTrackChanged(videoTrack);
@@ -560,8 +737,8 @@ class HlsAdapter extends BaseMediaSourceAdapter {
    * @returns {void}
    */
   _onAudioTrackSwitched(event: string, data: any): void {
-    let audioTrack = this._playerTracks.find((track) => {
-      return (track instanceof AudioTrack && track.id === data.id);
+    let audioTrack = this._playerTracks.find(track => {
+      return track instanceof AudioTrack && track.id === data.id;
     });
     HlsAdapter._logger.debug('Audio track changed', audioTrack);
     this._onTrackChanged(audioTrack);
@@ -582,19 +759,7 @@ class HlsAdapter extends BaseMediaSourceAdapter {
         this._trigger(EventType.PLAYING);
         this._videoElement.removeEventListener(EventType.TIME_UPDATE, timeUpdateListener);
       };
-      this._videoElement.addEventListener(EventType.TIME_UPDATE, timeUpdateListener)
-    }
-  }
-
-  /**
-   * Disables all the video tag text tracks.
-   * @returns {void}
-   * @private
-   */
-  _disableAllTextTracks() {
-    let vidTextTracks = this._videoElement.textTracks;
-    for (let i = 0; i < vidTextTracks.length; i++) {
-      vidTextTracks[i].mode = 'disabled';
+      this._videoElement.addEventListener(EventType.TIME_UPDATE, timeUpdateListener);
     }
   }
 
@@ -612,38 +777,25 @@ class HlsAdapter extends BaseMediaSourceAdapter {
       let error: typeof Error;
       switch (errorType) {
         case Hlsjs.ErrorTypes.NETWORK_ERROR:
-          if ([Hlsjs.ErrorDetails.MANIFEST_LOAD_ERROR, Hlsjs.ErrorDetails.MANIFEST_LOAD_TIMEOUT].includes(errorDetails) &&
-            !this._triedReloadWithRedirect && !this._config.forceRedirectExternalStreams) {
+          if (
+            [Hlsjs.ErrorDetails.MANIFEST_LOAD_ERROR, Hlsjs.ErrorDetails.MANIFEST_LOAD_TIMEOUT].includes(errorDetails) &&
+            !this._triedReloadWithRedirect &&
+            !this._config.forceRedirectExternalStreams
+          ) {
             this._reloadWithDirectManifest();
           } else {
-            error = new Error(
-              Error.Severity.CRITICAL,
-              Error.Category.NETWORK,
-              Error.Code.HTTP_ERROR,
-              errorDetails);
+            error = new Error(Error.Severity.CRITICAL, Error.Category.NETWORK, Error.Code.HTTP_ERROR, errorDetails);
           }
           break;
         case Hlsjs.ErrorTypes.MEDIA_ERROR:
           if (this._handleMediaError()) {
-            error = new Error(
-              Error.Severity.RECOVERABLE,
-              Error.Category.MEDIA,
-              Error.Code.HLS_FATAL_MEDIA_ERROR,
-              errorDetails);
+            error = new Error(Error.Severity.RECOVERABLE, Error.Category.MEDIA, Error.Code.HLS_FATAL_MEDIA_ERROR, errorDetails);
           } else {
-            error = new Error(
-              Error.Severity.CRITICAL,
-              Error.Category.MEDIA,
-              Error.Code.HLS_FATAL_MEDIA_ERROR,
-              errorDetails);
+            error = new Error(Error.Severity.CRITICAL, Error.Category.MEDIA, Error.Code.HLS_FATAL_MEDIA_ERROR, errorDetails);
           }
           break;
         default:
-          error = new Error(
-            Error.Severity.CRITICAL,
-            Error.Category.PLAYER,
-            Error.Code.HLS_FATAL_MEDIA_ERROR,
-            errorDetails);
+          error = new Error(Error.Severity.CRITICAL, Error.Category.PLAYER, Error.Code.HLS_FATAL_MEDIA_ERROR, errorDetails);
           break;
       }
       this._trigger(EventType.ERROR, error);
@@ -652,11 +804,7 @@ class HlsAdapter extends BaseMediaSourceAdapter {
       }
     } else {
       const {category, code}: ErrorDetailsType = HlsJsErrorMap[errorDetails] || {category: 0, code: 0};
-      HlsAdapter._logger.warn(new Error(
-        Error.Severity.RECOVERABLE,
-        category,
-        code,
-        errorDetails));
+      HlsAdapter._logger.warn(new Error(Error.Severity.RECOVERABLE, category, code, errorDetails));
     }
   }
 
@@ -669,16 +817,28 @@ class HlsAdapter extends BaseMediaSourceAdapter {
     const now: number = performance.now();
     let recover = true;
     if (this._checkTimeDeltaHasPassed(now, this._recoverDecodingErrorDate, this._config.recoverDecodingErrorDelay)) {
+      this._videoElement.addEventListener(EventType.LOADED_METADATA, this._onRecoveredCallback);
       this._recoverDecodingError();
     } else {
       if (this._checkTimeDeltaHasPassed(now, this._recoverSwapAudioCodecDate, this._config.recoverSwapAudioCodecDelay)) {
+        this._videoElement.addEventListener(EventType.LOADED_METADATA, this._onRecoveredCallback);
         this._recoverSwapAudioCodec();
       } else {
         recover = false;
-        HlsAdapter._logger.error("cannot recover, last media error recovery failed");
+        HlsAdapter._logger.error('cannot recover, last media error recovery failed');
       }
     }
     return recover;
+  }
+
+  /**
+   * trigger mediarecovered event if metadata is loaded (means the recovery succeeded)
+   * @returns {void}
+   * @private
+   */
+  _onRecovered(): void {
+    this._trigger(EventType.MEDIA_RECOVERED);
+    this._videoElement.removeEventListener(EventType.LOADED_METADATA, this._onRecoveredCallback);
   }
 
   /**
@@ -690,7 +850,7 @@ class HlsAdapter extends BaseMediaSourceAdapter {
    * @private
    */
   _checkTimeDeltaHasPassed(now: number, then: number, delay: number): boolean {
-    return (!then || (now - then) > delay);
+    return !then || now - then > delay;
   }
 
   /**
@@ -700,7 +860,7 @@ class HlsAdapter extends BaseMediaSourceAdapter {
    */
   _recoverDecodingError(): void {
     this._recoverDecodingErrorDate = performance.now();
-    HlsAdapter._logger.warn("try to recover media Error");
+    HlsAdapter._logger.warn('try to recover media Error');
     this._hls.recoverMediaError();
   }
 
@@ -711,7 +871,7 @@ class HlsAdapter extends BaseMediaSourceAdapter {
    */
   _recoverSwapAudioCodec(): void {
     this._recoverSwapAudioCodecDate = performance.now();
-    HlsAdapter._logger.warn("try to swap Audio Codec and recover media Error");
+    HlsAdapter._logger.warn('try to swap Audio Codec and recover media Error');
     this._hls.swapAudioCodec();
     this._hls.recoverMediaError();
   }
@@ -725,7 +885,11 @@ class HlsAdapter extends BaseMediaSourceAdapter {
     this._hls.off(Hlsjs.Events.ERROR, this._onError);
     this._hls.off(Hlsjs.Events.LEVEL_SWITCHED, this._onLevelSwitched);
     this._hls.off(Hlsjs.Events.AUDIO_TRACK_SWITCHED, this._onAudioTrackSwitched);
-    this._removeLoadedMetadataListener();
+    this._hls.off(Hlsjs.Events.MANIFEST_LOADED, this._onManifestLoaded);
+    this._hls.off(Hlsjs.Events.FPS_DROP, this._onFpsDrop);
+    this._videoElement.textTracks.onaddtrack = null;
+    this._videoElement.removeEventListener('addtrack', this._onAddTrack);
+    this._removeRecoveredCallbackListener();
   }
 
   /**
@@ -742,11 +906,13 @@ class HlsAdapter extends BaseMediaSourceAdapter {
           fragLength = fragments.length,
           start = fragments[0].start + fragments[0].duration,
           end = fragments[fragLength - 1].start + fragments[fragLength - 1].duration,
-          maxLatency = this._hls.config.liveMaxLatencyDuration !== undefined ? this._hls.config.liveMaxLatencyDuration : this._hls.config.liveMaxLatencyDurationCount * details.targetduration,
+          maxLatency =
+            this._hls.config.liveMaxLatencyDuration !== undefined
+              ? this._hls.config.liveMaxLatencyDuration
+              : this._hls.config.liveMaxLatencyDurationCount * details.targetduration,
           minPosToSeek = Math.max(start - this._hls.config.maxFragLookUpTolerance, end - maxLatency);
         return minPosToSeek;
-      }
-      catch (e) {
+      } catch (e) {
         HlsAdapter._logger.debug('Unable obtain the start of DVR window');
         return 0;
       }

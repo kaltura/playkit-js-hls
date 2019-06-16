@@ -1,8 +1,8 @@
 'use strict';
 
-const webpack = require("webpack");
-const path = require("path");
-const packageData = require("./package.json");
+const webpack = require('webpack');
+const path = require('path');
+const packageData = require('./package.json');
 
 let plugins = [
   new webpack.DefinePlugin({
@@ -13,17 +13,17 @@ let plugins = [
 
 module.exports = {
   context: __dirname + "/src",
-  entry: {"playkit-hls": "index.js"},
+  entry: {'playkit-hls': 'index.js'},
   output: {
-    path: __dirname + "/dist",
+    path: __dirname + '/dist',
     filename: '[name].js',
-    library: ["playkit", "adapters", "hls"],
-    libraryTarget: "umd",
-    devtoolModuleFilenameTemplate: "./playkit/adapters/hls/[resource-path]",
+    library: ['playkit', 'adapters', 'hls'],
+    libraryTarget: 'umd',
+    devtoolModuleFilenameTemplate: './playkit/adapters/hls/[resource-path]',
   },
   devtool: 'source-map',
   optimization:{
-    minimize:false
+    // minimize:false
   },
   plugins: plugins,
   module: {
@@ -31,32 +31,27 @@ module.exports = {
       test: /\.js$/,
       exclude: /node_modules/,
       use: [
-        "babel-loader",
-        "eslint-loader",
+        'babel-loader',
+        'source-map-loader',
+        'eslint-loader',
       ]
     }]
   },
   devServer: {
-    contentBase: __dirname + "/src"
+    contentBase: __dirname + '/src'
   },
   resolve: {
-    modules: [
-      path.resolve(__dirname, "src"),
-      "node_modules"
-    ]
+    modules: [path.resolve(__dirname, 'src'), 'node_modules'],
+    alias: {
+      'hls.js': path.resolve('./node_modules/hls.js/dist/hls.min.js'),
+    }
   },
   externals: {
-    "playkit-js": {
-      commonjs: "playkit-js",
-      commonjs2: "playkit-js",
-      amd: "playkit-js",
-      root: ["playkit", "core"]
-    },
-    "hls.js": {
-      commonjs: "hls.js",
-      commonjs2: "hls.js",
-      amd: "hls.js",
-      root: "Hls"
+    '@playkit-js/playkit-js': {
+      commonjs: '@playkit-js/playkit-js',
+      commonjs2: '@playkit-js/playkit-js',
+      amd: 'playkit-js',
+      root: ['playkit', 'core']
     }
   }
 };
