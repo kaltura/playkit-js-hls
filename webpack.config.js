@@ -19,12 +19,10 @@ module.exports = {
     filename: '[name].js',
     library: ['playkit', 'adapters', 'hls'],
     libraryTarget: 'umd',
+    umdNamedDefine: true,
     devtoolModuleFilenameTemplate: './playkit/adapters/hls/[resource-path]',
   },
   devtool: 'source-map',
-  optimization:{
-    // minimize:false
-  },
   plugins: plugins,
   module: {
     rules: [{

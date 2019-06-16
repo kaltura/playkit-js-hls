@@ -29,10 +29,12 @@ export class pLoader extends Hlsjs.DefaultConfig.loader {
       if (context.type === 'manifest') {
         Utils.Http.jsonp(url, callback, {
           timeout: pLoader.redirectExternalStreamsTimeout
-        }).then(uri => {
-          context.url = uri;
-          loadOrig(context, config, callbacks);
-        }).catch(() => loadOrig(context, config, callbacks));
+        })
+          .then(uri => {
+            context.url = uri;
+            loadOrig(context, config, callbacks);
+          })
+          .catch(() => loadOrig(context, config, callbacks));
       } else {
         loadOrig(context, config, callbacks);
       }

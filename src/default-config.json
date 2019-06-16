@@ -1,6 +1,10 @@
 {
   "recoverDecodingErrorDelay": 3000,
   "recoverSwapAudioCodecDelay": 3000,
+  "abr": {
+    "enabled": true,
+    "restrictions": {}
+  },
   "hlsConfig": {
     "fragLoadingMaxRetry": 4,
     "maxMaxBufferLength": 60

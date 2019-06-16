@@ -2,6 +2,173 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="1.13.1"></a>
+## [1.13.1](https://github.com/kaltura/playkit-js-hls/compare/v1.13.0...v1.13.1) (2019-05-01)
+
+
+
+<a name="1.13.0"></a>
+# [1.13.0](https://github.com/kaltura/playkit-js-hls/compare/v1.12.1...v1.13.0) (2019-04-15)
+
+
+### Features
+
+* **FEC-8044:** ima-dai plugin ([#83](https://github.com/kaltura/playkit-js-hls/issues/83)) ([5658495](https://github.com/kaltura/playkit-js-hls/commit/5658495))
+
+
+
+<a name="1.12.1"></a>
+## [1.12.1](https://github.com/kaltura/playkit-js-hls/compare/v1.12.0...v1.12.1) (2018-12-24)
+
+
+### Bug Fixes
+
+* **FEC-8780:** captions not shown after seek ([#81](https://github.com/kaltura/playkit-js-hls/issues/81)) ([8f00772](https://github.com/kaltura/playkit-js-hls/commit/8f00772))
+
+
+
+<a name="1.12.0"></a>
+# [1.12.0](https://github.com/kaltura/playkit-js-hls/compare/v1.11.0...v1.12.0) (2018-12-16)
+
+
+### Bug Fixes
+
+* **FEC-8764:** after change media / refresh the video has no subtitles ([#79](https://github.com/kaltura/playkit-js-hls/issues/79)) ([4b044b1](https://github.com/kaltura/playkit-js-hls/commit/4b044b1))
+
+
+### Features
+
+* **FEC-8507:** update to hlsjs 12.1  ([#80](https://github.com/kaltura/playkit-js-hls/issues/80)) ([04659c3](https://github.com/kaltura/playkit-js-hls/commit/04659c3))
+
+
+
+<a name="1.11.0"></a>
+# [1.11.0](https://github.com/kaltura/playkit-js-hls/compare/v1.10.2...v1.11.0) (2018-12-12)
+
+
+### Features
+
+* **FEC-8147:** add ability to set ABR settings ([#78](https://github.com/kaltura/playkit-js-hls/issues/78)) ([b07113a](https://github.com/kaltura/playkit-js-hls/commit/b07113a))
+
+
+
+<a name="1.10.2"></a>
+## [1.10.2](https://github.com/kaltura/playkit-js-hls/compare/v1.10.1...v1.10.2) (2018-11-19)
+
+
+### Bug Fixes
+
+* **FEC-8690:** player stuck with endless spinner on change media ([#77](https://github.com/kaltura/playkit-js-hls/issues/77)) ([1d9be20](https://github.com/kaltura/playkit-js-hls/commit/1d9be20))
+
+
+
+<a name="1.10.1"></a>
+## [1.10.1](https://github.com/kaltura/playkit-js-hls/compare/v1.10.0...v1.10.1) (2018-11-05)
+
+
+
+<a name="1.10.0"></a>
+# [1.10.0](https://github.com/kaltura/playkit-js-hls/compare/v1.8.1...v1.10.0) (2018-11-05)
+
+
+### Bug Fixes
+
+* **FEC-8506:** fail to resolve manifest load with multi-audio streams ([#72](https://github.com/kaltura/playkit-js-hls/issues/72)) ([c7a61c0](https://github.com/kaltura/playkit-js-hls/commit/c7a61c0))
+* **FEC-8510:** listen to the html video element error event only once ([#73](https://github.com/kaltura/playkit-js-hls/issues/73)) ([1070245](https://github.com/kaltura/playkit-js-hls/commit/1070245))
+* **FEC-8557:** workaround for hls.js text track selection issues ([#74](https://github.com/kaltura/playkit-js-hls/issues/74)) ([d176bb0](https://github.com/kaltura/playkit-js-hls/commit/d176bb0))
+
+
+### Features
+
+* **FEC-7808:** quality watcher for the player ([#75](https://github.com/kaltura/playkit-js-hls/issues/75)) ([ef5741f](https://github.com/kaltura/playkit-js-hls/commit/ef5741f))
+
+
+
+<a name="1.9.0"></a>
+# [1.9.0](https://github.com/kaltura/playkit-js-hls/compare/v1.8.3...v1.9.0) (2018-10-11)
+
+
+### Bug Fixes
+
+* **FEC-8557:** workaround for hls.js text track selection issues ([#74](https://github.com/kaltura/playkit-js-hls/issues/74)) ([d176bb0](https://github.com/kaltura/playkit-js-hls/commit/d176bb0))
+
+
+<a name="1.8.3"></a>
+## [1.8.3](https://github.com/kaltura/playkit-js-hls/compare/v1.8.2...v1.8.3) (2018-09-05)
+
+
+### Bug Fixes
+
+* **FEC-8510:** listen to the html video element error event only once ([#73](https://github.com/kaltura/playkit-js-hls/issues/73)) ([1070245](https://github.com/kaltura/playkit-js-hls/commit/1070245))
+
+
+
+<a name="1.8.2"></a>
+## [1.8.2](https://github.com/kaltura/playkit-js-hls/compare/v1.8.1...v1.8.2) (2018-08-26)
+
+
+### Bug Fixes
+
+* **FEC-8506:** fail to resolve manifest load with multi-audio streams ([#72](https://github.com/kaltura/playkit-js-hls/issues/72)) ([c7a61c0](https://github.com/kaltura/playkit-js-hls/commit/c7a61c0))
+
+
+
+<a name="1.8.1"></a>
+## [1.8.1](https://github.com/kaltura/playkit-js-hls/compare/v1.8.0...v1.8.1) (2018-08-05)
+
+
+### Bug Fixes
+
+* **FEC-8404:**  workaround for hlsjs audio switching bug ([#69](https://github.com/kaltura/playkit-js-hls/issues/69)) ([98877e6](https://github.com/kaltura/playkit-js-hls/commit/98877e6))
+
+
+
+<a name="1.8.0"></a>
+# [1.8.0](https://github.com/kaltura/playkit-js-hls/compare/v1.7.2...v1.8.0) (2018-07-23)
+
+
+### Features
+
+* **FEC-8390, FEC-8246:** support 608/708 captions ([#67](https://github.com/kaltura/playkit-js-hls/issues/67)) ([39e8e09](https://github.com/kaltura/playkit-js-hls/commit/39e8e09))
+
+
+
+<a name="1.7.2"></a>
+## [1.7.2](https://github.com/kaltura/playkit-js-hls/compare/v1.7.1...v1.7.2) (2018-07-12)
+
+
+### Bug Fixes
+
+* **FEC-7935:** fix text selection logic with hlsjs ([#65](https://github.com/kaltura/playkit-js-hls/issues/65)) ([3074d19](https://github.com/kaltura/playkit-js-hls/commit/3074d19)), closes [kaltura/playkit-js#263](https://github.com/kaltura/playkit-js/issues/263)
+* **FEC-8396:** media source adapters default config overrides the player supplied config ([#66](https://github.com/kaltura/playkit-js-hls/issues/66)) ([eec593d](https://github.com/kaltura/playkit-js-hls/commit/eec593d))
+
+
+
+<a name="1.7.1"></a>
+## [1.7.1](https://github.com/kaltura/playkit-js-hls/compare/v1.7.0...v1.7.1) (2018-07-09)
+
+
+### Bug Fixes
+
+* **FEC-7887, FEC-7953, SUP-14111:** upgrade hlsjs to 0.10.1 ([#64](https://github.com/kaltura/playkit-js-hls/issues/64)) ([1ded885](https://github.com/kaltura/playkit-js-hls/commit/1ded885))
+
+
+
+<a name="1.7.0"></a>
+# [1.7.0](https://github.com/kaltura/playkit-js-hls/compare/v1.6.2...v1.7.0) (2018-06-17)
+
+
+### Bug Fixes
+
+* **FEC-8233:** handle media & error recovering ([#61](https://github.com/kaltura/playkit-js-hls/issues/61)) ([df02d4b](https://github.com/kaltura/playkit-js-hls/commit/df02d4b))
+
+
+### Features
+
+* **FEC-8209:** handle MEDIA_ERR_DECODE errors ([#60](https://github.com/kaltura/playkit-js-hls/issues/60)) ([9cc68bd](https://github.com/kaltura/playkit-js-hls/commit/9cc68bd))
+
+
+
 <a name="1.6.2"></a>
 ## [1.6.2](https://github.com/kaltura/playkit-js-hls/compare/v1.6.1...v1.6.2) (2018-05-10)
 
