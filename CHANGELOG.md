@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="1.14.0"></a>
+# [1.14.0](https://github.com/kaltura/playkit-js-hls/compare/v1.13.1...v1.14.0) (2019-06-17)
+
+
+### Features
+
+* **FEC-9057:** added more relevant data when Error is fired accordi… ([#85](https://github.com/kaltura/playkit-js-hls/issues/85)) ([4abc08b](https://github.com/kaltura/playkit-js-hls/commit/4abc08b))
+
+
+
 <a name="1.13.1"></a>
 ## [1.13.1](https://github.com/kaltura/playkit-js-hls/compare/v1.13.0...v1.13.1) (2019-05-01)
 
