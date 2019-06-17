@@ -243,11 +243,12 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    */
   _addBindings(): void {
     this._hls.on(Hlsjs.Events.ERROR, (e, data) => this._onError(data));
-    this._hls.on(Hlsjs.Events.MANIFEST_LOADED, this._onManifestLoaded.bind(this));
+    this._hls.on(Hlsjs.Events.MANIFEST_LOADED, (e, data) => this._onManifestLoaded(data));
     this._hls.on(Hlsjs.Events.LEVEL_SWITCHED, this._onLevelSwitched.bind(this));
     this._hls.on(Hlsjs.Events.AUDIO_TRACK_SWITCHED, this._onAudioTrackSwitched.bind(this));
     this._hls.on(Hlsjs.Events.FPS_DROP, (e, data) => this._onFpsDrop(data));
     this._hls.on(Hlsjs.Events.FRAG_PARSING_METADATA, (e, data) => this._onFragParsingMetadata(data));
+    this._hls.on(Hlsjs.Events.FRAG_LOADED, (e, data) => this._onFragLoaded(data));
     this._mediaAttachedPromise = new Promise(resolve => (this._onMediaAttached = resolve));
     this._hls.on(Hlsjs.Events.MEDIA_ATTACHED, () => this._onMediaAttached());
     this._onRecoveredCallback = () => this._onRecovered();
@@ -668,10 +669,11 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
   /**
    * Fired after manifest has been loaded.
    * @function _onManifestLoaded
+   * @param {any} data - the data of the manifest load event
    * @private
    * @returns {void}
    */
-  _onManifestLoaded(): void {
+  _onManifestLoaded(data: any): void {
     HlsAdapter._logger.debug('The source has been loaded successfully');
     if (!this._hls.config.autoStartLoad) {
       this._hls.startLoad(this._startTime);
@@ -681,6 +683,8 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     this._mediaAttachedPromise.then(() => {
       this._resolveLoad({tracks: this._playerTracks});
     });
+    const manifestDownloadTime = data.stats.tload - data.stats.trequest;
+    this._trigger(EventType.MANIFEST_LOADED, {miliSeconds: manifestDownloadTime});
   }
 
   /**
@@ -982,6 +986,44 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
       }
     } else {
       return 0;
+    }
+  }
+
+  /**
+   * called when a fragment is loaded
+   * @private
+   * @param {any} data - the event data of the loaded fragment
+   * @returns {void}
+   */
+  _onFragLoaded(data: any): void {
+    const fragmentDownloadTime = data.stats.tload - data.stats.trequest;
+    this._trigger(EventType.FRAG_LOADED, {miliSeconds: fragmentDownloadTime, bytes: data.stats.loaded});
+  }
+
+  /**
+   * returns value the player targets the buffer
+   * @returns {number} buffer target length in seconds
+   */
+  get targetBuffer(): number {
+    let targetBufferVal = NaN;
+    if (!this._hls) return NaN;
+    //distance from playback duration is the relevant buffer
+    if (this.isLive()) {
+      targetBufferVal = this._getLiveTargetBuffer() - (this._videoElement.currentTime - this._getLiveEdge());
+    } else {
+      // consideration of the end of the playback in the target buffer calc
+      targetBufferVal = this._videoElement.duration - this._videoElement.currentTime;
+    }
+    targetBufferVal = Math.min(targetBufferVal, this._hls.config.maxMaxBufferLength + this._getLevelDetails().targetduration);
+    return targetBufferVal;
+  }
+
+  _getLiveTargetBuffer() {
+    // if defined in the configuration object, liveSyncDuration will take precedence over the default liveSyncDurationCount
+    if (this._hls.config.liveSyncDuration) {
+      return this._hls.config.liveSyncDuration;
+    } else {
+      return this._hls.config.liveSyncDurationCount * this._getLevelDetails().targetduration;
     }
   }
 }
