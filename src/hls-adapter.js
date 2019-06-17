@@ -1006,6 +1006,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    */
   get targetBuffer(): number {
     let targetBufferVal = NaN;
+    if (!this._hls) return NaN;
     //distance from playback duration is the relevant buffer
     if (this.isLive()) {
       targetBufferVal = this._getLiveTargetBuffer() - (this._videoElement.currentTime - this._getLiveEdge());
