@@ -12,7 +12,7 @@ let plugins = [
 ];
 
 module.exports = {
-  context: __dirname + "/src",
+  context: __dirname + '/src',
   entry: {'playkit-hls': 'index.js'},
   output: {
     path: __dirname + '/dist',
