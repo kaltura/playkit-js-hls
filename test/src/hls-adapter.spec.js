@@ -225,6 +225,31 @@ describe('HlsAdapter Instance - Unit', function() {
     hlsAdapterInstance._hls.nextLevel.should.equal(-1);
   });
 
+  it('should startTime config load the video from this position', done => {
+    const startTime = 30;
+    config = {
+      playback: {
+        options: {html5: {hls: {}}},
+        recoverDecodingErrorDelay: 0,
+        recoverSwapAudioCodecDelay: 0,
+        startTime: startTime
+      }
+    };
+    hlsAdapterInstance = HlsAdapter.createAdapter(video, sourceObj, config);
+    hlsAdapterInstance
+      .load()
+      .then((/* data */) => {
+        video
+          .play()
+          .then(() => {
+            hlsAdapterInstance.currentTime.should.equal(startTime);
+            done();
+          })
+          .catch(err => done(err));
+      })
+      .catch(err => done(err));
+  });
+
   it('should dispatch event with the selected video track', function(done) {
     let data = {level: 3};
     hlsAdapterInstance._hls = {
