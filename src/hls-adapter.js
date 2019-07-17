@@ -2,7 +2,7 @@
 import Hlsjs from 'hls.js';
 import DefaultConfig from './default-config';
 import {type ErrorDetailsType, HlsJsErrorMap} from './errors';
-import {AudioTrack, BaseMediaSourceAdapter, Env, Error, EventType, TextTrack, Track, Utils, VideoTrack} from '@playkit-js/playkit-js';
+import {AudioTrack, BaseMediaSourceAdapter, Env, Error, EventType, TextTrack, Track, Utils, VideoTrack, Html5EventType} from '@playkit-js/playkit-js';
 import pLoader from './jsonp-ploader';
 
 /**
@@ -95,7 +95,12 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    * @private
    */
   _onVideoErrorCallback: ?Function;
-
+  /**
+   * The last time detach occurred
+   * @type {number}
+   * @private
+   */
+  _lastTimeDetach: number = 0;
   /**
    * Reference to _onRecoveredCallback function
    * @member {?Function} - _onRecoveredCallback
@@ -226,6 +231,15 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     HlsAdapter._logger.debug('Creating adapter. Hls version: ' + Hlsjs.version);
     super(videoElement, source, config);
     this._config = Utils.Object.mergeDeep({}, DefaultConfig, this._config);
+    this._init(this._config);
+  }
+  /**
+   * init the hls adapter
+   * @function _init
+   * @private
+   * @returns {void}
+   */
+  _init(): void {
     if (this._config.forceRedirectExternalStreams) {
       this._config.hlsConfig['pLoader'] = pLoader;
     }
@@ -234,7 +248,6 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     this._hls.subtitleDisplay = this._config.subtitleDisplay;
     this._addBindings();
   }
-
   /**
    * Adds the required bindings locally and with hls.js.
    * @function _addBindings
@@ -276,7 +289,42 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
       }
     }
   }
-
+  /**
+   * attach media - return the media source to handle the video tag
+   * @public
+   * @param {boolean} playbackEnded don't seek to the last detach point
+   * @returns {void}
+   */
+  attachMediaSource(playbackEnded: ?boolean): void {
+    if (!this._hls) {
+      if (this._videoElement && this._videoElement.src) {
+        Utils.Dom.setAttribute(this._videoElement, 'src', '');
+        Utils.Dom.removeAttribute(this._videoElement, 'src');
+      }
+      this._init(this._config);
+      if (!isNaN(this._lastTimeDetach) && !playbackEnded) {
+        const canPlayHandler = () => {
+          this._videoElement.removeEventListener(Html5EventType.CAN_PLAY, canPlayHandler);
+          this.currentTime = this._lastTimeDetach;
+          this._lastTimeDetach = NaN;
+        };
+        this._videoElement.addEventListener(Html5EventType.CAN_PLAY, canPlayHandler);
+      }
+    }
+  }
+  /**
+   * detach media - will remove the media source from handling the video
+   * @public
+   * @returns {void}
+   */
+  detachMediaSource(): void {
+    if (this._hls) {
+      this._lastTimeDetach = this.currentTime;
+      this._reset();
+      this._hls = null;
+      this._loadPromise = null;
+    }
+  }
   /**
    * video error event handler.
    * @param {MediaError} error - the media error
@@ -524,7 +572,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    */
   selectTextTrack(textTrack: TextTrack): void {
     if (textTrack instanceof TextTrack && !textTrack.active) {
-      if (this._hls.subtitleTracks.length) {
+      if (this._hls && this._hls.subtitleTracks.length) {
         this._hls.subtitleTrack = textTrack.id;
         this._notifyTrackChanged(textTrack);
       } else {
@@ -571,7 +619,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    * @public
    */
   hideTextTrack(): void {
-    if (this._hls.subtitleTracks.length) {
+    if (this._hls && this._hls.subtitleTracks.length) {
       this._hls.subtitleTrack = -1;
     } else {
       this._disableNativeTextTracks();
@@ -598,7 +646,9 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    * @public
    */
   isAdaptiveBitrateEnabled(): boolean {
-    return this._hls.autoLevelEnabled;
+    if (this._hls) {
+      return this._hls.autoLevelEnabled;
+    }
   }
 
   /**
