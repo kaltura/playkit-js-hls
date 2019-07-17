@@ -658,12 +658,14 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    * @private
    */
   _getLevelDetails(): Object {
-    const level =
-      this._hls.levels[this._hls.currentLevel] ||
-      this._hls.levels[this._hls.nextLevel] ||
-      this._hls.levels[this._hls.nextAutoLevel] ||
-      this._hls.levels[this._hls.nextLoadLevel];
-    return level && level.details ? level.details : {};
+    if (this._hls) {
+      const level =
+        this._hls.levels[this._hls.currentLevel] ||
+        this._hls.levels[this._hls.nextLevel] ||
+        this._hls.levels[this._hls.nextAutoLevel] ||
+        this._hls.levels[this._hls.nextLoadLevel];
+      return level && level.details ? level.details : {};
+    }
   }
 
   /**
