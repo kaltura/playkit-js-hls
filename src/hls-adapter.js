@@ -2,7 +2,7 @@
 import Hlsjs from 'hls.js';
 import DefaultConfig from './default-config';
 import {type ErrorDetailsType, HlsJsErrorMap} from './errors';
-import {AudioTrack, BaseMediaSourceAdapter, Env, Error, EventType, TextTrack, Track, Utils, VideoTrack, Html5EventType} from '@playkit-js/playkit-js';
+import {AudioTrack, BaseMediaSourceAdapter, Env, Error, EventType, TextTrack, Track, Utils, VideoTrack, EventManager} from '@playkit-js/playkit-js';
 import pLoader from './jsonp-ploader';
 
 /**
@@ -231,6 +231,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     HlsAdapter._logger.debug('Creating adapter. Hls version: ' + Hlsjs.version);
     super(videoElement, source, config);
     this._config = Utils.Object.mergeDeep({}, DefaultConfig, this._config);
+    this._eventManager = new EventManager();
     this._init();
   }
   /**
@@ -266,7 +267,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     this._hls.on(Hlsjs.Events.MEDIA_ATTACHED, () => this._onMediaAttached());
     this._onRecoveredCallback = () => this._onRecovered();
     this._onAddTrack = this._onAddTrack.bind(this);
-    this._videoElement.addEventListener('addtrack', this._onAddTrack);
+    this._eventManager.listen(this._videoElement, 'addtrack', this._onAddTrack);
     this._videoElement.textTracks.onaddtrack = this._onAddTrack;
   }
 
@@ -298,17 +299,15 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
   attachMediaSource(playbackEnded: ?boolean): void {
     if (!this._hls) {
       if (this._videoElement && this._videoElement.src) {
-        Utils.Dom.setAttribute(this._videoElement, 'src', '');
         Utils.Dom.removeAttribute(this._videoElement, 'src');
       }
       this._init();
       if (!isNaN(this._lastTimeDetach) && !playbackEnded) {
         const canPlayHandler = () => {
-          this._videoElement.removeEventListener(Html5EventType.CAN_PLAY, canPlayHandler);
           this.currentTime = this._lastTimeDetach;
           this._lastTimeDetach = NaN;
         };
-        this._videoElement.addEventListener(Html5EventType.CAN_PLAY, canPlayHandler);
+        this._eventManager.listenOnce(this._videoElement, EventType.CAN_PLAY, canPlayHandler);
       }
     }
   }
@@ -393,18 +392,6 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
   }
 
   /**
-   * Remove the loadedmetadata listener, when recovering from media error.
-   * @private
-   * @returns {void}
-   */
-  _removeRecoveredCallbackListener(): void {
-    if (this._onRecoveredCallback) {
-      this._videoElement.removeEventListener(EventType.LOADED_METADATA, this._onRecoveredCallback);
-      this._onRecoveredCallback = null;
-    }
-  }
-
-  /**
    * Destroys the hls adapter.
    * @function destroy
    * @override
@@ -415,6 +402,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
       HlsAdapter._logger.debug('destroy');
       this._loadPromise = null;
       this._playerTracks = [];
+      this._eventManager.destroy();
       this._reset();
     });
   }
@@ -816,9 +804,8 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     if (affectedBrowsers.includes(Env.browser.name)) {
       const timeUpdateListener = () => {
         this._trigger(EventType.PLAYING);
-        this._videoElement.removeEventListener(EventType.TIME_UPDATE, timeUpdateListener);
       };
-      this._videoElement.addEventListener(EventType.TIME_UPDATE, timeUpdateListener);
+      this._eventManager.listenOnce(this._videoElement, EventType.TIME_UPDATE, timeUpdateListener);
     }
   }
 
@@ -935,11 +922,11 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     const now: number = performance.now();
     let recover = true;
     if (this._checkTimeDeltaHasPassed(now, this._recoverDecodingErrorDate, this._config.recoverDecodingErrorDelay)) {
-      this._videoElement.addEventListener(EventType.LOADED_METADATA, this._onRecoveredCallback);
+      this._eventManager.listen(this._videoElement, EventType.LOADED_METADATA, this._onRecoveredCallback);
       this._recoverDecodingError();
     } else {
       if (this._checkTimeDeltaHasPassed(now, this._recoverSwapAudioCodecDate, this._config.recoverSwapAudioCodecDelay)) {
-        this._videoElement.addEventListener(EventType.LOADED_METADATA, this._onRecoveredCallback);
+        this._eventManager.listen(this._videoElement, EventType.LOADED_METADATA, this._onRecoveredCallback);
         this._recoverSwapAudioCodec();
       } else {
         recover = false;
@@ -1006,8 +993,10 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     this._hls.off(Hlsjs.Events.MANIFEST_LOADED, this._onManifestLoaded);
     this._hls.off(Hlsjs.Events.FPS_DROP, this._onFpsDrop);
     this._videoElement.textTracks.onaddtrack = null;
-    this._videoElement.removeEventListener('addtrack', this._onAddTrack);
-    this._removeRecoveredCallbackListener();
+    this._onRecoveredCallback = null;
+    if (this._eventManager) {
+      this._eventManager.removeAll();
+    }
   }
 
   /**
