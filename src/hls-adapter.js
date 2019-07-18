@@ -231,7 +231,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     HlsAdapter._logger.debug('Creating adapter. Hls version: ' + Hlsjs.version);
     super(videoElement, source, config);
     this._config = Utils.Object.mergeDeep({}, DefaultConfig, this._config);
-    this._init(this._config);
+    this._init();
   }
   /**
    * init the hls adapter
@@ -301,7 +301,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
         Utils.Dom.setAttribute(this._videoElement, 'src', '');
         Utils.Dom.removeAttribute(this._videoElement, 'src');
       }
-      this._init(this._config);
+      this._init();
       if (!isNaN(this._lastTimeDetach) && !playbackEnded) {
         const canPlayHandler = () => {
           this._videoElement.removeEventListener(Html5EventType.CAN_PLAY, canPlayHandler);
@@ -321,7 +321,6 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     if (this._hls) {
       this._lastTimeDetach = this.currentTime;
       this._reset();
-      this._hls = null;
       this._loadPromise = null;
     }
   }
@@ -368,7 +367,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    * @private
    */
   _loadInternal() {
-    if (this._sourceObj && this._sourceObj.url) {
+    if (this._hls && this._sourceObj && this._sourceObj.url) {
       this._hls.loadSource(this._sourceObj.url);
       this._hls.attachMedia(this._videoElement);
       this._trigger(EventType.ABR_MODE_CHANGED, {mode: this.isAdaptiveBitrateEnabled() ? 'auto' : 'manual'});
@@ -430,6 +429,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     clearTimeout(this._resolveLoadTimeout);
     this._hls.detachMedia();
     this._hls.destroy();
+    this._hls = null;
   }
 
   /**
@@ -555,7 +555,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    * @public
    */
   selectVideoTrack(videoTrack: VideoTrack): void {
-    if (videoTrack instanceof VideoTrack && (!videoTrack.active || this.isAdaptiveBitrateEnabled()) && this._hls.levels) {
+    if (videoTrack instanceof VideoTrack && this._hls && (!videoTrack.active || this.isAdaptiveBitrateEnabled()) && this._hls.levels) {
       if (this.isAdaptiveBitrateEnabled()) {
         this._trigger(EventType.ABR_MODE_CHANGED, {mode: 'manual'});
       }
@@ -571,8 +571,8 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    * @public
    */
   selectTextTrack(textTrack: TextTrack): void {
-    if (textTrack instanceof TextTrack && !textTrack.active) {
-      if (this._hls && this._hls.subtitleTracks.length) {
+    if (textTrack instanceof TextTrack && !textTrack.active && this._hls) {
+      if (this._hls.subtitleTracks.length) {
         this._hls.subtitleTrack = textTrack.id;
         this._notifyTrackChanged(textTrack);
       } else {
@@ -619,10 +619,12 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    * @public
    */
   hideTextTrack(): void {
-    if (this._hls && this._hls.subtitleTracks.length) {
-      this._hls.subtitleTrack = -1;
-    } else {
-      this._disableNativeTextTracks();
+    if (this._hls) {
+      if (this._hls.subtitleTracks.length) {
+        this._hls.subtitleTrack = -1;
+      } else {
+        this._disableNativeTextTracks();
+      }
     }
   }
 
@@ -633,7 +635,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    * @public
    */
   enableAdaptiveBitrate(): void {
-    if (!this.isAdaptiveBitrateEnabled()) {
+    if (this._hls && !this.isAdaptiveBitrateEnabled()) {
       this._trigger(EventType.ABR_MODE_CHANGED, {mode: 'auto'});
       this._hls.nextLevel = -1;
     }
@@ -646,9 +648,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    * @public
    */
   isAdaptiveBitrateEnabled(): boolean {
-    if (this._hls) {
-      return this._hls.autoLevelEnabled;
-    }
+    return this._hls.autoLevelEnabled;
   }
 
   /**
@@ -658,14 +658,12 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    * @private
    */
   _getLevelDetails(): Object {
-    if (this._hls) {
-      const level =
-        this._hls.levels[this._hls.currentLevel] ||
-        this._hls.levels[this._hls.nextLevel] ||
-        this._hls.levels[this._hls.nextAutoLevel] ||
-        this._hls.levels[this._hls.nextLoadLevel];
-      return level && level.details ? level.details : {};
-    }
+    const level =
+      this._hls.levels[this._hls.currentLevel] ||
+      this._hls.levels[this._hls.nextLevel] ||
+      this._hls.levels[this._hls.nextAutoLevel] ||
+      this._hls.levels[this._hls.nextLoadLevel];
+    return level && level.details ? level.details : {};
   }
 
   /**
