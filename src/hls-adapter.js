@@ -293,12 +293,13 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
   /**
    * attach media - return the media source to handle the video tag
    * @public
-   * @param {boolean} playbackEnded don't seek to the last detach point
+   * @param {boolean} playbackEnded playback ended after ads and media
    * @returns {void}
    */
   attachMediaSource(playbackEnded: ?boolean): void {
     if (!this._hls) {
       if (this._videoElement && this._videoElement.src) {
+        Utils.Dom.setAttribute(this._videoElement, 'src', '');
         Utils.Dom.removeAttribute(this._videoElement, 'src');
       }
       this._init();
@@ -543,7 +544,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    * @public
    */
   selectVideoTrack(videoTrack: VideoTrack): void {
-    if (videoTrack instanceof VideoTrack && this._hls && (!videoTrack.active || this.isAdaptiveBitrateEnabled()) && this._hls.levels) {
+    if (videoTrack instanceof VideoTrack && (!videoTrack.active || this.isAdaptiveBitrateEnabled()) && this._hls.levels) {
       if (this.isAdaptiveBitrateEnabled()) {
         this._trigger(EventType.ABR_MODE_CHANGED, {mode: 'manual'});
       }
@@ -623,7 +624,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    * @public
    */
   enableAdaptiveBitrate(): void {
-    if (this._hls && !this.isAdaptiveBitrateEnabled()) {
+    if (!this.isAdaptiveBitrateEnabled()) {
       this._trigger(EventType.ABR_MODE_CHANGED, {mode: 'auto'});
       this._hls.nextLevel = -1;
     }
@@ -636,7 +637,11 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    * @public
    */
   isAdaptiveBitrateEnabled(): boolean {
-    return this._hls.autoLevelEnabled;
+    if (this._hls) {
+      return this._hls.autoLevelEnabled;
+    } else {
+      return false;
+    }
   }
 
   /**
