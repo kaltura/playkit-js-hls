@@ -322,6 +322,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
       this._lastTimeDetach = this.currentTime;
       this._reset();
       this._loadPromise = null;
+      this._hls = null;
     }
   }
   /**
@@ -418,7 +419,6 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     clearTimeout(this._resolveLoadTimeout);
     this._hls.detachMedia();
     this._hls.destroy();
-    this._hls = null;
   }
 
   /**
