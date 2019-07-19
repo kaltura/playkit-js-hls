@@ -619,7 +619,7 @@ describe('HlsAdapter Instance - change media', function() {
       hlsAdapterInstance.destroy().then(() => {
         hlsAdapterInstance = HlsAdapter.createAdapter(video, source2, config);
         hlsAdapterInstance.load().then(data => {
-          data.tracks.filter(track => track instanceof TextTrack).length.should.equal(0);
+          data.tracks.filter(track => track instanceof TextTrack).length.should.equal(2);
           done();
         });
       });
