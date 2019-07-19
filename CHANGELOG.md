@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="1.16.0"></a>
+# [1.16.0](https://github.com/kaltura/playkit-js-hls/compare/v1.15.0...v1.16.0) (2019-07-19)
+
+
+### Features
+
+* **FEC-9227:** support reInit of MSE ([#90](https://github.com/kaltura/playkit-js-hls/issues/90)) ([cb44400](https://github.com/kaltura/playkit-js-hls/commit/cb44400))
+
+
+
 <a name="1.15.0"></a>
 # [1.15.0](https://github.com/kaltura/playkit-js-hls/compare/v1.14.0...v1.15.0) (2019-06-20)
 
