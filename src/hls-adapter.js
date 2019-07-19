@@ -2,7 +2,7 @@
 import Hlsjs from 'hls.js';
 import DefaultConfig from './default-config';
 import {type ErrorDetailsType, HlsJsErrorMap} from './errors';
-import {AudioTrack, BaseMediaSourceAdapter, Env, Error, EventType, TextTrack, Track, Utils, VideoTrack, EventManager} from '@playkit-js/playkit-js';
+import {AudioTrack, BaseMediaSourceAdapter, Env, Error, EventType, TextTrack, Track, Utils, VideoTrack} from '@playkit-js/playkit-js';
 import pLoader from './jsonp-ploader';
 
 /**
@@ -231,7 +231,6 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     HlsAdapter._logger.debug('Creating adapter. Hls version: ' + Hlsjs.version);
     super(videoElement, source, config);
     this._config = Utils.Object.mergeDeep({}, DefaultConfig, this._config);
-    this._eventManager = new EventManager();
     this._init();
   }
   /**
@@ -404,7 +403,6 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
       HlsAdapter._logger.debug('destroy');
       this._loadPromise = null;
       this._playerTracks = [];
-      this._eventManager.destroy();
       this._reset();
     });
   }
