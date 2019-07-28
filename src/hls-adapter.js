@@ -292,22 +292,25 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
   /**
    * attach media - return the media source to handle the video tag
    * @public
-   * @param {boolean} playbackEnded playback ended after ads and media
    * @returns {void}
    */
-  attachMediaSource(playbackEnded: ?boolean): void {
+  attachMediaSource(): void {
     if (!this._hls) {
       if (this._videoElement && this._videoElement.src) {
         Utils.Dom.setAttribute(this._videoElement, 'src', '');
         Utils.Dom.removeAttribute(this._videoElement, 'src');
       }
       this._init();
-      if (!isNaN(this._lastTimeDetach) && !playbackEnded) {
-        const canPlayHandler = () => {
+      const _seekAfterDetach = () => {
+        if (parseInt(this._lastTimeDetach) === parseInt(this.duration)) {
+          this.currentTime = 0;
+        } else {
           this.currentTime = this._lastTimeDetach;
-          this._lastTimeDetach = NaN;
-        };
-        this._eventManager.listenOnce(this._videoElement, EventType.CAN_PLAY, canPlayHandler);
+        }
+        this._lastTimeDetach = NaN;
+      };
+      if (!isNaN(this._lastTimeDetach)) {
+        this._eventManager.listenOnce(this._videoElement, EventType.LOADED_DATA, () => _seekAfterDetach());
       }
     }
   }
