@@ -618,7 +618,7 @@ describe('Adapter Instance - change media', function() {
       AdapterInstance.destroy().then(() => {
         AdapterInstance = Adapter.createAdapter(video, source2, config);
         AdapterInstance.load().then(data => {
-          data.tracks.filter(track => track instanceof TextTrack).length.should.equal(0);
+          data.tracks.filter(track => track instanceof TextTrack).length.should.equal(2);
           done();
         });
       });
