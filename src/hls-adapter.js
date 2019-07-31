@@ -201,12 +201,12 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
   /**
    * Checks if hls adapter can play a given drm data.
    * For hls.js it always returns false.
-   * @returns {boolean} - Whether the hls adapter can play a specific drm data.
+   * @returns {Promise<*>} - Whether the hls adapter can play a specific drm data.
    * @static
    */
-  static canPlayDrm(): boolean {
+  static canPlayDrm(): Promise<*> {
     HlsAdapter._logger.warn('canPlayDrm result is false');
-    return false;
+    return Promise.reject();
   }
 
   /**
