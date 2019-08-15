@@ -2,8 +2,9 @@
 import Hlsjs from 'hls.js';
 import DefaultConfig from './default-config';
 import {type ErrorDetailsType, HlsJsErrorMap} from './errors';
-import {AudioTrack, BaseMediaSourceAdapter, Env, Error, EventType, TextTrack, Track, Utils, VideoTrack} from '@playkit-js/playkit-js';
+import {AudioTrack, BaseMediaSourceAdapter, Env, Error, EventType, TextTrack, Track, Utils, VideoTrack, RequestType} from '@playkit-js/playkit-js';
 import pLoader from './jsonp-ploader';
+import loader from './loader';
 
 /**
  * Adapter of hls.js lib for hls content.
@@ -182,6 +183,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     if (Utils.Object.hasPropertyPath(config, 'playback.options.html5.hls')) {
       Utils.Object.mergeDeep(adapterConfig.hlsConfig, config.playback.options.html5.hls);
     }
+    adapterConfig.network = config.network;
     return new this(videoElement, source, adapterConfig);
   }
 
@@ -243,11 +245,40 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     if (this._config.forceRedirectExternalStreams) {
       this._config.hlsConfig['pLoader'] = pLoader;
     }
+    this._maybeSetFilters();
     this._hls = new Hlsjs(this._config.hlsConfig);
     this._capabilities.fpsControl = true;
     this._hls.subtitleDisplay = this._config.subtitleDisplay;
     this._addBindings();
   }
+
+  _maybeSetFilters(): void {
+    if (Utils.Object.hasPropertyPath(this._config, 'network.requestFilter')) {
+      HlsAdapter._logger.debug('Register request filter');
+      Utils.Object.mergeDeep(this._config.hlsConfig, {
+        loader,
+        xhrSetup: (xhr, url, context) => {
+          try {
+            const pkRequest: PKRequestObject = {url, body: null, headers: {}};
+            if (context.type === 'manifest') {
+              this._config.network.requestFilter(RequestType.MANIFEST_HLS, pkRequest);
+            }
+            if (context.frag && context.frag.type !== 'subtitle') {
+              this._config.network.requestFilter(RequestType.SEGMENT_HLS, pkRequest);
+            }
+            context.url = pkRequest.url;
+            xhr.open('GET', pkRequest.url, true);
+            Object.entries(pkRequest.headers).forEach(entry => {
+              xhr.setRequestHeader(...entry);
+            });
+          } catch (error) {
+            this._trigger(EventType.ERROR, new Error(Error.Severity.RECOVERABLE, Error.Category.NETWORK, Error.Code.REQUEST_FILTER_ERROR, error));
+          }
+        }
+      });
+    }
+  }
+
   /**
    * Adds the required bindings locally and with hls.js.
    * @function _addBindings
