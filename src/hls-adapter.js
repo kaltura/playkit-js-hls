@@ -110,9 +110,9 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    */
   _onRecoveredCallback: ?Function;
   _onAddTrack: Function;
-  _resolveLoadTimeout: number;
   _onMediaAttached: Function;
   _mediaAttachedPromise: Promise<*>;
+  _requestFilterError: boolean = false;
 
   /**
    * Factory method to create media source adapter.
@@ -253,7 +253,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
   }
 
   _maybeSetFilters(): void {
-    if (Utils.Object.hasPropertyPath(this._config, 'network.requestFilter')) {
+    if (typeof Utils.Object.getPropertyPath(this._config, 'network.requestFilter') === 'function') {
       HlsAdapter._logger.debug('Register request filter');
       Utils.Object.mergeDeep(this._config.hlsConfig, {
         loader,
@@ -272,7 +272,8 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
               xhr.setRequestHeader(...entry);
             });
           } catch (error) {
-            this._trigger(EventType.ERROR, new Error(Error.Severity.RECOVERABLE, Error.Category.NETWORK, Error.Code.REQUEST_FILTER_ERROR, error));
+            this._requestFilterError = true;
+            throw error;
           }
         }
       });
@@ -448,7 +449,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    */
   _reset(): void {
     this._removeBindings();
-    clearTimeout(this._resolveLoadTimeout);
+    this._requestFilterError = false;
     this._hls.detachMedia();
     this._hls.destroy();
   }
@@ -901,6 +902,9 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
         errorDataObject.buffer = data.buffer;
         break;
     }
+    if (this._requestFilterError) {
+      errorDataObject.reason = data.response.text;
+    }
     return errorDataObject;
   }
 
@@ -926,7 +930,8 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
           ) {
             this._reloadWithDirectManifest();
           } else {
-            error = new Error(Error.Severity.CRITICAL, Error.Category.NETWORK, Error.Code.HTTP_ERROR, errorDataObject);
+            const code = this._requestFilterError ? Error.Code.REQUEST_FILTER_ERROR : Error.Code.HTTP_ERROR;
+            error = new Error(Error.Severity.CRITICAL, Error.Category.NETWORK, code, errorDataObject);
           }
           break;
         case Hlsjs.ErrorTypes.MEDIA_ERROR:
@@ -945,9 +950,12 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
         this.destroy();
       }
     } else {
-      const {category, code}: ErrorDetailsType = HlsJsErrorMap[errorName] || {category: 0, code: 0};
+      const {category, code}: ErrorDetailsType = this._requestFilterError
+        ? {category: Error.Category.NETWORK, code: Error.Code.REQUEST_FILTER_ERROR}
+        : HlsJsErrorMap[errorName] || {category: 0, code: 0};
       HlsAdapter._logger.warn(new Error(Error.Severity.RECOVERABLE, category, code, errorDataObject));
     }
+    this._requestFilterError = false;
   }
 
   /**
