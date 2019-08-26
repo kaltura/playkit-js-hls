@@ -1,6 +1,6 @@
 {
   "name": "@playkit-js/playkit-js-hls",
-  "version": "1.16.1",
+  "version": "1.17.0",
   "description": "",
   "main": "dist/playkit-hls.js",
   "scripts": {
@@ -31,7 +31,7 @@
     "access": "public"
   },
   "devDependencies": {
-    "@playkit-js/playkit-js": "^0.51.0",
+    "@playkit-js/playkit-js": "^0.52.0-canary.0d09083",
     "babel-cli": "^6.26.0",
     "babel-core": "^6.26.3",
     "babel-eslint": "^8.2.3",
@@ -81,7 +81,8 @@
     "webpack-dev-server": "^3.7.1"
   },
   "peerDependencies": {
-    "@playkit-js/playkit-js": "^0.51.0"
+    "@playkit-js/playkit-js": "0.52.0-canary.0d09083",
+    "hls.js": "0.12.2"
   },
   "keywords": [
     "hls",

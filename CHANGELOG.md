@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="1.17.0"></a>
+# [1.17.0](https://github.com/kaltura/playkit-js-hls/compare/v1.16.1...v1.17.0) (2019-08-26)
+
+
+### Features
+
+* **FEC-9271:** expose interface and methods to enable customizing DRM request/response ([#93](https://github.com/kaltura/playkit-js-hls/issues/93)) ([dffde1f](https://github.com/kaltura/playkit-js-hls/commit/dffde1f))
+
+
+
 <a name="1.16.1"></a>
 ## [1.16.1](https://github.com/kaltura/playkit-js-hls/compare/v1.16.0...v1.16.1) (2019-07-28)
 
