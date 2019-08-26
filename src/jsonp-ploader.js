@@ -1,13 +1,13 @@
 //@flow
 import {Utils} from '@playkit-js/playkit-js';
-import Hlsjs from 'hls.js';
+import loader from './loader';
 
 /**
  * A plugin override for the loader function in hls.js.
  * It checks if it should use jsonp for the manifest first, else - the regular
  * loader is called.
  */
-export default class pLoader extends Hlsjs.DefaultConfig.loader {
+export default class pLoader extends loader {
   /**
    * redirect external stream handler function
    * @param {string} uri - the original uri

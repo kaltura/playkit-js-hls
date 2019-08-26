@@ -2,8 +2,9 @@
 import Hlsjs from 'hls.js';
 import DefaultConfig from './default-config';
 import {type ErrorDetailsType, HlsJsErrorMap} from './errors';
-import {AudioTrack, BaseMediaSourceAdapter, Env, Error, EventType, TextTrack, Track, Utils, VideoTrack} from '@playkit-js/playkit-js';
+import {AudioTrack, BaseMediaSourceAdapter, Env, Error, EventType, TextTrack, Track, Utils, VideoTrack, RequestType} from '@playkit-js/playkit-js';
 import pLoader from './jsonp-ploader';
+import loader from './loader';
 
 /**
  * Adapter of hls.js lib for hls content.
@@ -109,9 +110,9 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    */
   _onRecoveredCallback: ?Function;
   _onAddTrack: Function;
-  _resolveLoadTimeout: number;
   _onMediaAttached: Function;
   _mediaAttachedPromise: Promise<*>;
+  _requestFilterError: boolean = false;
 
   /**
    * Factory method to create media source adapter.
@@ -182,6 +183,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     if (Utils.Object.hasPropertyPath(config, 'playback.options.html5.hls')) {
       Utils.Object.mergeDeep(adapterConfig.hlsConfig, config.playback.options.html5.hls);
     }
+    adapterConfig.network = config.network;
     return new this(videoElement, source, adapterConfig);
   }
 
@@ -243,11 +245,41 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     if (this._config.forceRedirectExternalStreams) {
       this._config.hlsConfig['pLoader'] = pLoader;
     }
+    this._maybeSetFilters();
     this._hls = new Hlsjs(this._config.hlsConfig);
     this._capabilities.fpsControl = true;
     this._hls.subtitleDisplay = this._config.subtitleDisplay;
     this._addBindings();
   }
+
+  _maybeSetFilters(): void {
+    if (typeof Utils.Object.getPropertyPath(this._config, 'network.requestFilter') === 'function') {
+      HlsAdapter._logger.debug('Register request filter');
+      Utils.Object.mergeDeep(this._config.hlsConfig, {
+        loader,
+        xhrSetup: (xhr, url, context) => {
+          try {
+            const pkRequest: PKRequestObject = {url, body: null, headers: {}};
+            if (context.type === 'manifest') {
+              this._config.network.requestFilter(RequestType.MANIFEST, pkRequest);
+            }
+            if (context.frag && context.frag.type !== 'subtitle') {
+              this._config.network.requestFilter(RequestType.SEGMENT, pkRequest);
+            }
+            context.url = pkRequest.url;
+            xhr.open('GET', pkRequest.url, true);
+            Object.entries(pkRequest.headers).forEach(entry => {
+              xhr.setRequestHeader(...entry);
+            });
+          } catch (error) {
+            this._requestFilterError = true;
+            throw error;
+          }
+        }
+      });
+    }
+  }
+
   /**
    * Adds the required bindings locally and with hls.js.
    * @function _addBindings
@@ -417,7 +449,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    */
   _reset(): void {
     this._removeBindings();
-    clearTimeout(this._resolveLoadTimeout);
+    this._requestFilterError = false;
     this._hls.detachMedia();
     this._hls.destroy();
   }
@@ -870,6 +902,9 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
         errorDataObject.buffer = data.buffer;
         break;
     }
+    if (this._requestFilterError) {
+      errorDataObject.reason = data.response.text;
+    }
     return errorDataObject;
   }
 
@@ -895,7 +930,8 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
           ) {
             this._reloadWithDirectManifest();
           } else {
-            error = new Error(Error.Severity.CRITICAL, Error.Category.NETWORK, Error.Code.HTTP_ERROR, errorDataObject);
+            const code = this._requestFilterError ? Error.Code.REQUEST_FILTER_ERROR : Error.Code.HTTP_ERROR;
+            error = new Error(Error.Severity.CRITICAL, Error.Category.NETWORK, code, errorDataObject);
           }
           break;
         case Hlsjs.ErrorTypes.MEDIA_ERROR:
@@ -914,9 +950,12 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
         this.destroy();
       }
     } else {
-      const {category, code}: ErrorDetailsType = HlsJsErrorMap[errorName] || {category: 0, code: 0};
+      const {category, code}: ErrorDetailsType = this._requestFilterError
+        ? {category: Error.Category.NETWORK, code: Error.Code.REQUEST_FILTER_ERROR}
+        : HlsJsErrorMap[errorName] || {category: 0, code: 0};
       HlsAdapter._logger.warn(new Error(Error.Severity.RECOVERABLE, category, code, errorDataObject));
     }
+    this._requestFilterError = false;
   }
 
   /**
