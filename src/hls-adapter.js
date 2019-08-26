@@ -261,10 +261,10 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
           try {
             const pkRequest: PKRequestObject = {url, body: null, headers: {}};
             if (context.type === 'manifest') {
-              this._config.network.requestFilter(RequestType.MANIFEST_HLS, pkRequest);
+              this._config.network.requestFilter(RequestType.MANIFEST, pkRequest);
             }
             if (context.frag && context.frag.type !== 'subtitle') {
-              this._config.network.requestFilter(RequestType.SEGMENT_HLS, pkRequest);
+              this._config.network.requestFilter(RequestType.SEGMENT, pkRequest);
             }
             context.url = pkRequest.url;
             xhr.open('GET', pkRequest.url, true);
