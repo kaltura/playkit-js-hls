@@ -196,7 +196,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    */
   static canPlayType(mimeType: string): boolean {
     let canHlsPlayType =
-      typeof mimeType === 'string' ? HlsAdapter._hlsMimeTypes.includes(mimeType.toLowerCase()) && HlsAdapter.isSupportedMSE() : false;
+      typeof mimeType === 'string' ? HlsAdapter._hlsMimeTypes.includes(mimeType.toLowerCase()) && HlsAdapter.isMSESupported() : false;
     HlsAdapter._logger.debug('canPlayType result for mimeType:' + mimeType + ' is ' + canHlsPlayType.toString());
     return canHlsPlayType;
   }
