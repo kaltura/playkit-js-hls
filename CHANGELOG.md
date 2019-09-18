@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="1.17.1"></a>
+## [1.17.1](https://github.com/kaltura/playkit-js-hls/compare/v1.17.0...v1.17.1) (2019-09-18)
+
+
+### Bug Fixes
+
+* add isSupportedMSE for MSE adapter ([3c9a4a4](https://github.com/kaltura/playkit-js-hls/commit/3c9a4a4))
+* **FEC-9342:** Disable shaka on iOS ([#95](https://github.com/kaltura/playkit-js-hls/issues/95)) ([9306760](https://github.com/kaltura/playkit-js-hls/commit/9306760))
+
+
+
 <a name="1.17.0"></a>
 # [1.17.0](https://github.com/kaltura/playkit-js-hls/compare/v1.16.1...v1.17.0) (2019-08-26)
 
