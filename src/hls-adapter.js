@@ -344,9 +344,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
       };
       if (!isNaN(this._lastTimeDetach)) {
         this._eventManager.listenOnce(this._videoElement, EventType.LOADED_DATA, _seekAfterDetach);
-        this._eventManager.listenOnce(
-          this._videoElement,
-          EventType.SEEKED,
+        this._eventManager.listenOnce(this._videoElement, EventType.SEEKED, () =>
           this._eventManager.unlisten(this._videoElement, EventType.LOADED_DATA, _seekAfterDetach)
         );
       }
