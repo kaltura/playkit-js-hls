@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="1.17.3"></a>
+## [1.17.3](https://github.com/kaltura/playkit-js-hls/compare/v1.17.2...v1.17.3) (2019-11-12)
+
+
+### Bug Fixes
+
+* seek doesn't work before video finished loading ([#103](https://github.com/kaltura/playkit-js-hls/issues/103)) ([e7ae82e](https://github.com/kaltura/playkit-js-hls/commit/e7ae82e))
+
+
+
 <a name="1.17.2"></a>
 ## [1.17.2](https://github.com/kaltura/playkit-js-hls/compare/v1.17.1...v1.17.2) (2019-10-31)
 
