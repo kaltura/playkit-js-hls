@@ -40,6 +40,13 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     'video/mpegurl',
     'application/mpegurl'
   ];
+
+  /**
+   * The Hls lib
+   * @type {any}
+   * @private
+   */
+  _hlsjsLib: any = Hlsjs;
   /**
    * The hls player instance.
    * @member {any} _hls
