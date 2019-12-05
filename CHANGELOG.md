@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="1.17.4"></a>
+## [1.17.4](https://github.com/kaltura/playkit-js-hls/compare/v1.17.3...v1.17.4) (2019-12-05)
+
+
+### Bug Fixes
+
+* **FEC-9512:** save hlsjs lib on mediaSource adapter ([#104](https://github.com/kaltura/playkit-js-hls/issues/104)) ([1782e61](https://github.com/kaltura/playkit-js-hls/commit/1782e61))
+
+
+
 <a name="1.17.3"></a>
 ## [1.17.3](https://github.com/kaltura/playkit-js-hls/compare/v1.17.2...v1.17.3) (2019-11-12)
 
