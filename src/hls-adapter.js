@@ -266,23 +266,31 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
       Utils.Object.mergeDeep(this._config.hlsConfig, {
         loader,
         xhrSetup: (xhr, url, context) => {
+          let requestFilterPromise;
+          const pkRequest: PKRequestObject = {url, body: null, headers: {}};
           try {
-            const pkRequest: PKRequestObject = {url, body: null, headers: {}};
             if (context.type === 'manifest') {
-              this._config.network.requestFilter(RequestType.MANIFEST, pkRequest);
+              requestFilterPromise = this._config.network.requestFilter(RequestType.MANIFEST, pkRequest);
             }
             if (context.frag && context.frag.type !== 'subtitle') {
-              this._config.network.requestFilter(RequestType.SEGMENT, pkRequest);
+              requestFilterPromise = this._config.network.requestFilter(RequestType.SEGMENT, pkRequest);
             }
-            context.url = pkRequest.url;
-            xhr.open('GET', pkRequest.url, true);
-            Object.entries(pkRequest.headers).forEach(entry => {
-              xhr.setRequestHeader(...entry);
-            });
           } catch (error) {
-            this._requestFilterError = true;
-            throw error;
+            requestFilterPromise = Promise.reject(error);
           }
+          requestFilterPromise = requestFilterPromise || Promise.resolve(pkRequest);
+          return requestFilterPromise
+            .then(updatedRequest => {
+              context.url = updatedRequest.url;
+              xhr.open('GET', updatedRequest.url, true);
+              Object.entries(updatedRequest.headers).forEach(entry => {
+                xhr.setRequestHeader(...entry);
+              });
+            })
+            .catch(error => {
+              this._requestFilterError = true;
+              throw error;
+            });
         }
       });
     }

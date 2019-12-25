@@ -1,11 +1,9 @@
-import loadPlayer from '@playkit-js/playkit-js';
-import {VideoTrack, AudioTrack, TextTrack} from '@playkit-js/playkit-js';
+import loadPlayer, {Error, RequestType, Utils, EventType, VideoTrack, AudioTrack, TextTrack} from '@playkit-js/playkit-js';
 import * as TestUtils from '../utils/test-utils';
 import HlsAdapter from '../../src';
 import * as hls_sources from './json/hls_sources.json';
 import * as hls_tracks from './json/hls_tracks.json';
 import * as player_tracks from './json/player_tracks.json';
-import {EventType} from '@playkit-js/playkit-js';
 
 const targetId = 'player-placeholder_hls-adapter.spec';
 
@@ -273,146 +271,6 @@ describe('HlsAdapter Instance - Unit', function() {
       done();
     });
     hlsAdapterInstance._onLevelSwitched('hlsLevelSwitched', data);
-  });
-});
-
-describe('HlsAdapter Instance - Integration', function() {
-  let playerContainer;
-  let player;
-  let tracks;
-  let videoTracks;
-  let audioTracks;
-  let textTracks;
-
-  before(function() {
-    playerContainer = TestUtils.createElement('DIV', targetId);
-  });
-
-  beforeEach(function() {
-    player = loadPlayer({
-      sources: {
-        hls: [hls_sources.ElephantsDream]
-      }
-    });
-    playerContainer.appendChild(player.getView());
-  });
-
-  afterEach(function() {
-    player.destroy();
-    player = null;
-    TestUtils.removeVideoElementsFromTestPage();
-  });
-
-  after(function() {
-    TestUtils.removeElement(targetId);
-  });
-
-  /**
-   * onVideoTrackChanged handler
-   * @param {Object} done _
-   * @param {FakeEvent} event _
-   * @returns {void}
-   */
-  function onVideoTrackChanged(done, event) {
-    player.removeEventListener(player.Event.VIDEO_TRACK_CHANGED, onVideoTrackChanged);
-    player.addEventListener(player.Event.TEXT_TRACK_CHANGED, onTextTrackChanged.bind(null, done));
-    event.payload.selectedVideoTrack.should.exist;
-    event.payload.selectedVideoTrack.active.should.be.true;
-    event.payload.selectedVideoTrack.index.should.equal(2);
-    player.selectTrack(textTracks[6]);
-  }
-
-  /**
-   * onTextTrackChanged handler
-   * @param {Object} done _
-   * @param {FakeEvent} event _
-   * @returns {void}
-   */
-  function onTextTrackChanged(done, event) {
-    player.removeEventListener(player.Event.TEXT_TRACK_CHANGED, onTextTrackChanged);
-    player.addEventListener(player.Event.AUDIO_TRACK_CHANGED, onAudioTrackChanged.bind(null, done));
-    event.payload.selectedTextTrack.should.exist;
-    event.payload.selectedTextTrack.active.should.be.true;
-    event.payload.selectedTextTrack.index.should.equal(6);
-    player.selectTrack(audioTracks[2]);
-  }
-
-  /**
-   * onAudioTrackChanged handler
-   * @param {Object} done _
-   * @param {FakeEvent} event _
-   * @returns {void}
-   */
-  function onAudioTrackChanged(done, event) {
-    player.removeEventListener(player.Event.AUDIO_TRACK_CHANGED, onAudioTrackChanged);
-    event.payload.selectedAudioTrack.should.exist;
-    event.payload.selectedAudioTrack.active.should.be.true;
-    event.payload.selectedAudioTrack.index.should.equal(2);
-    done();
-  }
-
-  it('should run player with hls adapter', function(done) {
-    player.load();
-    player.ready().then(() => {
-      let mediaSourceAdapter = player._engine._mediaSourceAdapter;
-      if (mediaSourceAdapter instanceof HlsAdapter) {
-        player.play();
-        tracks = player.getTracks();
-        videoTracks = player.getTracks(player.Track.VIDEO);
-        audioTracks = player.getTracks(player.Track.AUDIO);
-        textTracks = player.getTracks(player.Track.TEXT);
-        player.src.should.equal(hls_sources.ElephantsDream.url);
-        tracks.length.should.equal(14);
-        videoTracks.length.should.equal(4);
-        audioTracks.length.should.equal(3);
-        textTracks.length.should.equal(7);
-        player.addEventListener(player.Event.VIDEO_TRACK_CHANGED, onVideoTrackChanged.bind(null, done));
-        player.selectTrack(videoTracks[2]);
-      } else {
-        done();
-      }
-    });
-  });
-
-  it('should enable adaptive bitrate', function(done) {
-    player.load();
-    player.ready().then(() => {
-      let mediaSourceAdapter = player._engine._mediaSourceAdapter;
-      if (mediaSourceAdapter instanceof HlsAdapter) {
-        player.play();
-        mediaSourceAdapter.enableAdaptiveBitrate();
-        mediaSourceAdapter.isAdaptiveBitrateEnabled().should.be.true;
-        mediaSourceAdapter._hls.nextLevel.should.equal(-1);
-        mediaSourceAdapter._hls.autoLevelEnabled.should.be.true;
-      }
-      done();
-    });
-  });
-
-  it('should fire abr mode changed', function(done) {
-    let mode = 'auto';
-    let counter = 0;
-    player.addEventListener(player.Event.ABR_MODE_CHANGED, event => {
-      event.payload.mode.should.equal(mode);
-      counter++;
-      if (counter === 3) {
-        done();
-      }
-    });
-    player.load();
-    player.ready().then(() => {
-      let mediaSourceAdapter = player._engine._mediaSourceAdapter;
-      if (mediaSourceAdapter instanceof HlsAdapter) {
-        player.play();
-        videoTracks = player.getTracks(player.Track.VIDEO);
-        mode = 'manual';
-        player.selectTrack(videoTracks[0]);
-        mode = 'auto';
-        player.enableAdaptiveBitrate();
-      } else {
-        done();
-      }
-    });
   });
 });
 
@@ -687,5 +545,310 @@ describe.skip('HlsAdapter [debugging and testing manually]', function(done) {
     });
     player.play();
     window.player = player;
+  });
+});
+
+describe('HlsAdapter Instance request filter', () => {
+  let hlsAdapterInstance;
+  let video;
+  let vodSource = hls_sources.FolgersCoffee;
+  let config;
+  let sandbox;
+
+  beforeEach(function() {
+    sandbox = sinon.sandbox.create();
+    video = document.createElement('video');
+    config = {playback: {options: {html5: {hls: {}}}}};
+  });
+
+  afterEach(function(done) {
+    sandbox.restore();
+    hlsAdapterInstance.destroy().then(() => {
+      hlsAdapterInstance = null;
+      video = null;
+      TestUtils.removeVideoElementsFromTestPage();
+      done();
+    });
+  });
+
+  const validateFilterError = e => {
+    e.severity.should.equal(Error.Severity.CRITICAL);
+    e.category.should.equal(Error.Category.NETWORK);
+    e.code.should.equal(Error.Code.REQUEST_FILTER_ERROR);
+    e.data.reason.should.equal('error');
+  };
+
+  it('should apply void filter for manifest', done => {
+    hlsAdapterInstance = HlsAdapter.createAdapter(
+      video,
+      vodSource,
+      Utils.Object.mergeDeep(config, {
+        network: {
+          requestFilter: function(type, request) {
+            if (type === RequestType.MANIFEST) {
+              request.url += '?test';
+            }
+          }
+        }
+      })
+    );
+    hlsAdapterInstance.load();
+    sandbox.stub(XMLHttpRequest.prototype, 'open').callsFake(function(type, url) {
+      try {
+        url.indexOf('?test').should.be.gt(-1);
+        done();
+      } catch (e) {
+        done(e);
+      }
+    });
+  });
+
+  it('should apply promise filter for manifest', done => {
+    hlsAdapterInstance = HlsAdapter.createAdapter(
+      video,
+      vodSource,
+      Utils.Object.mergeDeep(config, {
+        network: {
+          requestFilter: function(type, request) {
+            if (type === RequestType.MANIFEST) {
+              return new Promise(resolve => {
+                request.url += '?test';
+                resolve(request);
+              });
+            }
+          }
+        }
+      })
+    );
+    hlsAdapterInstance.load();
+    sandbox.stub(XMLHttpRequest.prototype, 'open').callsFake(function(type, url) {
+      try {
+        url.indexOf('?test').should.be.gt(-1);
+        done();
+      } catch (e) {
+        done(e);
+      }
+    });
+  });
+
+  it('should handle error thrown from void filter', done => {
+    hlsAdapterInstance = HlsAdapter.createAdapter(
+      video,
+      vodSource,
+      Utils.Object.mergeDeep(config, {
+        network: {
+          requestFilter: function() {
+            throw new window.Error('error');
+          }
+        }
+      })
+    );
+    hlsAdapterInstance.addEventListener(EventType.ERROR, event => {
+      try {
+        if (event.payload) {
+          validateFilterError(event.payload);
+          done();
+        }
+      } catch (e) {
+        done(e);
+      }
+    });
+    hlsAdapterInstance.load();
+  });
+
+  it('should handle error thrown from promise filter', done => {
+    hlsAdapterInstance = HlsAdapter.createAdapter(
+      video,
+      vodSource,
+      Utils.Object.mergeDeep(config, {
+        network: {
+          requestFilter: function() {
+            return new Promise(() => {
+              throw new window.Error('error');
+            });
+          }
+        }
+      })
+    );
+    hlsAdapterInstance.addEventListener(EventType.ERROR, event => {
+      try {
+        if (event.payload) {
+          validateFilterError(event.payload);
+          done();
+        }
+      } catch (e) {
+        done(e);
+      }
+    });
+    hlsAdapterInstance.load();
+  });
+
+  it('should handle error rejected from promise filter', done => {
+    hlsAdapterInstance = HlsAdapter.createAdapter(
+      video,
+      vodSource,
+      Utils.Object.mergeDeep(config, {
+        network: {
+          requestFilter: function(type) {
+            if (type === RequestType.MANIFEST) {
+              return new Promise((resolve, reject) => {
+                reject(new window.Error('error'));
+              });
+            }
+          }
+        }
+      })
+    );
+    hlsAdapterInstance.addEventListener(EventType.ERROR, event => {
+      try {
+        if (event.payload) {
+          validateFilterError(event.payload);
+          done();
+        }
+      } catch (e) {
+        done(e);
+      }
+    });
+    hlsAdapterInstance.load();
+  });
+});
+
+describe('HlsAdapter Instance - Integration', function() {
+  let playerContainer;
+  let player;
+  let tracks;
+  let videoTracks;
+  let audioTracks;
+  let textTracks;
+
+  before(function() {
+    playerContainer = TestUtils.createElement('DIV', targetId);
+  });
+
+  beforeEach(function() {
+    player = loadPlayer({
+      sources: {
+        hls: [hls_sources.ElephantsDream]
+      }
+    });
+    playerContainer.appendChild(player.getView());
+  });
+
+  afterEach(function() {
+    player.destroy();
+    player = null;
+    TestUtils.removeVideoElementsFromTestPage();
+  });
+
+  after(function() {
+    TestUtils.removeElement(targetId);
+  });
+
+  /**
+   * onVideoTrackChanged handler
+   * @param {Object} done _
+   * @param {FakeEvent} event _
+   * @returns {void}
+   */
+  function onVideoTrackChanged(done, event) {
+    player.removeEventListener(player.Event.VIDEO_TRACK_CHANGED, onVideoTrackChanged);
+    player.addEventListener(player.Event.TEXT_TRACK_CHANGED, onTextTrackChanged.bind(null, done));
+    event.payload.selectedVideoTrack.should.exist;
+    event.payload.selectedVideoTrack.active.should.be.true;
+    event.payload.selectedVideoTrack.index.should.equal(2);
+    player.selectTrack(textTracks[6]);
+  }
+
+  /**
+   * onTextTrackChanged handler
+   * @param {Object} done _
+   * @param {FakeEvent} event _
+   * @returns {void}
+   */
+  function onTextTrackChanged(done, event) {
+    player.removeEventListener(player.Event.TEXT_TRACK_CHANGED, onTextTrackChanged);
+    player.addEventListener(player.Event.AUDIO_TRACK_CHANGED, onAudioTrackChanged.bind(null, done));
+    event.payload.selectedTextTrack.should.exist;
+    event.payload.selectedTextTrack.active.should.be.true;
+    event.payload.selectedTextTrack.index.should.equal(6);
+    player.selectTrack(audioTracks[2]);
+  }
+
+  /**
+   * onAudioTrackChanged handler
+   * @param {Object} done _
+   * @param {FakeEvent} event _
+   * @returns {void}
+   */
+  function onAudioTrackChanged(done, event) {
+    player.removeEventListener(player.Event.AUDIO_TRACK_CHANGED, onAudioTrackChanged);
+    event.payload.selectedAudioTrack.should.exist;
+    event.payload.selectedAudioTrack.active.should.be.true;
+    event.payload.selectedAudioTrack.index.should.equal(2);
+    done();
+  }
+
+  it('should run player with hls adapter', function(done) {
+    player.load();
+    player.ready().then(() => {
+      let mediaSourceAdapter = player._engine._mediaSourceAdapter;
+      if (mediaSourceAdapter instanceof HlsAdapter) {
+        player.play();
+        tracks = player.getTracks();
+        videoTracks = player.getTracks(player.Track.VIDEO);
+        audioTracks = player.getTracks(player.Track.AUDIO);
+        textTracks = player.getTracks(player.Track.TEXT);
+        player.src.should.equal(hls_sources.ElephantsDream.url);
+        tracks.length.should.equal(14);
+        videoTracks.length.should.equal(4);
+        audioTracks.length.should.equal(3);
+        textTracks.length.should.equal(7);
+        player.addEventListener(player.Event.VIDEO_TRACK_CHANGED, onVideoTrackChanged.bind(null, done));
+        player.selectTrack(videoTracks[2]);
+      } else {
+        done();
+      }
+    });
+  });
+
+  it('should enable adaptive bitrate', function(done) {
+    player.load();
+    player.ready().then(() => {
+      let mediaSourceAdapter = player._engine._mediaSourceAdapter;
+      if (mediaSourceAdapter instanceof HlsAdapter) {
+        player.play();
+        mediaSourceAdapter.enableAdaptiveBitrate();
+        mediaSourceAdapter.isAdaptiveBitrateEnabled().should.be.true;
+        mediaSourceAdapter._hls.nextLevel.should.equal(-1);
+        mediaSourceAdapter._hls.autoLevelEnabled.should.be.true;
+      }
+      done();
+    });
+  });
+
+  it('should fire abr mode changed', function(done) {
+    let mode = 'auto';
+    let counter = 0;
+    player.addEventListener(player.Event.ABR_MODE_CHANGED, event => {
+      event.payload.mode.should.equal(mode);
+      counter++;
+      if (counter === 3) {
+        done();
+      }
+    });
+    player.load();
+    player.ready().then(() => {
+      let mediaSourceAdapter = player._engine._mediaSourceAdapter;
+      if (mediaSourceAdapter instanceof HlsAdapter) {
+        player.play();
+        videoTracks = player.getTracks(player.Track.VIDEO);
+        mode = 'manual';
+        player.selectTrack(videoTracks[0]);
+        mode = 'auto';
+        player.enableAdaptiveBitrate();
+      } else {
+        done();
+      }
+    });
   });
 });
