@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="1.18.0"></a>
+# [1.18.0](https://github.com/kaltura/playkit-js-hls/compare/v1.17.4...v1.18.0) (2019-12-29)
+
+
+### Features
+
+* **FEC-9452:** async request filter handlers ([#105](https://github.com/kaltura/playkit-js-hls/issues/105)) ([9be8475](https://github.com/kaltura/playkit-js-hls/commit/9be8475))
+
+
+
 <a name="1.17.4"></a>
 ## [1.17.4](https://github.com/kaltura/playkit-js-hls/compare/v1.17.3...v1.17.4) (2019-12-05)
 
