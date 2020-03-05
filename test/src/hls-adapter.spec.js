@@ -451,6 +451,7 @@ describe('HlsAdapter Instance - change media', function() {
   let video;
   let source1 = hls_sources.ElephantsDream;
   let source2 = hls_sources.BigBugBunnuy;
+  let liveSource = hls_sources.Live;
   let config;
   let sandbox;
 
@@ -481,6 +482,81 @@ describe('HlsAdapter Instance - change media', function() {
           done();
         });
       });
+    });
+  });
+
+  it('should fire FRAG_LOADED', done => {
+    hlsAdapterInstance = HlsAdapter.createAdapter(video, source1, config);
+    hlsAdapterInstance.addEventListener(EventType.FRAG_LOADED, event => {
+      event.payload.miliSeconds.should.exist;
+      event.payload.bytes.should.exist;
+      event.payload.url.should.not.be.empty;
+      done();
+    });
+    hlsAdapterInstance.load();
+  });
+
+  it('should fire MANIFEST_LOADED', done => {
+    hlsAdapterInstance = HlsAdapter.createAdapter(video, source1, config);
+    hlsAdapterInstance.addEventListener(EventType.MANIFEST_LOADED, event => {
+      event.payload.miliSeconds.should.exist;
+      done();
+    });
+    hlsAdapterInstance.load();
+  });
+
+  it('should check targetBuffer in VOD far from end of stream', done => {
+    hlsAdapterInstance = HlsAdapter.createAdapter(video, source1, config);
+    video.addEventListener(EventType.PLAYING, () => {
+      hlsAdapterInstance.targetBuffer.should.equal(
+        hlsAdapterInstance._hls.config.maxMaxBufferLength + hlsAdapterInstance._getLevelDetails().targetduration
+      );
+      done();
+    });
+    hlsAdapterInstance.load().then(() => {
+      video.play();
+    });
+  });
+
+  it('should check targetBuffer in VOD close to end of stream', done => {
+    hlsAdapterInstance = HlsAdapter.createAdapter(video, source1, config);
+    video.addEventListener(EventType.PLAYING, () => {
+      video.currentTime = video.duration - 1;
+
+      video.addEventListener(EventType.SEEKED, () => {
+        hlsAdapterInstance.targetBuffer.should.equal(video.duration - video.currentTime);
+        done();
+      });
+    });
+
+    hlsAdapterInstance.load().then(() => {
+      video.play();
+    });
+  });
+
+  it('should check targetBuffer in LIVE', done => {
+    hlsAdapterInstance = HlsAdapter.createAdapter(video, liveSource, config);
+    video.addEventListener(EventType.PLAYING, () => {
+      video.currentTime =
+        hlsAdapterInstance._getLiveEdge() -
+        hlsAdapterInstance._hls.config.liveSyncDurationCount * hlsAdapterInstance._getLevelDetails().targetduration -
+        10;
+      video.addEventListener(EventType.SEEKED, () => {
+        let targetBufferVal =
+          hlsAdapterInstance._hls.config.liveSyncDurationCount * hlsAdapterInstance._getLevelDetails().targetduration -
+          (hlsAdapterInstance._videoElement.currentTime - hlsAdapterInstance._getLiveEdge());
+        targetBufferVal = Math.min(
+          targetBufferVal,
+          hlsAdapterInstance._hls.config.maxMaxBufferLength + hlsAdapterInstance._getLevelDetails().targetduration
+        );
+
+        hlsAdapterInstance.targetBuffer.should.equal(targetBufferVal);
+        done();
+      });
+    });
+
+    hlsAdapterInstance.load().then(() => {
+      video.play();
     });
   });
 });
