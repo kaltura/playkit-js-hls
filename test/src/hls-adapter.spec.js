@@ -530,7 +530,7 @@ describe('HlsAdapter Instance - change media', function() {
     }
   });
 
-  it('should check targetBuffer in VOD close to end of stream', done => {
+  it('should check targetBuffer in VOD close to end of stream (time left to end of stream is less than targetBuffer)', done => {
     try {
       hlsAdapterInstance = HlsAdapter.createAdapter(video, source1, config);
       video.addEventListener(EventType.PLAYING, () => {
@@ -552,22 +552,32 @@ describe('HlsAdapter Instance - change media', function() {
     try {
       hlsAdapterInstance = HlsAdapter.createAdapter(video, liveSource, config);
       video.addEventListener(EventType.PLAYING, () => {
-        video.currentTime =
-          hlsAdapterInstance._getLiveEdge() -
+        hlsAdapterInstance._hls.config.maxMaxBufferLength = 120;
+        let targetBufferVal =
           hlsAdapterInstance._hls.config.liveSyncDurationCount * hlsAdapterInstance._getLevelDetails().targetduration -
-          10;
-        video.addEventListener(EventType.SEEKED, () => {
-          let targetBufferVal =
-            hlsAdapterInstance._hls.config.liveSyncDurationCount * hlsAdapterInstance._getLevelDetails().targetduration -
-            (hlsAdapterInstance._videoElement.currentTime - hlsAdapterInstance._getLiveEdge());
-          targetBufferVal = Math.min(
-            targetBufferVal,
-            hlsAdapterInstance._hls.config.maxMaxBufferLength + hlsAdapterInstance._getLevelDetails().targetduration
-          );
+          (hlsAdapterInstance._videoElement.currentTime - hlsAdapterInstance._getLiveEdge());
 
-          hlsAdapterInstance.targetBuffer.should.equal(targetBufferVal);
-          done();
-        });
+        hlsAdapterInstance.targetBuffer.should.equal(targetBufferVal);
+        done();
+      });
+
+      hlsAdapterInstance.load().then(() => {
+        video.play();
+      });
+    } catch (e) {
+      done(e);
+    }
+  });
+
+  it('should check targetBuffer in LIVE and restricted by maxMaxBufferLength', done => {
+    try {
+      hlsAdapterInstance = HlsAdapter.createAdapter(video, liveSource, config);
+      video.addEventListener(EventType.PLAYING, () => {
+        hlsAdapterInstance._hls.config.maxMaxBufferLength = 10;
+        let targetBufferVal = hlsAdapterInstance._hls.config.maxMaxBufferLength + hlsAdapterInstance._getLevelDetails().targetduration;
+
+        hlsAdapterInstance.targetBuffer.should.equal(targetBufferVal);
+        done();
       });
 
       hlsAdapterInstance.load().then(() => {
