@@ -612,7 +612,6 @@ describe('HlsAdapter Instance request filter', () => {
               request.hasOwnProperty('body').should.be.true;
               request.headers.should.be.exist;
               setTimeout(done);
-              // done();
             } catch (e) {
               done(e);
             }
@@ -776,7 +775,7 @@ describe('HlsAdapter Instance request filter', () => {
     hlsAdapterInstance.addEventListener(EventType.ERROR, event => {
       try {
         if (event.payload) {
-          validateFilterError(event.payload);
+          validateFilterError(event.payload, hlsAdapterInstance);
           done();
         }
       } catch (e) {
@@ -908,7 +907,7 @@ describe('HlsAdapter Instance: response filter', () => {
     hlsAdapterInstance.addEventListener(EventType.ERROR, event => {
       try {
         if (event.payload) {
-          validateFilterError(event.payload);
+          validateFilterError(event.payload, hlsAdapterInstance);
           done();
         }
       } catch (e) {
@@ -935,7 +934,7 @@ describe('HlsAdapter Instance: response filter', () => {
     hlsAdapterInstance.addEventListener(EventType.ERROR, event => {
       try {
         if (event.payload) {
-          validateFilterError(event.payload);
+          validateFilterError(event.payload, hlsAdapterInstance);
           done();
         }
       } catch (e) {
@@ -964,7 +963,7 @@ describe('HlsAdapter Instance: response filter', () => {
     hlsAdapterInstance.addEventListener(EventType.ERROR, event => {
       try {
         if (event.payload) {
-          validateFilterError(event.payload);
+          validateFilterError(event.payload, hlsAdapterInstance);
           done();
         }
       } catch (e) {
@@ -993,7 +992,7 @@ describe('HlsAdapter Instance: response filter', () => {
     hlsAdapterInstance.addEventListener(EventType.ERROR, event => {
       try {
         if (event.payload) {
-          validateFilterError(event.payload);
+          validateFilterError(event.payload, hlsAdapterInstance);
           done();
         }
       } catch (e) {

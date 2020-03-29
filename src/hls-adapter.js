@@ -1048,7 +1048,8 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
             if (
               [Hlsjs.ErrorDetails.MANIFEST_LOAD_ERROR, Hlsjs.ErrorDetails.MANIFEST_LOAD_TIMEOUT].includes(errorName) &&
               !this._triedReloadWithRedirect &&
-              !this._config.forceRedirectExternalStreams
+              !this._config.forceRedirectExternalStreams &&
+              !(this._requestFilterError || this._responseFilterError)
             ) {
               error = new Error(Error.Severity.RECOVERABLE, Error.Category.NETWORK, code, errorDataObject);
               this._reloadWithDirectManifest();
