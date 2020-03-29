@@ -1,11 +1,21 @@
 //@flow
 import Hlsjs from 'hls.js';
+import {getLogger} from '@playkit-js/playkit-js';
 
 /**
  * A custom override for the loader function in hls.js.
  * It passes the context for the xhrSetup config
  */
 export default class loader extends Hlsjs.DefaultConfig.loader {
+  _logger = getLogger('HlsCustomLoader');
+
+  constructor(config) {
+    super(config);
+    if (config && config.readystatechange) {
+      this.readystatechange = config.readystatechange;
+    }
+  }
+
   loadInternal() {
     let xhr,
       context = this.context;

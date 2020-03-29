@@ -10,11 +10,12 @@ import loader from './loader';
 export default class pLoader extends loader {
   /**
    * redirect external stream handler function
+   * @param {Object} data - The json object that returns from the server.
    * @param {string} uri - the original uri
    * @returns {string} uri - the redirected URI
    * @static
    */
-  static redirectExternalStreamsHandler: Function = uri => uri;
+  static redirectExternalStreamsHandler: Function = (data, uri) => uri;
 
   /**
    * @constructor
