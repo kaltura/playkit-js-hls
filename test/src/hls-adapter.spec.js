@@ -223,6 +223,27 @@ describe('HlsAdapter Instance - Unit', function() {
     hlsAdapterInstance._hls.nextLevel.should.equal(-1);
   });
 
+  it('should check onError when reloading manifest returns error object', done => {
+    sandbox.stub(hlsAdapterInstance, '_reloadWithDirectManifest').callsFake(() => {});
+    hlsAdapterInstance.addEventListener(EventType.ERROR, event => {
+      try {
+        (event.payload === undefined).should.be.false;
+        done();
+      } catch (e) {
+        done(e);
+      }
+    });
+    try {
+      hlsAdapterInstance._onError({
+        type: 'networkError',
+        details: 'manifestLoadError',
+        fatal: true
+      });
+    } catch (e) {
+      done(e);
+    }
+  });
+
   it('should dispatch event with the selected video track', function(done) {
     let data = {level: 3};
     hlsAdapterInstance._hls = {
@@ -571,8 +592,8 @@ describe('HlsAdapter Instance request filter', () => {
     });
   });
 
-  const validateFilterError = e => {
-    e.severity.should.equal(Error.Severity.CRITICAL);
+  const validateFilterError = (e, hlsAdapterInstance) => {
+    e.severity.should.equal(hlsAdapterInstance._triedReloadWithRedirect ? Error.Severity.RECOVERABLE : Error.Severity.CRITICAL);
     e.category.should.equal(Error.Category.NETWORK);
     e.code.should.equal(Error.Code.REQUEST_FILTER_ERROR);
     e.data.reason.should.equal('error');
@@ -646,7 +667,7 @@ describe('HlsAdapter Instance request filter', () => {
     hlsAdapterInstance.addEventListener(EventType.ERROR, event => {
       try {
         if (event.payload) {
-          validateFilterError(event.payload);
+          validateFilterError(event.payload, hlsAdapterInstance);
           done();
         }
       } catch (e) {
@@ -673,7 +694,7 @@ describe('HlsAdapter Instance request filter', () => {
     hlsAdapterInstance.addEventListener(EventType.ERROR, event => {
       try {
         if (event.payload) {
-          validateFilterError(event.payload);
+          validateFilterError(event.payload, hlsAdapterInstance);
           done();
         }
       } catch (e) {
@@ -702,7 +723,7 @@ describe('HlsAdapter Instance request filter', () => {
     hlsAdapterInstance.addEventListener(EventType.ERROR, event => {
       try {
         if (event.payload) {
-          validateFilterError(event.payload);
+          validateFilterError(event.payload, hlsAdapterInstance);
           done();
         }
       } catch (e) {
