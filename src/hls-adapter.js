@@ -97,13 +97,6 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    */
   _startTime: ?number = 0;
   /**
-   * Reference to _onVideoError function
-   * @member {?Function} - _onVideoErrorCallback
-   * @type {?Function}
-   * @private
-   */
-  _onVideoErrorCallback: ?Function;
-  /**
    * The last time detach occurred
    * @type {number}
    * @private
@@ -120,7 +113,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
   _onMediaAttached: Function;
   _mediaAttachedPromise: Promise<*>;
   _requestFilterError: boolean = false;
-  _requestFilterError: boolean = false;
+  _responseFilterError: boolean = false;
 
   /**
    * Factory method to create media source adapter.
@@ -1080,8 +1073,8 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
           : HlsJsErrorMap[errorName] || {category: 0, code: 0};
       HlsAdapter._logger.warn(new Error(Error.Severity.RECOVERABLE, category, code, errorDataObject));
     }
-    this._requestFilterError && (this._requestFilterError = false);
-    this._responseFilterError && (this._responseFilterError = false);
+    this._requestFilterError = false;
+    this._responseFilterError = false;
   }
 
   /**

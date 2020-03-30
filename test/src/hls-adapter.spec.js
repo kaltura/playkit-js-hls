@@ -689,10 +689,8 @@ describe('HlsAdapter Instance request filter', () => {
     );
     hlsAdapterInstance.addEventListener(EventType.ERROR, event => {
       try {
-        if (event.payload) {
-          validateFilterError(event.payload, hlsAdapterInstance);
-          done();
-        }
+        validateFilterError(event.payload, hlsAdapterInstance);
+        done();
       } catch (e) {
         done(e);
       }
@@ -716,10 +714,8 @@ describe('HlsAdapter Instance request filter', () => {
     );
     hlsAdapterInstance.addEventListener(EventType.ERROR, event => {
       try {
-        if (event.payload) {
-          validateFilterError(event.payload, hlsAdapterInstance);
-          done();
-        }
+        validateFilterError(event.payload, hlsAdapterInstance);
+        done();
       } catch (e) {
         done(e);
       }
@@ -745,10 +741,8 @@ describe('HlsAdapter Instance request filter', () => {
     );
     hlsAdapterInstance.addEventListener(EventType.ERROR, event => {
       try {
-        if (event.payload) {
-          validateFilterError(event.payload, hlsAdapterInstance);
-          done();
-        }
+        validateFilterError(event.payload, hlsAdapterInstance);
+        done();
       } catch (e) {
         done(e);
       }
@@ -774,10 +768,8 @@ describe('HlsAdapter Instance request filter', () => {
     );
     hlsAdapterInstance.addEventListener(EventType.ERROR, event => {
       try {
-        if (event.payload) {
-          validateFilterError(event.payload, hlsAdapterInstance);
-          done();
-        }
+        validateFilterError(event.payload, hlsAdapterInstance);
+        done();
       } catch (e) {
         done(e);
       }
@@ -906,10 +898,8 @@ describe('HlsAdapter Instance: response filter', () => {
     );
     hlsAdapterInstance.addEventListener(EventType.ERROR, event => {
       try {
-        if (event.payload) {
-          validateFilterError(event.payload, hlsAdapterInstance);
-          done();
-        }
+        validateFilterError(event.payload, hlsAdapterInstance);
+        done();
       } catch (e) {
         done(e);
       }
@@ -933,10 +923,8 @@ describe('HlsAdapter Instance: response filter', () => {
     );
     hlsAdapterInstance.addEventListener(EventType.ERROR, event => {
       try {
-        if (event.payload) {
-          validateFilterError(event.payload, hlsAdapterInstance);
-          done();
-        }
+        validateFilterError(event.payload, hlsAdapterInstance);
+        done();
       } catch (e) {
         done(e);
       }
@@ -962,10 +950,8 @@ describe('HlsAdapter Instance: response filter', () => {
     );
     hlsAdapterInstance.addEventListener(EventType.ERROR, event => {
       try {
-        if (event.payload) {
-          validateFilterError(event.payload, hlsAdapterInstance);
-          done();
-        }
+        validateFilterError(event.payload, hlsAdapterInstance);
+        done();
       } catch (e) {
         done(e);
       }
@@ -991,10 +977,8 @@ describe('HlsAdapter Instance: response filter', () => {
     );
     hlsAdapterInstance.addEventListener(EventType.ERROR, event => {
       try {
-        if (event.payload) {
-          validateFilterError(event.payload, hlsAdapterInstance);
-          done();
-        }
+        validateFilterError(event.payload, hlsAdapterInstance);
+        done();
       } catch (e) {
         done(e);
       }
