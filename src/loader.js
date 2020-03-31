@@ -6,6 +6,13 @@ import Hlsjs from 'hls.js';
  * It passes the context for the xhrSetup config
  */
 export default class loader extends Hlsjs.DefaultConfig.loader {
+  constructor(config: Object) {
+    super(config);
+    if (config && config.readystatechange) {
+      this.readystatechange = config.readystatechange;
+    }
+  }
+
   loadInternal() {
     let xhr,
       context = this.context;

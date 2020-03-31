@@ -97,13 +97,6 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    */
   _startTime: ?number = 0;
   /**
-   * Reference to _onVideoError function
-   * @member {?Function} - _onVideoErrorCallback
-   * @type {?Function}
-   * @private
-   */
-  _onVideoErrorCallback: ?Function;
-  /**
    * The last time detach occurred
    * @type {number}
    * @private
@@ -120,6 +113,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
   _onMediaAttached: Function;
   _mediaAttachedPromise: Promise<*>;
   _requestFilterError: boolean = false;
+  _responseFilterError: boolean = false;
 
   /**
    * Factory method to create media source adapter.
@@ -291,6 +285,98 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
               this._requestFilterError = true;
               throw error;
             });
+        }
+      });
+    }
+
+    if (typeof Utils.Object.getPropertyPath(this._config, 'network.responseFilter') === 'function') {
+      const self = this;
+      HlsAdapter._logger.debug('Register response filter');
+      Utils.Object.mergeDeep(this._config.hlsConfig, {
+        loader,
+        readystatechange: function(event) {
+          let xhr = event.currentTarget,
+            readyState = xhr.readyState,
+            stats = this.stats,
+            context = this.context,
+            config = this.config;
+
+          // don't proceed if xhr has been aborted
+          if (stats.aborted) {
+            return;
+          }
+
+          // >= HEADERS_RECEIVED
+          if (readyState >= 2) {
+            // clear xhr timeout and rearm it if readyState less than 4
+            window.clearTimeout(this.requestTimeout);
+            if (stats.tfirst === 0) {
+              stats.tfirst = Math.max(performance.now(), stats.trequest);
+            }
+
+            if (readyState === 4) {
+              let status = xhr.status;
+              // http status between 200 to 299 are all successful
+              if (status >= 200 && status < 300) {
+                stats.tload = Math.max(stats.tfirst, performance.now());
+                let data, len;
+                if (context.responseType === 'arraybuffer') {
+                  data = xhr.response;
+                  len = data.byteLength;
+                } else {
+                  data = xhr.responseText;
+                  len = data.length;
+                }
+                stats.loaded = stats.total = len;
+
+                const pkResponse: PKResponseObject = {
+                  url: xhr.responseURL,
+                  originalUrl: context.url,
+                  data,
+                  headers: Utils.Http.convertHeadersToDictionary(xhr.getAllResponseHeaders())
+                };
+                let responseFilterPromise;
+                try {
+                  if (context.type === 'manifest') {
+                    responseFilterPromise = self._config.network.responseFilter(RequestType.MANIFEST, pkResponse);
+                  }
+                  if (context.frag && context.frag.type !== 'subtitle') {
+                    responseFilterPromise = self._config.network.responseFilter(RequestType.SEGMENT, pkResponse);
+                  }
+                } catch (error) {
+                  responseFilterPromise = Promise.reject(error);
+                }
+                responseFilterPromise = responseFilterPromise || Promise.resolve(pkResponse);
+                return responseFilterPromise
+                  .then(updatedResponse => {
+                    this.callbacks.onSuccess(updatedResponse, stats, context, xhr);
+                  })
+                  .catch(error => {
+                    self._responseFilterError = true;
+                    this.callbacks.onError({code: status, text: error.message}, context, xhr);
+                  });
+              } else {
+                // if max nb of retries reached or if http status between 400 and 499 (such error cannot be recovered, retrying is useless), return error
+                if (stats.retry >= config.maxRetry || (status >= 400 && status < 499)) {
+                  HlsAdapter._logger.error(`${status} while loading ${context.url}`);
+                  this.callbacks.onError({code: status, text: xhr.statusText}, context, xhr);
+                } else {
+                  // retry
+                  HlsAdapter._logger.warn(`${status} while loading ${context.url}, retrying in ${this.retryDelay}...`);
+                  // aborts and resets internal state
+                  this.destroy();
+                  // schedule retry
+                  this.retryTimeout = window.setTimeout(this.loadInternal.bind(this), this.retryDelay);
+                  // set exponential backoff
+                  this.retryDelay = Math.min(2 * this.retryDelay, config.maxRetryDelay);
+                  stats.retry++;
+                }
+              }
+            } else {
+              // readyState >= 2 AND readyState !==4 (readyState = HEADERS_RECEIVED || LOADING) rearm timeout as xhr not finished yet
+              this.requestTimeout = window.setTimeout(this.loadtimeout.bind(this), config.timeout);
+            }
+          }
         }
       });
     }
@@ -469,6 +555,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
   _reset(): void {
     this._removeBindings();
     this._requestFilterError = false;
+    this._responseFilterError = false;
     this._hls.detachMedia();
     this._hls.destroy();
   }
@@ -921,7 +1008,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
         errorDataObject.buffer = data.buffer;
         break;
     }
-    if (this._requestFilterError) {
+    if (this._requestFilterError || this._responseFilterError) {
       errorDataObject.reason = data.response.text;
     }
     return errorDataObject;
@@ -943,11 +1030,20 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
       switch (errorType) {
         case Hlsjs.ErrorTypes.NETWORK_ERROR:
           {
-            const code = this._requestFilterError ? Error.Code.REQUEST_FILTER_ERROR : Error.Code.HTTP_ERROR;
+            let code;
+            if (this._requestFilterError) {
+              code = Error.Code.REQUEST_FILTER_ERROR;
+            } else if (this._responseFilterError) {
+              code = Error.Code.RESPONSE_FILTER_ERROR;
+            } else {
+              code = Error.Code.HTTP_ERROR;
+            }
             if (
               [Hlsjs.ErrorDetails.MANIFEST_LOAD_ERROR, Hlsjs.ErrorDetails.MANIFEST_LOAD_TIMEOUT].includes(errorName) &&
               !this._triedReloadWithRedirect &&
-              !this._config.forceRedirectExternalStreams
+              !this._config.forceRedirectExternalStreams &&
+              !this._requestFilterError &&
+              !this._responseFilterError
             ) {
               error = new Error(Error.Severity.RECOVERABLE, Error.Category.NETWORK, code, errorDataObject);
               this._reloadWithDirectManifest();
@@ -972,12 +1068,14 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
         this.destroy();
       }
     } else {
-      const {category, code}: ErrorDetailsType = this._requestFilterError
-        ? {category: Error.Category.NETWORK, code: Error.Code.REQUEST_FILTER_ERROR}
-        : HlsJsErrorMap[errorName] || {category: 0, code: 0};
+      const {category, code}: ErrorDetailsType =
+        this._requestFilterError || this._responseFilterError
+          ? {category: Error.Category.NETWORK, code: this._requestFilterError ? Error.Code.REQUEST_FILTER_ERROR : Error.Code.RESPONSE_FILTER_ERROR}
+          : HlsJsErrorMap[errorName] || {category: 0, code: 0};
       HlsAdapter._logger.warn(new Error(Error.Severity.RECOVERABLE, category, code, errorDataObject));
     }
     this._requestFilterError = false;
+    this._responseFilterError = false;
   }
 
   /**
