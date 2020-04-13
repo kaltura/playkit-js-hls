@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="1.19.0"></a>
+# [1.19.0](https://github.com/kaltura/playkit-js-hls/compare/v1.18.0...v1.19.0) (2020-04-13)
+
+
+### Bug Fixes
+
+* **FEC-9735:** when there is reload attempt on a Network error, no error object is set in the payload ([#109](https://github.com/kaltura/playkit-js-hls/issues/109)) ([b915b04](https://github.com/kaltura/playkit-js-hls/commit/b915b04))
+
+
+### Features
+
+* **FEC-9678:** add response filter implementation to hls adapter ([#110](https://github.com/kaltura/playkit-js-hls/issues/110)) ([0ff9f58](https://github.com/kaltura/playkit-js-hls/commit/0ff9f58))
+
+
+
 <a name="1.18.0"></a>
 # [1.18.0](https://github.com/kaltura/playkit-js-hls/compare/v1.17.4...v1.18.0) (2019-12-29)
 
