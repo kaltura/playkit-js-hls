@@ -550,9 +550,12 @@ describe('HlsAdapter Instance - change media', function() {
 
   it('should check targetBuffer in LIVE', done => {
     try {
-      hlsAdapterInstance = HlsAdapter.createAdapter(video, liveSource, config);
+      hlsAdapterInstance = HlsAdapter.createAdapter(
+        video,
+        liveSource,
+        Utils.Object.mergeDeep(config, {playback: {options: {html5: {hls: {maxMaxBufferLength: 120}}}}})
+      );
       video.addEventListener(EventType.PLAYING, () => {
-        hlsAdapterInstance._hls.config.maxMaxBufferLength = 120;
         let targetBufferVal =
           hlsAdapterInstance._hls.config.liveSyncDurationCount * hlsAdapterInstance._getLevelDetails().targetduration -
           (hlsAdapterInstance._videoElement.currentTime - hlsAdapterInstance._getLiveEdge());
@@ -571,9 +574,12 @@ describe('HlsAdapter Instance - change media', function() {
 
   it('should check targetBuffer in LIVE and restricted by maxMaxBufferLength', done => {
     try {
-      hlsAdapterInstance = HlsAdapter.createAdapter(video, liveSource, config);
+      hlsAdapterInstance = HlsAdapter.createAdapter(
+        video,
+        liveSource,
+        Utils.Object.mergeDeep(config, {playback: {options: {html5: {hls: {maxMaxBufferLength: 10}}}}})
+      );
       video.addEventListener(EventType.PLAYING, () => {
-        hlsAdapterInstance._hls.config.maxMaxBufferLength = 10;
         let targetBufferVal = hlsAdapterInstance._hls.config.maxMaxBufferLength + hlsAdapterInstance._getLevelDetails().targetduration;
 
         hlsAdapterInstance.targetBuffer.should.equal(targetBufferVal);
