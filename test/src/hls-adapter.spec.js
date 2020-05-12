@@ -223,6 +223,27 @@ describe('HlsAdapter Instance - Unit', function() {
     hlsAdapterInstance._hls.nextLevel.should.equal(-1);
   });
 
+  it('should check onError when reloading manifest returns error object', done => {
+    sandbox.stub(hlsAdapterInstance, '_reloadWithDirectManifest').callsFake(() => {});
+    hlsAdapterInstance.addEventListener(EventType.ERROR, event => {
+      try {
+        (event.payload === undefined).should.be.false;
+        done();
+      } catch (e) {
+        done(e);
+      }
+    });
+    try {
+      hlsAdapterInstance._onError({
+        type: 'networkError',
+        details: 'manifestLoadError',
+        fatal: true
+      });
+    } catch (e) {
+      done(e);
+    }
+  });
+
   it('should dispatch event with the selected video track', function(done) {
     let data = {level: 3};
     hlsAdapterInstance._hls = {
@@ -681,12 +702,35 @@ describe('HlsAdapter Instance request filter', () => {
     });
   });
 
-  const validateFilterError = e => {
-    e.severity.should.equal(Error.Severity.CRITICAL);
+  const validateFilterError = (e, hlsAdapterInstance) => {
+    e.severity.should.equal(hlsAdapterInstance._triedReloadWithRedirect ? Error.Severity.RECOVERABLE : Error.Severity.CRITICAL);
     e.category.should.equal(Error.Category.NETWORK);
     e.code.should.equal(Error.Code.REQUEST_FILTER_ERROR);
     e.data.reason.should.equal('error');
   };
+
+  it('should pass the params to the request filter', done => {
+    hlsAdapterInstance = HlsAdapter.createAdapter(
+      video,
+      vodSource,
+      Utils.Object.mergeDeep(config, {
+        network: {
+          requestFilter: function(type, request) {
+            try {
+              type.should.equal(RequestType.MANIFEST);
+              request.url.should.equal(`http:${vodSource.url}`);
+              request.hasOwnProperty('body').should.be.true;
+              request.headers.should.be.exist;
+              setTimeout(done);
+            } catch (e) {
+              done(e);
+            }
+          }
+        }
+      })
+    );
+    hlsAdapterInstance.load();
+  });
 
   it('should apply void filter for manifest', done => {
     hlsAdapterInstance = HlsAdapter.createAdapter(
@@ -755,10 +799,8 @@ describe('HlsAdapter Instance request filter', () => {
     );
     hlsAdapterInstance.addEventListener(EventType.ERROR, event => {
       try {
-        if (event.payload) {
-          validateFilterError(event.payload);
-          done();
-        }
+        validateFilterError(event.payload, hlsAdapterInstance);
+        done();
       } catch (e) {
         done(e);
       }
@@ -782,10 +824,8 @@ describe('HlsAdapter Instance request filter', () => {
     );
     hlsAdapterInstance.addEventListener(EventType.ERROR, event => {
       try {
-        if (event.payload) {
-          validateFilterError(event.payload);
-          done();
-        }
+        validateFilterError(event.payload, hlsAdapterInstance);
+        done();
       } catch (e) {
         done(e);
       }
@@ -811,10 +851,244 @@ describe('HlsAdapter Instance request filter', () => {
     );
     hlsAdapterInstance.addEventListener(EventType.ERROR, event => {
       try {
-        if (event.payload) {
-          validateFilterError(event.payload);
-          done();
+        validateFilterError(event.payload, hlsAdapterInstance);
+        done();
+      } catch (e) {
+        done(e);
+      }
+    });
+    hlsAdapterInstance.load();
+  });
+
+  it('should handle error rejected from promise filter - segment', done => {
+    hlsAdapterInstance = HlsAdapter.createAdapter(
+      video,
+      vodSource,
+      Utils.Object.mergeDeep(config, {
+        network: {
+          requestFilter: function(type) {
+            if (type === RequestType.SEGMENT) {
+              return new Promise((resolve, reject) => {
+                reject(new window.Error('error'));
+              });
+            }
+          }
         }
+      })
+    );
+    hlsAdapterInstance.addEventListener(EventType.ERROR, event => {
+      try {
+        validateFilterError(event.payload, hlsAdapterInstance);
+        done();
+      } catch (e) {
+        done(e);
+      }
+    });
+    hlsAdapterInstance.load();
+  });
+});
+
+describe('HlsAdapter Instance: response filter', () => {
+  let video, hlsAdapterInstance, config, sandbox;
+  let vodSource = hls_sources.FolgersCoffee;
+
+  beforeEach(() => {
+    video = document.createElement('video');
+    config = {playback: {options: {html5: {hls: {forceRedirectExternalStreams: true}}}}};
+    sandbox = sinon.sandbox.create();
+  });
+
+  afterEach(done => {
+    sandbox.restore();
+    hlsAdapterInstance.destroy().then(() => {
+      hlsAdapterInstance = null;
+      done();
+    });
+  });
+
+  after(() => {
+    TestUtils.removeVideoElementsFromTestPage();
+  });
+
+  const validateFilterError = e => {
+    e.severity.should.equal(Error.Severity.CRITICAL);
+    e.category.should.equal(Error.Category.NETWORK);
+    e.code.should.equal(Error.Code.RESPONSE_FILTER_ERROR);
+    e.data.reason.should.equal('error');
+  };
+
+  it('should pass the params to the response filter', done => {
+    hlsAdapterInstance = HlsAdapter.createAdapter(
+      video,
+      vodSource,
+      Utils.Object.mergeDeep(config, {
+        network: {
+          responseFilter: function(type, response) {
+            try {
+              type.should.equal(RequestType.MANIFEST);
+              response.url.should.equal(`http:${vodSource.url}`);
+              response.originalUrl.should.equal(`http:${vodSource.url}`);
+              response.data.should.be.exist;
+              response.headers['content-type'].should.equal('application/x-mpegurl');
+              done();
+            } catch (e) {
+              done(e);
+            }
+          }
+        }
+      })
+    );
+    hlsAdapterInstance.load();
+  });
+
+  it('should apply void filter for manifest', done => {
+    hlsAdapterInstance = HlsAdapter.createAdapter(
+      video,
+      vodSource,
+      Utils.Object.mergeDeep(config, {
+        network: {
+          responseFilter: function(type, response) {
+            if (type === RequestType.MANIFEST) {
+              response.data += '&test';
+            }
+          }
+        }
+      })
+    );
+    sandbox.stub(hlsAdapterInstance._hls.coreComponents[0], 'loadsuccess').callsFake(value => {
+      try {
+        value.data.indexOf('&test').should.be.gt(-1);
+        done();
+      } catch (e) {
+        done(e);
+      }
+    });
+    hlsAdapterInstance.load();
+  });
+
+  it('should apply promise filter for manifest', done => {
+    hlsAdapterInstance = HlsAdapter.createAdapter(
+      video,
+      vodSource,
+      Utils.Object.mergeDeep(config, {
+        network: {
+          responseFilter: function(type, response) {
+            if (type === RequestType.MANIFEST) {
+              return new Promise(resolve => {
+                response.data += '&test';
+                resolve(response);
+              });
+            }
+          }
+        }
+      })
+    );
+    sandbox.stub(hlsAdapterInstance._hls.coreComponents[0], 'loadsuccess').callsFake(value => {
+      try {
+        value.data.indexOf('&test').should.be.gt(-1);
+        done();
+      } catch (e) {
+        done(e);
+      }
+    });
+    hlsAdapterInstance.load();
+  });
+
+  it('should handle error thrown from void filter', done => {
+    hlsAdapterInstance = HlsAdapter.createAdapter(
+      video,
+      vodSource,
+      Utils.Object.mergeDeep(config, {
+        network: {
+          responseFilter: function() {
+            throw new window.Error('error');
+          }
+        }
+      })
+    );
+    hlsAdapterInstance.addEventListener(EventType.ERROR, event => {
+      try {
+        validateFilterError(event.payload, hlsAdapterInstance);
+        done();
+      } catch (e) {
+        done(e);
+      }
+    });
+    hlsAdapterInstance.load();
+  });
+
+  it('should handle error thrown from promise filter', done => {
+    hlsAdapterInstance = HlsAdapter.createAdapter(
+      video,
+      vodSource,
+      Utils.Object.mergeDeep(config, {
+        network: {
+          responseFilter: function() {
+            return new Promise(() => {
+              throw new window.Error('error');
+            });
+          }
+        }
+      })
+    );
+    hlsAdapterInstance.addEventListener(EventType.ERROR, event => {
+      try {
+        validateFilterError(event.payload, hlsAdapterInstance);
+        done();
+      } catch (e) {
+        done(e);
+      }
+    });
+    hlsAdapterInstance.load();
+  });
+
+  it('should handle error rejected from promise filter', done => {
+    hlsAdapterInstance = HlsAdapter.createAdapter(
+      video,
+      vodSource,
+      Utils.Object.mergeDeep(config, {
+        network: {
+          responseFilter: function(type) {
+            if (type === RequestType.MANIFEST) {
+              return new Promise((resolve, reject) => {
+                reject(new window.Error('error'));
+              });
+            }
+          }
+        }
+      })
+    );
+    hlsAdapterInstance.addEventListener(EventType.ERROR, event => {
+      try {
+        validateFilterError(event.payload, hlsAdapterInstance);
+        done();
+      } catch (e) {
+        done(e);
+      }
+    });
+    hlsAdapterInstance.load();
+  });
+
+  it('should handle error rejected from promise filter - segment', done => {
+    hlsAdapterInstance = HlsAdapter.createAdapter(
+      video,
+      vodSource,
+      Utils.Object.mergeDeep(config, {
+        network: {
+          responseFilter: function(type) {
+            if (type === RequestType.SEGMENT) {
+              return new Promise((resolve, reject) => {
+                reject(new window.Error('error'));
+              });
+            }
+          }
+        }
+      })
+    );
+    hlsAdapterInstance.addEventListener(EventType.ERROR, event => {
+      try {
+        validateFilterError(event.payload, hlsAdapterInstance);
+        done();
       } catch (e) {
         done(e);
       }
