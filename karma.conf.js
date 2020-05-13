@@ -10,7 +10,14 @@ const isMacOS = /^darwin/.test(process.platform);
 const customLaunchers = {
   Chrome_travis_ci: {
     base: 'Chrome',
-    flags: ['--no-sandbox']
+    flags: ['--no-sandbox', '--autoplay-policy=no-user-gesture-required']
+  }
+};
+
+const launchers = {
+  Chrome_browser: {
+    base: 'Chrome',
+    flags: ['--no-sandbox', '--autoplay-policy=no-user-gesture-required']
   }
 };
 
@@ -19,6 +26,7 @@ module.exports = function(config) {
     logLevel: config.LOG_INFO,
     browserNoActivityTimeout: 90000,
     browsers: ['Chrome', 'Firefox'],
+    customLaunchers: launchers,
     concurrency: 1,
     singleRun: true,
     colors: true,
