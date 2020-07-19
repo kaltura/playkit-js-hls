@@ -7,8 +7,8 @@ import * as player_tracks from './json/player_tracks.json';
 
 const targetId = 'player-placeholder_hls-adapter.spec';
 
-describe('HlsAdapter.canPlayDrm', function() {
-  it('should return false for any input', function() {
+describe('HlsAdapter.canPlayDrm', function () {
+  it('should return false for any input', function () {
     HlsAdapter.canPlayDrm().should.be.false;
     HlsAdapter.canPlayDrm(null).should.be.false;
     HlsAdapter.canPlayDrm(null).should.be.false;
@@ -29,71 +29,71 @@ describe('HlsAdapter.canPlayDrm', function() {
   });
 });
 
-describe('HlsAdapter.canPlayType', function() {
-  it('should return true to application/x-mpegurl', function() {
+describe('HlsAdapter.canPlayType', function () {
+  it('should return true to application/x-mpegurl', function () {
     HlsAdapter.canPlayType('application/x-mpegurl').should.be.true;
   });
 
-  it('should return true to application/X-MpegUrl', function() {
+  it('should return true to application/X-MpegUrl', function () {
     HlsAdapter.canPlayType('application/X-MpegUrl').should.be.true;
   });
 
-  it('should return true to application/vnd.apple.mpegurl', function() {
+  it('should return true to application/vnd.apple.mpegurl', function () {
     HlsAdapter.canPlayType('application/vnd.apple.mpegurl').should.be.true;
   });
 
-  it('should return true to audio/mpegurl', function() {
+  it('should return true to audio/mpegurl', function () {
     HlsAdapter.canPlayType('audio/mpegurl').should.be.true;
   });
 
-  it('should return true to audio/x-mpegurl', function() {
+  it('should return true to audio/x-mpegurl', function () {
     HlsAdapter.canPlayType('audio/x-mpegurl').should.be.true;
   });
 
-  it('should return true to video/x-mpegurl', function() {
+  it('should return true to video/x-mpegurl', function () {
     HlsAdapter.canPlayType('video/x-mpegurl').should.be.true;
   });
 
-  it('should return true to video/mpegurl', function() {
+  it('should return true to video/mpegurl', function () {
     HlsAdapter.canPlayType('video/mpegurl').should.be.true;
   });
 
-  it('should return true to application/mpegurl', function() {
+  it('should return true to application/mpegurl', function () {
     HlsAdapter.canPlayType('application/mpegurl').should.be.true;
   });
 
-  it('should return false to video/mp4', function() {
+  it('should return false to video/mp4', function () {
     HlsAdapter.canPlayType('video/mp4').should.be.false;
   });
 
-  it('should return false to invalid mimetype', function() {
+  it('should return false to invalid mimetype', function () {
     HlsAdapter.canPlayType('dummy').should.be.false;
   });
 
-  it('should return false to nullable mimetype', function() {
+  it('should return false to nullable mimetype', function () {
     HlsAdapter.canPlayType(null).should.be.false;
   });
 
-  it('should return false to empty mimetype', function() {
+  it('should return false to empty mimetype', function () {
     HlsAdapter.canPlayType().should.be.false;
   });
 });
 
-describe('HlsAdapter.id', function() {
-  it('should be named HlsAdapter', function() {
+describe('HlsAdapter.id', function () {
+  it('should be named HlsAdapter', function () {
     HlsAdapter.id.should.equal('HlsAdapter');
   });
 });
 
-describe('HlsAdapter Instance - Unit', function() {
+describe('HlsAdapter Instance - Unit', function () {
   let hlsAdapterInstance;
   let video;
   let sourceObj;
   let config;
   let sandbox;
 
-  beforeEach(function() {
-    sandbox = sinon.sandbox.create();
+  beforeEach(function () {
+    sandbox = sinon.createSandbox();
     video = document.createElement('video');
     sourceObj = hls_sources.ElephantsDream;
     config = {
@@ -106,7 +106,7 @@ describe('HlsAdapter Instance - Unit', function() {
     hlsAdapterInstance = HlsAdapter.createAdapter(video, sourceObj, config);
   });
 
-  afterEach(function(done) {
+  afterEach(function (done) {
     sandbox.restore();
     hlsAdapterInstance.destroy().then(() => {
       hlsAdapterInstance = null;
@@ -116,7 +116,7 @@ describe('HlsAdapter Instance - Unit', function() {
     });
   });
 
-  it('should create hls adapter properties', function() {
+  it('should create hls adapter properties', function () {
     hlsAdapterInstance._videoElement.should.deep.equal(video);
     hlsAdapterInstance._config.should.exist;
     hlsAdapterInstance._sourceObj.should.deep.equal(sourceObj);
@@ -124,15 +124,15 @@ describe('HlsAdapter Instance - Unit', function() {
     hlsAdapterInstance.src.should.be.empty;
   });
 
-  it('should load the adapter', function(done) {
+  it('should load the adapter', function (done) {
     hlsAdapterInstance.load().then((/* data */) => {
-      hlsAdapterInstance._playerTracks.should.be.array;
+      hlsAdapterInstance._playerTracks.should.be.an('array');
       hlsAdapterInstance.src.should.equal(hls_sources.ElephantsDream.url);
       done();
     });
   });
 
-  it('should destroy the adapter', function(done) {
+  it('should destroy the adapter', function (done) {
     hlsAdapterInstance.load().then((/* data */) => {
       let detachMediaSpier = sandbox.spy(hlsAdapterInstance._hls, 'detachMedia');
       let destroySpier = sandbox.spy(hlsAdapterInstance._hls, 'destroy');
@@ -146,27 +146,27 @@ describe('HlsAdapter Instance - Unit', function() {
     });
   });
 
-  it('should parse the hls audio tracks into player audio tracks', function() {
+  it('should parse the hls audio tracks into player audio tracks', function () {
     hlsAdapterInstance._hls = {
       audioTrack: 1,
-      detachMedia: function() {},
-      destroy: function() {
+      detachMedia: function () {},
+      destroy: function () {
         return Promise.resolve();
       },
-      off: function() {}
+      off: function () {}
     };
     let audioTracks = hlsAdapterInstance._parseAudioTracks(hls_tracks.audioTracks);
     JSON.parse(JSON.stringify(audioTracks)).should.deep.equal(player_tracks.audioTracks);
   });
 
-  it('should parse the hls levels into player video tracks', function() {
+  it('should parse the hls levels into player video tracks', function () {
     hlsAdapterInstance._hls = {
       startLevel: 1,
-      detachMedia: function() {},
-      destroy: function() {
+      detachMedia: function () {},
+      destroy: function () {
         return Promise.resolve();
       },
-      off: function() {}
+      off: function () {}
     };
     let videoTracks = hlsAdapterInstance._parseVideoTracks(hls_tracks.levels);
     player_tracks.videoTracks.forEach(t => {
@@ -175,19 +175,19 @@ describe('HlsAdapter Instance - Unit', function() {
     JSON.parse(JSON.stringify(videoTracks)).should.deep.equal(player_tracks.videoTracks);
   });
 
-  it('should parse the video tag text tracks into player text tracks', function() {
+  it('should parse the video tag text tracks into player text tracks', function () {
     hlsAdapterInstance._hls = {
-      detachMedia: function() {},
-      destroy: function() {
+      detachMedia: function () {},
+      destroy: function () {
         return Promise.resolve();
       },
-      off: function() {}
+      off: function () {}
     };
     let textTracks = hlsAdapterInstance._parseTextTracks(hls_tracks.subtitles);
     JSON.parse(JSON.stringify(textTracks)).should.deep.equal(player_tracks.textTracks);
   });
 
-  it('should parse all hls tracks into player tracks', function() {
+  it('should parse all hls tracks into player tracks', function () {
     hlsAdapterInstance._videoElement = {
       textTracks: hls_tracks.subtitles,
       removeEventListener: () => {}
@@ -198,26 +198,26 @@ describe('HlsAdapter Instance - Unit', function() {
       levels: hls_tracks.levels,
       audioTrack: 1,
       startLevel: 1,
-      detachMedia: function() {},
-      destroy: function() {
+      detachMedia: function () {},
+      destroy: function () {
         return Promise.resolve();
       },
-      off: function() {}
+      off: function () {}
     };
     let tracks = hlsAdapterInstance._parseTracks();
     let allTracks = player_tracks.audioTracks.concat(player_tracks.videoTracks).concat(player_tracks.textTracks);
     JSON.parse(JSON.stringify(tracks)).should.deep.equal(allTracks);
   });
 
-  it('should enable adaptive bitrate', function() {
+  it('should enable adaptive bitrate', function () {
     hlsAdapterInstance._hls = {
-      on: function() {},
+      on: function () {},
       nextLevel: 0,
-      detachMedia: function() {},
-      destroy: function() {
+      detachMedia: function () {},
+      destroy: function () {
         return Promise.resolve();
       },
-      off: function() {}
+      off: function () {}
     };
     hlsAdapterInstance.enableAdaptiveBitrate();
     hlsAdapterInstance._hls.nextLevel.should.equal(-1);
@@ -244,15 +244,15 @@ describe('HlsAdapter Instance - Unit', function() {
     }
   });
 
-  it('should dispatch event with the selected video track', function(done) {
+  it('should dispatch event with the selected video track', function (done) {
     let data = {level: 3};
     hlsAdapterInstance._hls = {
       autoLevelEnabled: true,
-      detachMedia: function() {},
-      destroy: function() {
+      detachMedia: function () {},
+      destroy: function () {
         return Promise.resolve();
       },
-      off: function() {}
+      off: function () {}
     };
     hlsAdapterInstance._playerTracks = [
       new VideoTrack({
@@ -285,7 +285,7 @@ describe('HlsAdapter Instance - Unit', function() {
       })
     ];
 
-    sandbox.stub(hlsAdapterInstance, 'dispatchEvent').callsFake(function(event) {
+    sandbox.stub(hlsAdapterInstance, 'dispatchEvent').callsFake(function (event) {
       event.type.should.equal(EventType.VIDEO_TRACK_CHANGED);
       event.payload.selectedVideoTrack.should.exist;
       event.payload.selectedVideoTrack.should.deep.equal(hlsAdapterInstance._playerTracks[3]);
@@ -303,13 +303,13 @@ describe('HlsAdapter Instance - isLive', () => {
   let config;
   let sandbox;
 
-  beforeEach(function() {
-    sandbox = sinon.sandbox.create();
+  beforeEach(function () {
+    sandbox = sinon.createSandbox();
     video = document.createElement('video');
     config = {playback: {options: {html5: {hls: {}}}}};
   });
 
-  afterEach(function(done) {
+  afterEach(function (done) {
     sandbox.restore();
     hlsAdapterInstance.destroy().then(() => {
       hlsAdapterInstance = null;
@@ -345,20 +345,20 @@ describe('HlsAdapter Instance - isLive', () => {
   });
 });
 
-describe('HlsAdapter Instance - seekToLiveEdge', function() {
+describe('HlsAdapter Instance - seekToLiveEdge', function () {
   let hlsAdapterInstance;
   let video;
   let liveSource = hls_sources.Live;
   let config;
   let sandbox;
 
-  beforeEach(function() {
-    sandbox = sinon.sandbox.create();
+  beforeEach(function () {
+    sandbox = sinon.createSandbox();
     video = document.createElement('video');
     config = {playback: {options: {html5: {hls: {}}}}};
   });
 
-  afterEach(function(done) {
+  afterEach(function (done) {
     sandbox.restore();
     hlsAdapterInstance.destroy().then(() => {
       hlsAdapterInstance = null;
@@ -384,20 +384,20 @@ describe('HlsAdapter Instance - seekToLiveEdge', function() {
   });
 });
 
-describe.skip('HlsAdapter Instance - _getLiveEdge', function() {
+describe.skip('HlsAdapter Instance - _getLiveEdge', function () {
   let hlsAdapterInstance;
   let video;
   let liveSource = hls_sources.Live;
   let config;
   let sandbox;
 
-  beforeEach(function() {
-    sandbox = sinon.sandbox.create();
+  beforeEach(function () {
+    sandbox = sinon.createSandbox();
     video = document.createElement('video');
     config = {playback: {options: {html5: {hls: {}}}}};
   });
 
-  afterEach(function(done) {
+  afterEach(function (done) {
     sandbox.restore();
     hlsAdapterInstance.destroy().then(() => {
       hlsAdapterInstance = null;
@@ -422,7 +422,7 @@ describe.skip('HlsAdapter Instance - _getLiveEdge', function() {
   });
 });
 
-describe('HlsAdapter Instance - getStartTimeOfDvrWindow', function() {
+describe('HlsAdapter Instance - getStartTimeOfDvrWindow', function () {
   let hlsAdapterInstance;
   let video;
   let vodSource = hls_sources.ElephantsDream;
@@ -430,13 +430,13 @@ describe('HlsAdapter Instance - getStartTimeOfDvrWindow', function() {
   let config;
   let sandbox;
 
-  beforeEach(function() {
-    sandbox = sinon.sandbox.create();
+  beforeEach(function () {
+    sandbox = sinon.createSandbox();
     video = document.createElement('video');
     config = {playback: {options: {html5: {hls: {}}}}};
   });
 
-  afterEach(function(done) {
+  afterEach(function (done) {
     sandbox.restore();
     hlsAdapterInstance.destroy().then(() => {
       hlsAdapterInstance = null;
@@ -467,7 +467,7 @@ describe('HlsAdapter Instance - getStartTimeOfDvrWindow', function() {
   });
 });
 
-describe('HlsAdapter Instance - change media', function() {
+describe('HlsAdapter Instance - change media', function () {
   let hlsAdapterInstance;
   let video;
   let source1 = hls_sources.ElephantsDream;
@@ -476,13 +476,13 @@ describe('HlsAdapter Instance - change media', function() {
   let config;
   let sandbox;
 
-  beforeEach(function() {
-    sandbox = sinon.sandbox.create();
+  beforeEach(function () {
+    sandbox = sinon.createSandbox();
     video = document.createElement('video');
     config = {playback: {options: {html5: {hls: {}}}}};
   });
 
-  afterEach(function(done) {
+  afterEach(function (done) {
     sandbox.restore();
     hlsAdapterInstance.destroy().then(() => {
       hlsAdapterInstance = null;
@@ -616,7 +616,7 @@ describe('HlsAdapter Instance - change media', function() {
   });
 });
 
-describe.skip('HlsAdapter [debugging and testing manually]', function(done) {
+describe.skip('HlsAdapter [debugging and testing manually]', function (done) {
   let tracks;
   let videoTracks = [];
   let textTracks = [];
@@ -686,13 +686,13 @@ describe('HlsAdapter Instance request filter', () => {
   let config;
   let sandbox;
 
-  beforeEach(function() {
-    sandbox = sinon.sandbox.create();
+  beforeEach(function () {
+    sandbox = sinon.createSandbox();
     video = document.createElement('video');
     config = {playback: {options: {html5: {hls: {}}}}};
   });
 
-  afterEach(function(done) {
+  afterEach(function (done) {
     sandbox.restore();
     hlsAdapterInstance.destroy().then(() => {
       hlsAdapterInstance = null;
@@ -715,11 +715,11 @@ describe('HlsAdapter Instance request filter', () => {
       vodSource,
       Utils.Object.mergeDeep(config, {
         network: {
-          requestFilter: function(type, request) {
+          requestFilter: function (type, request) {
             try {
               type.should.equal(RequestType.MANIFEST);
               request.url.should.equal(`http:${vodSource.url}`);
-              request.hasOwnProperty('body').should.be.true;
+              Object.prototype.hasOwnProperty.call(request, 'body').should.be.true;
               request.headers.should.be.exist;
               setTimeout(done);
             } catch (e) {
@@ -738,7 +738,7 @@ describe('HlsAdapter Instance request filter', () => {
       vodSource,
       Utils.Object.mergeDeep(config, {
         network: {
-          requestFilter: function(type, request) {
+          requestFilter: function (type, request) {
             if (type === RequestType.MANIFEST) {
               request.url += '?test';
             }
@@ -747,7 +747,7 @@ describe('HlsAdapter Instance request filter', () => {
       })
     );
     hlsAdapterInstance.load();
-    sandbox.stub(XMLHttpRequest.prototype, 'open').callsFake(function(type, url) {
+    sandbox.stub(XMLHttpRequest.prototype, 'open').callsFake(function (type, url) {
       try {
         url.indexOf('?test').should.be.gt(-1);
         done();
@@ -763,7 +763,7 @@ describe('HlsAdapter Instance request filter', () => {
       vodSource,
       Utils.Object.mergeDeep(config, {
         network: {
-          requestFilter: function(type, request) {
+          requestFilter: function (type, request) {
             if (type === RequestType.MANIFEST) {
               return new Promise(resolve => {
                 request.url += '?test';
@@ -775,7 +775,7 @@ describe('HlsAdapter Instance request filter', () => {
       })
     );
     hlsAdapterInstance.load();
-    sandbox.stub(XMLHttpRequest.prototype, 'open').callsFake(function(type, url) {
+    sandbox.stub(XMLHttpRequest.prototype, 'open').callsFake(function (type, url) {
       try {
         url.indexOf('?test').should.be.gt(-1);
         done();
@@ -791,7 +791,7 @@ describe('HlsAdapter Instance request filter', () => {
       vodSource,
       Utils.Object.mergeDeep(config, {
         network: {
-          requestFilter: function() {
+          requestFilter: function () {
             throw new window.Error('error');
           }
         }
@@ -814,7 +814,7 @@ describe('HlsAdapter Instance request filter', () => {
       vodSource,
       Utils.Object.mergeDeep(config, {
         network: {
-          requestFilter: function() {
+          requestFilter: function () {
             return new Promise(() => {
               throw new window.Error('error');
             });
@@ -839,7 +839,7 @@ describe('HlsAdapter Instance request filter', () => {
       vodSource,
       Utils.Object.mergeDeep(config, {
         network: {
-          requestFilter: function(type) {
+          requestFilter: function (type) {
             if (type === RequestType.MANIFEST) {
               return new Promise((resolve, reject) => {
                 reject(new window.Error('error'));
@@ -866,7 +866,7 @@ describe('HlsAdapter Instance request filter', () => {
       vodSource,
       Utils.Object.mergeDeep(config, {
         network: {
-          requestFilter: function(type) {
+          requestFilter: function (type) {
             if (type === RequestType.SEGMENT) {
               return new Promise((resolve, reject) => {
                 reject(new window.Error('error'));
@@ -895,7 +895,7 @@ describe('HlsAdapter Instance: response filter', () => {
   beforeEach(() => {
     video = document.createElement('video');
     config = {playback: {options: {html5: {hls: {forceRedirectExternalStreams: true}}}}};
-    sandbox = sinon.sandbox.create();
+    sandbox = sinon.createSandbox();
   });
 
   afterEach(done => {
@@ -923,7 +923,7 @@ describe('HlsAdapter Instance: response filter', () => {
       vodSource,
       Utils.Object.mergeDeep(config, {
         network: {
-          responseFilter: function(type, response) {
+          responseFilter: function (type, response) {
             try {
               type.should.equal(RequestType.MANIFEST);
               response.url.should.equal(`http:${vodSource.url}`);
@@ -947,7 +947,7 @@ describe('HlsAdapter Instance: response filter', () => {
       vodSource,
       Utils.Object.mergeDeep(config, {
         network: {
-          responseFilter: function(type, response) {
+          responseFilter: function (type, response) {
             if (type === RequestType.MANIFEST) {
               response.data += '&test';
             }
@@ -972,7 +972,7 @@ describe('HlsAdapter Instance: response filter', () => {
       vodSource,
       Utils.Object.mergeDeep(config, {
         network: {
-          responseFilter: function(type, response) {
+          responseFilter: function (type, response) {
             if (type === RequestType.MANIFEST) {
               return new Promise(resolve => {
                 response.data += '&test';
@@ -1000,7 +1000,7 @@ describe('HlsAdapter Instance: response filter', () => {
       vodSource,
       Utils.Object.mergeDeep(config, {
         network: {
-          responseFilter: function() {
+          responseFilter: function () {
             throw new window.Error('error');
           }
         }
@@ -1023,7 +1023,7 @@ describe('HlsAdapter Instance: response filter', () => {
       vodSource,
       Utils.Object.mergeDeep(config, {
         network: {
-          responseFilter: function() {
+          responseFilter: function () {
             return new Promise(() => {
               throw new window.Error('error');
             });
@@ -1048,7 +1048,7 @@ describe('HlsAdapter Instance: response filter', () => {
       vodSource,
       Utils.Object.mergeDeep(config, {
         network: {
-          responseFilter: function(type) {
+          responseFilter: function (type) {
             if (type === RequestType.MANIFEST) {
               return new Promise((resolve, reject) => {
                 reject(new window.Error('error'));
@@ -1075,7 +1075,7 @@ describe('HlsAdapter Instance: response filter', () => {
       vodSource,
       Utils.Object.mergeDeep(config, {
         network: {
-          responseFilter: function(type) {
+          responseFilter: function (type) {
             if (type === RequestType.SEGMENT) {
               return new Promise((resolve, reject) => {
                 reject(new window.Error('error'));
@@ -1097,7 +1097,7 @@ describe('HlsAdapter Instance: response filter', () => {
   });
 });
 
-describe('HlsAdapter Instance - Integration', function() {
+describe('HlsAdapter Instance - Integration', function () {
   let playerContainer;
   let player;
   let tracks;
@@ -1105,11 +1105,11 @@ describe('HlsAdapter Instance - Integration', function() {
   let audioTracks;
   let textTracks;
 
-  before(function() {
+  before(function () {
     playerContainer = TestUtils.createElement('DIV', targetId);
   });
 
-  beforeEach(function() {
+  beforeEach(function () {
     player = loadPlayer({
       sources: {
         hls: [hls_sources.ElephantsDream]
@@ -1118,13 +1118,13 @@ describe('HlsAdapter Instance - Integration', function() {
     playerContainer.appendChild(player.getView());
   });
 
-  afterEach(function() {
+  afterEach(function () {
     player.destroy();
     player = null;
     TestUtils.removeVideoElementsFromTestPage();
   });
 
-  after(function() {
+  after(function () {
     TestUtils.removeElement(targetId);
   });
 
@@ -1172,7 +1172,7 @@ describe('HlsAdapter Instance - Integration', function() {
     done();
   }
 
-  it('should run player with hls adapter', function(done) {
+  it('should run player with hls adapter', function (done) {
     player.load();
     player.ready().then(() => {
       let mediaSourceAdapter = player._engine._mediaSourceAdapter;
@@ -1195,7 +1195,7 @@ describe('HlsAdapter Instance - Integration', function() {
     });
   });
 
-  it('should enable adaptive bitrate', function(done) {
+  it('should enable adaptive bitrate', function (done) {
     player.load();
     player.ready().then(() => {
       let mediaSourceAdapter = player._engine._mediaSourceAdapter;
@@ -1210,7 +1210,7 @@ describe('HlsAdapter Instance - Integration', function() {
     });
   });
 
-  it('should fire abr mode changed', function(done) {
+  it('should fire abr mode changed', function (done) {
     let mode = 'auto';
     let counter = 0;
     player.addEventListener(player.Event.ABR_MODE_CHANGED, event => {

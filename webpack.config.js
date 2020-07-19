@@ -12,10 +12,6 @@ let plugins = [
   })
 ];
 
-if (PROD) {
-  plugins.push(new webpack.optimize.UglifyJsPlugin({sourceMap: true}));
-}
-
 module.exports = {
   context: __dirname + '/src',
   entry: {'playkit-hls': 'index.js'},
@@ -76,5 +72,8 @@ module.exports = {
       amd: 'hls.js',
       root: 'Hls'
     }
+  },
+  optimization: {
+    minimize: PROD
   }
 };
