@@ -861,13 +861,13 @@
   resolved "https://registry.yarnpkg.com/@istanbuljs/schema/-/schema-0.1.2.tgz#26520bf09abe4a5644cd5414e37125a8954241dd"
   integrity sha512-tsAQNx32a8CoFhjhijUIhI4kccIAgmGhy8LZMZgGfmXcpMbPRUqn5LWmgRttILi6yeGmBJd2xsPkFMs0PzgPCw==
 
-"@playkit-js/playkit-js@0.61.0-canary.a9862b1":
-  version "0.61.0-canary.a9862b1"
-  resolved "https://registry.yarnpkg.com/@playkit-js/playkit-js/-/playkit-js-0.61.0-canary.a9862b1.tgz#3542c6e6269d1211074a8435ef2633646a99836d"
-  integrity sha512-avVkrMgRLo07D3wUUeI6Pc994433CF3dxPq1m8dTEOZqVy+MOKj5sZpYEw5aPGiG5Y5tpT5Vsmf/qWU9U1isBw==
+"@playkit-js/playkit-js@0.62.1-canary.724715e":
+  version "0.62.1-canary.724715e"
+  resolved "https://registry.yarnpkg.com/@playkit-js/playkit-js/-/playkit-js-0.62.1-canary.724715e.tgz#64456aba4f2f51b14f7bef9ad81c82f1b2a8af96"
+  integrity sha512-rgyZwbhY97PQ+7fpE7Yhofpi5hOx+oWsVBAtbawdhMbu6butNQjLh4e9TV0jdgz8ydfC27oZmHdVgnJOwE4mQA==
   dependencies:
-    js-logger "^1.3.0"
-    ua-parser-js "^0.7.13"
+    js-logger "^1.6.0"
+    ua-parser-js "^0.7.21"
 
 "@sinonjs/commons@^1", "@sinonjs/commons@^1.6.0", "@sinonjs/commons@^1.7.0", "@sinonjs/commons@^1.7.2":
   version "1.8.0"
@@ -3967,10 +3967,10 @@ he@1.2.0:
   resolved "https://registry.yarnpkg.com/he/-/he-1.2.0.tgz#84ae65fa7eafb165fddb61566ae14baf05664f0f"
   integrity sha512-F/1DnUGPopORZi0ni+CvrCgHQ5FyEAHRLSApuYWMmrbSwoN2Mn/7k+Gl38gJnR7yyDZk6WLXwiGod1JOWNDKGw==
 
-hls.js@^0.12.2:
-  version "0.12.4"
-  resolved "https://registry.yarnpkg.com/hls.js/-/hls.js-0.12.4.tgz#c155b7b2825a11117c111b781973c0ffa759006b"
-  integrity sha512-e8OPxQ60dBVsdkv4atdxR21KzC1mgwspM41qpozpj3Uv1Fz4CaeQy3FWoaV2O+QKKbNRvV5hW+/LipCWdrwnMQ==
+hls.js@0.12.2:
+  version "0.12.2"
+  resolved "https://registry.yarnpkg.com/hls.js/-/hls.js-0.12.2.tgz#64a969a78cc25991ed5de19357b1dc3f178ac23b"
+  integrity sha512-lQBSXggw9OzEuaUllUBoSxPcf7neFgnEiDRfCdCNdIPtUeV7vXZ0OeASx6EWtZTBiqSSPigoOX1Y+AR5dA1Feg==
   dependencies:
     eventemitter3 "3.1.0"
     url-toolkit "^2.1.6"
@@ -4607,7 +4607,7 @@ iterate-value@^1.0.0:
     es-get-iterator "^1.0.2"
     iterate-iterator "^1.0.1"
 
-js-logger@^1.3.0:
+js-logger@^1.6.0:
   version "1.6.0"
   resolved "https://registry.yarnpkg.com/js-logger/-/js-logger-1.6.0.tgz#7abae5cfaf208c965f3ef20754533bb9e79c7aef"
   integrity sha512-K4kt2AdD0jUYINbe00BPPpsL65u/rdYOgfaBBVWm/mid+ANk7qxDnoXgKI5ilm49Sjmach2Dzlc+5VxKdRA3tw==
@@ -7710,7 +7710,7 @@ typedarray@^0.0.6:
   resolved "https://registry.yarnpkg.com/typedarray/-/typedarray-0.0.6.tgz#867ac74e3864187b1d3d47d996a78ec5c8830777"
   integrity sha1-hnrHTjhkGHsdPUfZlqeOxciDB3c=
 
-ua-parser-js@0.7.21, ua-parser-js@^0.7.13:
+ua-parser-js@0.7.21, ua-parser-js@^0.7.21:
   version "0.7.21"
   resolved "https://registry.yarnpkg.com/ua-parser-js/-/ua-parser-js-0.7.21.tgz#853cf9ce93f642f67174273cc34565ae6f308777"
   integrity sha512-+O8/qh/Qj8CgC6eYBVBykMrNtp5Gebn4dlGD/kKXVkJNDwyrAwSIqwz8CDf+tsAIWVycKcku6gIXJ0qwx/ZXaQ==
