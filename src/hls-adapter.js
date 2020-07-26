@@ -294,7 +294,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
       HlsAdapter._logger.debug('Register response filter');
       Utils.Object.mergeDeep(this._config.hlsConfig, {
         loader,
-        readystatechange: function(event) {
+        readystatechange: function (event) {
           let xhr = event.currentTarget,
             readyState = xhr.readyState,
             stats = this.stats,

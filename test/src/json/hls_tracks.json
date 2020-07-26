@@ -7,8 +7,7 @@
       "default": true,
       "autoselect": true,
       "forced": false,
-      "url":
-        "https://wowzaec2demo.streamlock.net/vod-multitrack/_definst_/smil:Elephants…en_t64RW5nbGlzaA==_cfRWxlcGhhbnRzRHJlYW0vRWxlcGhhbnRzRHJlYW0udHRtbA==.m3u8",
+      "url": "https://wowzaec2demo.streamlock.net/vod-multitrack/_definst_/smil:Elephants…en_t64RW5nbGlzaA==_cfRWxlcGhhbnRzRHJlYW0vRWxlcGhhbnRzRHJlYW0udHRtbA==.m3u8",
       "lang": "en",
       "id": 0
     },
@@ -19,8 +18,7 @@
       "default": false,
       "autoselect": true,
       "forced": false,
-      "url":
-        "https://wowzaec2demo.streamlock.net/vod-multitrack/_definst_/smil:Elephants…es_t64U3BhbmlzaA==_cfRWxlcGhhbnRzRHJlYW0vRWxlcGhhbnRzRHJlYW0udHRtbA==.m3u8",
+      "url": "https://wowzaec2demo.streamlock.net/vod-multitrack/_definst_/smil:Elephants…es_t64U3BhbmlzaA==_cfRWxlcGhhbnRzRHJlYW0vRWxlcGhhbnRzRHJlYW0udHRtbA==.m3u8",
       "lang": "es",
       "id": 1
     },
@@ -31,8 +29,7 @@
       "default": false,
       "autoselect": false,
       "forced": false,
-      "url":
-        "https://wowzaec2demo.streamlock.net/vod-multitrack/_definst_/smil:Elephants…VudGFyeSAoZW5nKQ==_cfRWxlcGhhbnRzRHJlYW0vRWxlcGhhbnRzRHJlYW0udHRtbA==.m3u8",
+      "url": "https://wowzaec2demo.streamlock.net/vod-multitrack/_definst_/smil:Elephants…VudGFyeSAoZW5nKQ==_cfRWxlcGhhbnRzRHJlYW0vRWxlcGhhbnRzRHJlYW0udHRtbA==.m3u8",
       "lang": "en",
       "id": 2
     }
