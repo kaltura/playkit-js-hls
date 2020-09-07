@@ -2,6 +2,25 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.21.0](https://github.com/kaltura/playkit-js-hls/compare/v1.20.0...v1.21.0) (2020-09-07)
+
+
+### Build System
+
+* **FEC-10064:** add automatic release notes ([#118](https://github.com/kaltura/playkit-js-hls/issues/118)) ([61ae80b](https://github.com/kaltura/playkit-js-hls/commit/61ae80b))
+
+
+### Features
+
+* **FEC-10296:** upgrade hls.js to 0.14.9 ([#116](https://github.com/kaltura/playkit-js-hls/issues/116)) ([90e38b1](https://github.com/kaltura/playkit-js-hls/commit/90e38b1))
+
+
+### Tests
+
+* faster unit tests ([#117](https://github.com/kaltura/playkit-js-hls/issues/117)) ([e01a7fc](https://github.com/kaltura/playkit-js-hls/commit/e01a7fc))
+
+
+
 ## [1.20.0](https://github.com/kaltura/playkit-js-hls/compare/v1.19.1...v1.20.0) (2020-08-05)
 
 
