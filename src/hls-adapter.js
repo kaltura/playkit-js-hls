@@ -257,6 +257,8 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     this._mediaAttachedPromise = new Promise(resolve => (this._onMediaAttached = resolve));
     this._hls.on(Hlsjs.Events.MEDIA_ATTACHED, () => this._onMediaAttached());
     this._onRecoveredCallback = () => this._onRecovered();
+    this._eventManager.listen(this._videoElement, 'addtrack', (e) => this._onAddTrack(e));
+    this._eventManager.listen(this._videoElement.textTracks, 'addtrack', (e) => this._onAddTrack(e));
   }
 
   _onFpsDrop(data: Object): void {
@@ -976,7 +978,6 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     this._hls.off(Hlsjs.Events.AUDIO_TRACK_SWITCHED, this._onAudioTrackSwitched);
     this._hls.off(Hlsjs.Events.MANIFEST_LOADED, this._onManifestLoaded);
     this._hls.off(Hlsjs.Events.FPS_DROP, this._onFpsDrop);
-    this._videoElement.textTracks.onaddtrack = null;
     this._onRecoveredCallback = null;
     if (this._eventManager) {
       this._eventManager.removeAll();
