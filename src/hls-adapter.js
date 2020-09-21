@@ -222,8 +222,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    */
   constructor(videoElement: HTMLVideoElement, source: PKMediaSourceObject, config: Object) {
     HlsAdapter._logger.debug('Creating adapter. Hls version: ' + Hlsjs.version);
-    super(videoElement, source, config);
-    this._config = Utils.Object.mergeDeep({}, DefaultConfig, this._config);
+    super(videoElement, source, Utils.Object.mergeDeep(DefaultConfig, config));
     this._init();
   }
   /**
@@ -269,6 +268,17 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     this._trigger('hlsFragParsingMetadata', data);
   }
 
+  _onAddTrack(event: any) {
+    if (!this._hls.subtitleTracks.length && this._hls.subtitleTracks.length > 0) {
+      // parse CEA 608/708 captions that not exposed on hls.subtitleTracks API
+      const CEATextTrack = this._parseCEATextTrack(event.track);
+      if (CEATextTrack) {
+        HlsAdapter._logger.debug('A CEA 608/708 caption has found', CEATextTrack);
+        this._playerTracks.push(CEATextTrack);
+        this._trigger(EventType.TRACKS_CHANGED, {tracks: this._playerTracks});
+      }
+    }
+  }
   /**
    * attach media - return the media source to handle the video tag
    * @public
@@ -481,6 +491,28 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
       textTracks.push(new TextTrack(settings));
     }
     return textTracks;
+  }
+
+  /**
+   * Parse a CEA 608/708 text track which not expose on hlsjs api into player text tracks.
+   * @param {Object} CEATextTrack - A video element text track.
+   * @returns {?TextTrack} - A parsed text track if the param is a CEA 608/708 caption.
+   * @private
+   */
+  _parseCEATextTrack(CEATextTrack: Object): ?TextTrack {
+    let textTrack = null;
+    if (CEATextTrack.kind === 'captions') {
+      const settings = {
+        id: CEATextTrack.id,
+        active: CEATextTrack.mode === 'showing',
+        label: CEATextTrack.label,
+        kind: CEATextTrack.kind,
+        language: CEATextTrack.language,
+        index: this._playerTracks.filter(track => track instanceof TextTrack).length
+      };
+      textTrack = new TextTrack(settings);
+    }
+    return textTrack;
   }
 
   /**
