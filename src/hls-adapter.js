@@ -2,7 +2,9 @@
 import Hlsjs from 'hls.js';
 import DefaultConfig from './default-config';
 import {type ErrorDetailsType, HlsJsErrorMap} from './errors';
-import {AudioTrack, BaseMediaSourceAdapter, Env, Error, EventType, TextTrack, Track, Utils, VideoTrack} from '@playkit-js/playkit-js';
+import {AudioTrack, BaseMediaSourceAdapter, Env, Error, EventType, TextTrack, Track, Utils, VideoTrack, RequestType} from '@playkit-js/playkit-js';
+import pLoader from './jsonp-ploader';
+import loader from './loader';
 
 /**
  * Adapter of hls.js lib for hls content.
@@ -123,6 +125,14 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    */
   static createAdapter(videoElement: HTMLVideoElement, source: PKMediaSourceObject, config: Object): IMediaSourceAdapter {
     let adapterConfig: Object = Utils.Object.copyDeep(DefaultConfig);
+    if (Utils.Object.hasPropertyPath(config, 'sources.options')) {
+      const options = config.sources.options;
+      adapterConfig.forceRedirectExternalStreams = options.forceRedirectExternalStreams;
+      adapterConfig.redirectExternalStreamsHandler = options.redirectExternalStreamsHandler;
+      adapterConfig.redirectExternalStreamsTimeout = options.redirectExternalStreamsTimeout;
+      pLoader.redirectExternalStreamsHandler = adapterConfig.redirectExternalStreamsHandler;
+      pLoader.redirectExternalStreamsTimeout = adapterConfig.redirectExternalStreamsTimeout;
+    }
     if (Utils.Object.hasPropertyPath(config, 'playback.startTime')) {
       const startTime = Utils.Object.getPropertyPath(config, 'playback.startTime');
       if (startTime > -1) {
@@ -222,7 +232,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    */
   constructor(videoElement: HTMLVideoElement, source: PKMediaSourceObject, config: Object) {
     HlsAdapter._logger.debug('Creating adapter. Hls version: ' + Hlsjs.version);
-    super(videoElement, source, Utils.Object.mergeDeep(DefaultConfig, config));
+    super(videoElement, source, Utils.Object.mergeDeep({}, DefaultConfig, config));
     this._init();
   }
   /**
@@ -232,10 +242,142 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    * @returns {void}
    */
   _init(): void {
+    if (this._config.forceRedirectExternalStreams) {
+      this._config.hlsConfig['pLoader'] = pLoader;
+    }
+    this._maybeSetFilters();
     this._hls = new Hlsjs(this._config.hlsConfig);
     this._capabilities.fpsControl = true;
     this._hls.subtitleDisplay = this._config.subtitleDisplay;
     this._addBindings();
+  }
+
+  _maybeSetFilters(): void {
+    if (typeof Utils.Object.getPropertyPath(this._config, 'network.requestFilter') === 'function') {
+      HlsAdapter._logger.debug('Register request filter');
+      Utils.Object.mergeDeep(this._config.hlsConfig, {
+        loader,
+        xhrSetup: (xhr, url, context) => {
+          let requestFilterPromise;
+          const pkRequest: PKRequestObject = {url, body: null, headers: {}};
+          try {
+            if (context.type === 'manifest') {
+              requestFilterPromise = this._config.network.requestFilter(RequestType.MANIFEST, pkRequest);
+            }
+            if (context.frag && context.frag.type !== 'subtitle') {
+              requestFilterPromise = this._config.network.requestFilter(RequestType.SEGMENT, pkRequest);
+            }
+          } catch (error) {
+            requestFilterPromise = Promise.reject(error);
+          }
+          requestFilterPromise = requestFilterPromise || Promise.resolve(pkRequest);
+          return requestFilterPromise
+            .then(updatedRequest => {
+              context.url = updatedRequest.url;
+              xhr.open('GET', updatedRequest.url, true);
+              Object.entries(updatedRequest.headers).forEach(entry => {
+                xhr.setRequestHeader(...entry);
+              });
+            })
+            .catch(error => {
+              this._requestFilterError = true;
+              throw error;
+            });
+        }
+      });
+    }
+
+    if (typeof Utils.Object.getPropertyPath(this._config, 'network.responseFilter') === 'function') {
+      const self = this;
+      HlsAdapter._logger.debug('Register response filter');
+      Utils.Object.mergeDeep(this._config.hlsConfig, {
+        loader,
+        readystatechange: function (event) {
+          let xhr = event.currentTarget,
+            readyState = xhr.readyState,
+            stats = this.stats,
+            context = this.context,
+            config = this.config;
+
+          // don't proceed if xhr has been aborted
+          if (stats.aborted) {
+            return;
+          }
+
+          // >= HEADERS_RECEIVED
+          if (readyState >= 2) {
+            // clear xhr timeout and rearm it if readyState less than 4
+            window.clearTimeout(this.requestTimeout);
+            if (stats.tfirst === 0) {
+              stats.tfirst = Math.max(performance.now(), stats.trequest);
+            }
+
+            if (readyState === 4) {
+              let status = xhr.status;
+              // http status between 200 to 299 are all successful
+              if (status >= 200 && status < 300) {
+                stats.tload = Math.max(stats.tfirst, performance.now());
+                let data, len;
+                if (context.responseType === 'arraybuffer') {
+                  data = xhr.response;
+                  len = data.byteLength;
+                } else {
+                  data = xhr.responseText;
+                  len = data.length;
+                }
+                stats.loaded = stats.total = len;
+
+                const pkResponse: PKResponseObject = {
+                  url: xhr.responseURL,
+                  originalUrl: context.url,
+                  data,
+                  headers: Utils.Http.convertHeadersToDictionary(xhr.getAllResponseHeaders())
+                };
+                let responseFilterPromise;
+                try {
+                  if (context.type === 'manifest') {
+                    responseFilterPromise = self._config.network.responseFilter(RequestType.MANIFEST, pkResponse);
+                  }
+                  if (context.frag && context.frag.type !== 'subtitle') {
+                    responseFilterPromise = self._config.network.responseFilter(RequestType.SEGMENT, pkResponse);
+                  }
+                } catch (error) {
+                  responseFilterPromise = Promise.reject(error);
+                }
+                responseFilterPromise = responseFilterPromise || Promise.resolve(pkResponse);
+                return responseFilterPromise
+                  .then(updatedResponse => {
+                    this.callbacks.onSuccess(updatedResponse, stats, context, xhr);
+                  })
+                  .catch(error => {
+                    self._responseFilterError = true;
+                    this.callbacks.onError({code: status, text: error.message}, context, xhr);
+                  });
+              } else {
+                // if max nb of retries reached or if http status between 400 and 499 (such error cannot be recovered, retrying is useless), return error
+                if (stats.retry >= config.maxRetry || (status >= 400 && status < 499)) {
+                  HlsAdapter._logger.error(`${status} while loading ${context.url}`);
+                  this.callbacks.onError({code: status, text: xhr.statusText}, context, xhr);
+                } else {
+                  // retry
+                  HlsAdapter._logger.warn(`${status} while loading ${context.url}, retrying in ${this.retryDelay}...`);
+                  // aborts and resets internal state
+                  this.destroy();
+                  // schedule retry
+                  this.retryTimeout = window.setTimeout(this.loadInternal.bind(this), this.retryDelay);
+                  // set exponential backoff
+                  this.retryDelay = Math.min(2 * this.retryDelay, config.maxRetryDelay);
+                  stats.retry++;
+                }
+              }
+            } else {
+              // readyState >= 2 AND readyState !==4 (readyState = HEADERS_RECEIVED || LOADING) rearm timeout as xhr not finished yet
+              this.requestTimeout = window.setTimeout(this.loadtimeout.bind(this), config.timeout);
+            }
+          }
+        }
+      });
+    }
   }
 
   /**
@@ -252,12 +394,11 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     this._hls.on(Hlsjs.Events.FPS_DROP, (e, data) => this._onFpsDrop(data));
     this._hls.on(Hlsjs.Events.FRAG_PARSING_METADATA, (e, data) => this._onFragParsingMetadata(data));
     this._hls.on(Hlsjs.Events.FRAG_LOADED, (e, data) => this._onFragLoaded(data));
-    this._hls.on(Hlsjs.Events.FRAG_CHANGED, () => this._onFragChanged());
     this._mediaAttachedPromise = new Promise(resolve => (this._onMediaAttached = resolve));
     this._hls.on(Hlsjs.Events.MEDIA_ATTACHED, () => this._onMediaAttached());
     this._onRecoveredCallback = () => this._onRecovered();
-    this._eventManager.listen(this._videoElement, 'addtrack', (e) => this._onAddTrack(e));
-    this._eventManager.listen(this._videoElement.textTracks, 'addtrack', (e) => this._onAddTrack(e));
+    this._eventManager.listen(this._videoElement, 'addtrack', e => this._onAddTrack(e));
+    this._eventManager.listen(this._videoElement.textTracks, 'addtrack', e => this._onAddTrack(e));
   }
 
   _onFpsDrop(data: Object): void {
@@ -269,7 +410,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
   }
 
   _onAddTrack(event: any) {
-    if (!this._hls.subtitleTracks.length && this._hls.subtitleTracks.length > 0) {
+    if (!this._hls.subtitleTracks.length) {
       // parse CEA 608/708 captions that not exposed on hls.subtitleTracks API
       const CEATextTrack = this._parseCEATextTrack(event.track);
       if (CEATextTrack) {
@@ -377,9 +518,12 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    * @private
    */
   _reloadWithDirectManifest() {
+    // Mark that we tried once to redirect
+    this._triedReloadWithRedirect = true;
     // reset hls.js
     this._reset();
     // re-init hls.js with the external redirect playlist loader
+    this._config.hlsConfig['pLoader'] = pLoader;
     this._hls = new Hlsjs(this._config.hlsConfig);
     this._addBindings();
     this._loadInternal();
@@ -1043,16 +1187,6 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     } else {
       return 0;
     }
-  }
-
-  /**
-   * called when a fragment is loaded
-   * @private
-   * @param {any} data - the event data of the loaded fragment
-   * @returns {void}
-   */
-  _onFragChanged(): void {
-    this._hls.streamController.flushMainBuffer(0, this._hls.media.currentTime - 10);
   }
 
   /**
