@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.21.2](https://github.com/kaltura/playkit-js-hls/compare/v1.21.1...v1.21.2) (2020-11-03)
+
+
+### Build System
+
+* change modules to default value ([#121](https://github.com/kaltura/playkit-js-hls/issues/121)) ([10f8d8d](https://github.com/kaltura/playkit-js-hls/commit/10f8d8d))
+* remove plugins that already exist on preset-env ([#120](https://github.com/kaltura/playkit-js-hls/issues/120)) ([7f94927](https://github.com/kaltura/playkit-js-hls/commit/7f94927))
+
+
+
 ### [1.21.1](https://github.com/kaltura/playkit-js-hls/compare/v1.21.0...v1.21.1) (2020-09-08)
 
 
