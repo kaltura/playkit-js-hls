@@ -683,7 +683,7 @@ describe.skip('HlsAdapter [debugging and testing manually]', function (done) {
 describe('HlsAdapter Instance request filter', () => {
   let hlsAdapterInstance;
   let video;
-  let vodSource = hls_sources.FolgersCoffee;
+  let vodSource = hls_sources.BigBugBunnuy;
   let config;
   let sandbox;
 
@@ -891,7 +891,7 @@ describe('HlsAdapter Instance request filter', () => {
 
 describe('HlsAdapter Instance: response filter', () => {
   let video, hlsAdapterInstance, config, sandbox;
-  let vodSource = hls_sources.FolgersCoffee;
+  let vodSource = hls_sources.BigBugBunnuy;
 
   beforeEach(() => {
     video = document.createElement('video');
