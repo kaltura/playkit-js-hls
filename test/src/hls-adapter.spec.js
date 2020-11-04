@@ -719,7 +719,7 @@ describe('HlsAdapter Instance request filter', () => {
           requestFilter: function (type, request) {
             try {
               type.should.equal(RequestType.MANIFEST);
-              request.url.should.equal(`http:${vodSource.url}`);
+              request.url.should.equal(`${vodSource.url}`);
               Object.prototype.hasOwnProperty.call(request, 'body').should.be.true;
               request.headers.should.be.exist;
               setTimeout(done);
@@ -927,8 +927,8 @@ describe('HlsAdapter Instance: response filter', () => {
           responseFilter: function (type, response) {
             try {
               type.should.equal(RequestType.MANIFEST);
-              response.url.should.equal(`http:${vodSource.url}`);
-              response.originalUrl.should.equal(`http:${vodSource.url}`);
+              response.url.should.equal(`${vodSource.url}`);
+              response.originalUrl.should.equal(`${vodSource.url}`);
               response.data.should.be.exist;
               response.headers['content-type'].should.equal('application/x-mpegurl');
               done();
