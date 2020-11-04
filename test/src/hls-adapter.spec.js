@@ -538,9 +538,9 @@ describe('HlsAdapter Instance - change media', function () {
     try {
       hlsAdapterInstance = HlsAdapter.createAdapter(video, source1, config);
       video.addEventListener(EventType.PLAYING, () => {
-        hlsAdapterInstance.targetBuffer.should.equal(
-          hlsAdapterInstance._hls.config.maxMaxBufferLength + hlsAdapterInstance._getLevelDetails().targetduration
-        );
+        const targetBufferVal = hlsAdapterInstance._hls.config.maxMaxBufferLength + hlsAdapterInstance._getLevelDetails().targetduration;
+        Math.round(hlsAdapterInstance.targetBuffer - targetBufferVal).should.equal(0);
+
         done();
       });
       hlsAdapterInstance.load().then(() => {
@@ -557,7 +557,8 @@ describe('HlsAdapter Instance - change media', function () {
       video.addEventListener(EventType.PLAYING, () => {
         video.currentTime = video.duration - 1;
         video.addEventListener(EventType.SEEKED, () => {
-          hlsAdapterInstance.targetBuffer.should.equal(video.duration - video.currentTime);
+          const targetBufferVal = video.duration - video.currentTime;
+          Math.round(hlsAdapterInstance.targetBuffer - targetBufferVal).should.equal(0);
           done();
         });
       });
@@ -581,7 +582,7 @@ describe('HlsAdapter Instance - change media', function () {
           hlsAdapterInstance._hls.config.liveSyncDurationCount * hlsAdapterInstance._getLevelDetails().targetduration -
           (hlsAdapterInstance._videoElement.currentTime - hlsAdapterInstance._getLiveEdge());
 
-        hlsAdapterInstance.targetBuffer.should.equal(targetBufferVal);
+        Math.round(hlsAdapterInstance.targetBuffer - targetBufferVal).should.equal(0);
         done();
       });
 
@@ -603,7 +604,7 @@ describe('HlsAdapter Instance - change media', function () {
       video.addEventListener(EventType.PLAYING, () => {
         let targetBufferVal = hlsAdapterInstance._hls.config.maxMaxBufferLength + hlsAdapterInstance._getLevelDetails().targetduration;
 
-        hlsAdapterInstance.targetBuffer.should.equal(targetBufferVal);
+        Math.round(hlsAdapterInstance.targetBuffer - targetBufferVal).should.equal(0);
         done();
       });
 
