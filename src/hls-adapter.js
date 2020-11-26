@@ -539,11 +539,17 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    * @returns {Promise<*>} - The destroy promise.
    */
   destroy(): Promise<*> {
-    return super.destroy().then(() => {
-      HlsAdapter._logger.debug('destroy');
-      this._loadPromise = null;
-      this._playerTracks = [];
-      this._reset();
+    return new Promise((resolve, reject) => {
+      super.destroy().then(
+        () => {
+          HlsAdapter._logger.debug('destroy');
+          this._loadPromise = null;
+          this._playerTracks = [];
+          this._reset();
+          resolve();
+        },
+        () => reject
+      );
     });
   }
 
