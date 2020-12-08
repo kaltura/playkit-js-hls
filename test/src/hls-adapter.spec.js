@@ -538,9 +538,9 @@ describe('HlsAdapter Instance - change media', function () {
     try {
       hlsAdapterInstance = HlsAdapter.createAdapter(video, source1, config);
       video.addEventListener(EventType.PLAYING, () => {
-        hlsAdapterInstance.targetBuffer.should.equal(
-          hlsAdapterInstance._hls.config.maxMaxBufferLength + hlsAdapterInstance._getLevelDetails().targetduration
-        );
+        const targetBufferVal = hlsAdapterInstance._hls.config.maxMaxBufferLength + hlsAdapterInstance._getLevelDetails().targetduration;
+        Math.round(hlsAdapterInstance.targetBuffer - targetBufferVal).should.equal(0);
+
         done();
       });
       hlsAdapterInstance.load().then(() => {
@@ -557,7 +557,8 @@ describe('HlsAdapter Instance - change media', function () {
       video.addEventListener(EventType.PLAYING, () => {
         video.currentTime = video.duration - 1;
         video.addEventListener(EventType.SEEKED, () => {
-          hlsAdapterInstance.targetBuffer.should.equal(video.duration - video.currentTime);
+          const targetBufferVal = video.duration - video.currentTime;
+          Math.round(hlsAdapterInstance.targetBuffer - targetBufferVal).should.equal(0);
           done();
         });
       });
@@ -581,7 +582,7 @@ describe('HlsAdapter Instance - change media', function () {
           hlsAdapterInstance._hls.config.liveSyncDurationCount * hlsAdapterInstance._getLevelDetails().targetduration -
           (hlsAdapterInstance._videoElement.currentTime - hlsAdapterInstance._getLiveEdge());
 
-        hlsAdapterInstance.targetBuffer.should.equal(targetBufferVal);
+        Math.round(hlsAdapterInstance.targetBuffer - targetBufferVal).should.equal(0);
         done();
       });
 
@@ -603,7 +604,7 @@ describe('HlsAdapter Instance - change media', function () {
       video.addEventListener(EventType.PLAYING, () => {
         let targetBufferVal = hlsAdapterInstance._hls.config.maxMaxBufferLength + hlsAdapterInstance._getLevelDetails().targetduration;
 
-        hlsAdapterInstance.targetBuffer.should.equal(targetBufferVal);
+        Math.round(hlsAdapterInstance.targetBuffer - targetBufferVal).should.equal(0);
         done();
       });
 
@@ -682,7 +683,7 @@ describe.skip('HlsAdapter [debugging and testing manually]', function (done) {
 describe('HlsAdapter Instance request filter', () => {
   let hlsAdapterInstance;
   let video;
-  let vodSource = hls_sources.FolgersCoffee;
+  let vodSource = hls_sources.BigBugBunnuy;
   let config;
   let sandbox;
 
@@ -718,7 +719,7 @@ describe('HlsAdapter Instance request filter', () => {
           requestFilter: function (type, request) {
             try {
               type.should.equal(RequestType.MANIFEST);
-              request.url.should.equal(`http:${vodSource.url}`);
+              request.url.should.equal(`${vodSource.url}`);
               Object.prototype.hasOwnProperty.call(request, 'body').should.be.true;
               request.headers.should.be.exist;
               setTimeout(done);
@@ -890,7 +891,7 @@ describe('HlsAdapter Instance request filter', () => {
 
 describe('HlsAdapter Instance: response filter', () => {
   let video, hlsAdapterInstance, config, sandbox;
-  let vodSource = hls_sources.FolgersCoffee;
+  let vodSource = hls_sources.BigBugBunnuy;
 
   beforeEach(() => {
     video = document.createElement('video');
@@ -926,8 +927,8 @@ describe('HlsAdapter Instance: response filter', () => {
           responseFilter: function (type, response) {
             try {
               type.should.equal(RequestType.MANIFEST);
-              response.url.should.equal(`http:${vodSource.url}`);
-              response.originalUrl.should.equal(`http:${vodSource.url}`);
+              response.url.should.equal(`${vodSource.url}`);
+              response.originalUrl.should.equal(`${vodSource.url}`);
               response.data.should.be.exist;
               response.headers['content-type'].should.equal('application/x-mpegurl');
               done();
