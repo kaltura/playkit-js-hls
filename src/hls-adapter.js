@@ -717,7 +717,9 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    * @private
    */
   _selectNativeTextTrack(textTrack: TextTrack): void {
-    const selectedTrack = Array.from(this._videoElement.textTracks).find(track => track.language === textTrack.language);
+    const selectedTrack = Array.from(this._videoElement.textTracks).find(
+      track => (track.language && track.language === textTrack.language) || track.label === textTrack.label
+    );
     if (selectedTrack) {
       this._disableNativeTextTracks();
       selectedTrack.mode = this._config.subtitleDisplay ? 'showing' : 'hidden';
