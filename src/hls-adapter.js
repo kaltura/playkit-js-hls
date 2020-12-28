@@ -114,7 +114,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
   _mediaAttachedPromise: Promise<*>;
   _requestFilterError: boolean = false;
   _responseFilterError: boolean = false;
-
+  _nativeTextTracksMap = [];
   /**
    * Factory method to create media source adapter.
    * @function createAdapter
@@ -545,6 +545,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
           HlsAdapter._logger.debug('destroy');
           this._loadPromise = null;
           this._playerTracks = [];
+          this._nativeTextTracksMap = [];
           this._reset();
           resolve();
         },
@@ -664,6 +665,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
         index: this._playerTracks.filter(track => track instanceof TextTrack).length
       };
       textTrack = new TextTrack(settings);
+      this._nativeTextTracksMap[settings.index] = CEATextTrack;
     }
     return textTrack;
   }
@@ -723,7 +725,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    * @private
    */
   _selectNativeTextTrack(textTrack: TextTrack): void {
-    const selectedTrack = Array.from(this._videoElement.textTracks).find(track => track.language === textTrack.language);
+    const selectedTrack = this._nativeTextTracksMap[textTrack.index];
     if (selectedTrack) {
       this._disableNativeTextTracks();
       selectedTrack.mode = this._config.subtitleDisplay ? 'showing' : 'hidden';
