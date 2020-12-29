@@ -140,8 +140,8 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
         adapterConfig.hlsConfig.startPosition = config.playback.startTime;
       }
     }
-    if (Utils.Object.hasPropertyPath(config, 'playback.useNativeTextTrack')) {
-      adapterConfig.subtitleDisplay = Utils.Object.getPropertyPath(config, 'playback.useNativeTextTrack');
+    if (Utils.Object.hasPropertyPath(config, 'text.useNativeTextTrack')) {
+      adapterConfig.subtitleDisplay = Utils.Object.getPropertyPath(config, 'text.useNativeTextTrack');
     }
     if (Utils.Object.hasPropertyPath(config, 'abr.fpsDroppedFramesInterval')) {
       adapterConfig.hlsConfig.fpsDroppedFramesInterval = config.abr.fpsDroppedFramesInterval;
@@ -152,11 +152,13 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     if (Utils.Object.hasPropertyPath(config, 'abr.capLevelOnFPSDrop')) {
       adapterConfig.hlsConfig.capLevelOnFPSDrop = config.abr.capLevelOnFPSDrop;
     }
-    adapterConfig.hlsConfig.enableCEA708Captions = config.playback.enableCEA708Captions;
-    adapterConfig.hlsConfig.captionsTextTrack1Label = config.playback.captionsTextTrack1Label;
-    adapterConfig.hlsConfig.captionsTextTrack1LanguageCode = config.playback.captionsTextTrack1LanguageCode;
-    adapterConfig.hlsConfig.captionsTextTrack2Label = config.playback.captionsTextTrack2Label;
-    adapterConfig.hlsConfig.captionsTextTrack2LanguageCode = config.playback.captionsTextTrack2LanguageCode;
+    if (Utils.Object.hasPropertyPath(config, 'text')) {
+      adapterConfig.hlsConfig.enableCEA708Captions = config.text.enableCEA708Captions;
+      adapterConfig.hlsConfig.captionsTextTrack1Label = config.text.captionsTextTrack1Label;
+      adapterConfig.hlsConfig.captionsTextTrack1LanguageCode = config.text.captionsTextTrack1LanguageCode;
+      adapterConfig.hlsConfig.captionsTextTrack2Label = config.text.captionsTextTrack2Label;
+      adapterConfig.hlsConfig.captionsTextTrack2LanguageCode = config.text.captionsTextTrack2LanguageCode;
+    }
 
     if (Utils.Object.hasPropertyPath(config, 'abr')) {
       const abr = config.abr;
