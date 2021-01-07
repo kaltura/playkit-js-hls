@@ -2,6 +2,26 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.22.0](https://github.com/kaltura/playkit-js-hls/compare/v1.21.2...v1.22.0) (2021-01-07)
+
+
+### Bug Fixes
+
+* **FEC-10662:** incorrect flow in destroy process ([#123](https://github.com/kaltura/playkit-js-hls/issues/123)) ([ad220f8](https://github.com/kaltura/playkit-js-hls/commit/ad220f8))
+* **FEC-10819:** selecting 708 captions selects wrong native text track ([#126](https://github.com/kaltura/playkit-js-hls/issues/126)) ([44f78c8](https://github.com/kaltura/playkit-js-hls/commit/44f78c8))
+
+
+### Features
+
+* **FEC-10766:** create text config section and option for styling ([#124](https://github.com/kaltura/playkit-js-hls/issues/124)) ([fd12025](https://github.com/kaltura/playkit-js-hls/commit/fd12025))
+
+
+### Tests
+
+* targetBuffer check doesn't perfectly equal and replace invalid stream ([#122](https://github.com/kaltura/playkit-js-hls/issues/122)) ([751c979](https://github.com/kaltura/playkit-js-hls/commit/751c979))
+
+
+
 ### [1.21.2](https://github.com/kaltura/playkit-js-hls/compare/v1.21.1...v1.21.2) (2020-11-03)
 
 
