@@ -865,8 +865,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     try {
       return !!this._getLevelDetails().live;
     } catch (e) {
-      // return false;
-      return true;
+      return false;
     }
   }
 
