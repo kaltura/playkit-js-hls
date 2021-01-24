@@ -115,6 +115,8 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
   _requestFilterError: boolean = false;
   _responseFilterError: boolean = false;
   _nativeTextTracksMap = [];
+  _lastLoadedFragSN: number = -1;
+  _sameFragSNLoadedCount: number = 0;
   /**
    * Factory method to create media source adapter.
    * @function createAdapter
@@ -239,6 +241,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     this._config = Utils.Object.mergeDeep({}, DefaultConfig, this._config);
     this._init();
   }
+
   /**
    * init the hls adapter
    * @function _init
@@ -404,6 +407,9 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     this._onAddTrack = this._onAddTrack.bind(this);
     this._eventManager.listen(this._videoElement, 'addtrack', this._onAddTrack);
     this._videoElement.textTracks.onaddtrack = this._onAddTrack;
+    if (this.isLive()) {
+      this._hls.on(Hlsjs.Events.LEVEL_LOADED, this._onLevelLoaded);
+    }
   }
 
   _onFpsDrop(data: Object): void {
@@ -425,6 +431,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
       }
     }
   }
+
   /**
    * attach media - return the media source to handle the video tag
    * @public
@@ -453,6 +460,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
       }
     }
   }
+
   /**
    * detach media - will remove the media source from handling the video
    * @public
@@ -466,6 +474,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
       this._hls = null;
     }
   }
+
   /**
    * video error event handler.
    * @param {MediaError} error - the media error
@@ -548,6 +557,8 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
           this._loadPromise = null;
           this._playerTracks = [];
           this._nativeTextTracksMap = [];
+          this._sameFragSNLoadedCount = 0;
+          this._lastLoadedFragSN = -1;
           this._reset();
           resolve();
         },
@@ -1080,7 +1091,10 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     } else {
       const {category, code}: ErrorDetailsType =
         this._requestFilterError || this._responseFilterError
-          ? {category: Error.Category.NETWORK, code: this._requestFilterError ? Error.Code.REQUEST_FILTER_ERROR : Error.Code.RESPONSE_FILTER_ERROR}
+          ? {
+              category: Error.Category.NETWORK,
+              code: this._requestFilterError ? Error.Code.REQUEST_FILTER_ERROR : Error.Code.RESPONSE_FILTER_ERROR
+            }
           : HlsJsErrorMap[errorName] || {category: 0, code: 0};
       HlsAdapter._logger.warn(new Error(Error.Severity.RECOVERABLE, category, code, errorDataObject));
     }
@@ -1204,6 +1218,35 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
   }
 
   /**
+   * called when a level is loaded
+   * @private
+   * @param {any} e - the event object
+   * @param {any} data - the event data
+   * @returns {void}
+   */
+  _onLevelLoaded = (e: any, data: any) => {
+    const {
+      details: {endSN}
+    } = data;
+    if (this._lastLoadedFragSN === endSN) {
+      this._sameFragSNLoadedCount++;
+      HlsAdapter._logger.debug(`Same frag SN. Count is: ${this._sameFragSNLoadedCount}, Max is: ${this._config.network.maxStaleLevelReloads}`);
+      if (this._sameFragSNLoadedCount >= this._config.network.maxStaleLevelReloads) {
+        HlsAdapter._logger.error(`Same frag loading reached max count`);
+        const error = new Error(Error.Severity.CRITICAL, Error.Category.NETWORK, Error.Code.LIVE_MANIFEST_REFRESH_ERROR, {
+          fragSN: endSN
+        });
+        this._trigger(EventType.ERROR, error);
+        return this.destroy();
+      }
+      HlsAdapter._logger.debug(`Last frag SN is: ${endSN}`);
+    } else {
+      this._sameFragSNLoadedCount = 0;
+    }
+    this._lastLoadedFragSN = endSN;
+  };
+
+  /**
    * called when a fragment is loaded
    * @private
    * @param {any} data - the event data of the loaded fragment
@@ -1211,7 +1254,11 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    */
   _onFragLoaded(data: any): void {
     const fragmentDownloadTime = data.stats.tload - data.stats.trequest;
-    this._trigger(EventType.FRAG_LOADED, {miliSeconds: fragmentDownloadTime, bytes: data.stats.loaded, url: data.frag.url});
+    this._trigger(EventType.FRAG_LOADED, {
+      miliSeconds: fragmentDownloadTime,
+      bytes: data.stats.loaded,
+      url: data.frag.url
+    });
   }
 
   /**
