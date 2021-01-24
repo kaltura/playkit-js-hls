@@ -136,10 +136,10 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
       pLoader.redirectExternalStreamsHandler = adapterConfig.redirectExternalStreamsHandler;
       pLoader.redirectExternalStreamsTimeout = adapterConfig.redirectExternalStreamsTimeout;
     }
-    if (Utils.Object.hasPropertyPath(config, 'playback.startTime')) {
-      const startTime = Utils.Object.getPropertyPath(config, 'playback.startTime');
+    if (Utils.Object.hasPropertyPath(config, 'sources.startTime')) {
+      const startTime = Utils.Object.getPropertyPath(config, 'sources.startTime');
       if (startTime > -1) {
-        adapterConfig.hlsConfig.startPosition = config.playback.startTime;
+        adapterConfig.hlsConfig.startPosition = config.sources.startTime;
       }
     }
     if (Utils.Object.hasPropertyPath(config, 'text.useNativeTextTrack')) {
@@ -1239,11 +1239,10 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
         this._trigger(EventType.ERROR, error);
         return this.destroy();
       }
+      HlsAdapter._logger.debug(`Last frag SN is: ${endSN}`);
     } else {
-      HlsAdapter._logger.debug(`Different frag SN is loaded. Reset count`);
       this._sameFragSNLoadedCount = 0;
     }
-    HlsAdapter._logger.debug(`Last frag SN is: ${endSN}`);
     this._lastLoadedFragSN = endSN;
   };
 
