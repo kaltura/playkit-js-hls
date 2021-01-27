@@ -97,12 +97,6 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    */
   _startTime: ?number = 0;
   /**
-   * The last time detach occurred
-   * @type {number}
-   * @private
-   */
-  _lastTimeDetach: number = 0;
-  /**
    * Reference to _onRecoveredCallback function
    * @member {?Function} - _onRecoveredCallback
    * @type {?Function}
@@ -444,20 +438,6 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
         Utils.Dom.removeAttribute(this._videoElement, 'src');
       }
       this._init();
-      const _seekAfterDetach = () => {
-        if (isNaN(this._lastTimeDetach)) return;
-        if (parseInt(this._lastTimeDetach) === parseInt(this.duration)) {
-          this.currentTime = 0;
-        } else {
-          this.currentTime = this._lastTimeDetach;
-        }
-        this._lastTimeDetach = NaN;
-      };
-      if (!isNaN(this._lastTimeDetach)) {
-        this._eventManager.listenOnce(this._videoElement, EventType.LOADED_DATA, _seekAfterDetach);
-        //change to NaN to avoid the seek after detach whenever seeked fired before - SmartTV issue
-        this._eventManager.listenOnce(this._videoElement, EventType.SEEKED, () => (this._lastTimeDetach = NaN));
-      }
     }
   }
 
@@ -468,7 +448,11 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    */
   detachMediaSource(): void {
     if (this._hls) {
-      this._lastTimeDetach = this.currentTime;
+      if (parseInt(this.currentTime) === parseInt(this.duration)) {
+        this._config.hlsConfig.startPosition = 0;
+      } else {
+        this._config.hlsConfig.startPosition = this.currentTime;
+      }
       this._reset();
       this._loadPromise = null;
       this._hls = null;
