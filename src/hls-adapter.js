@@ -118,6 +118,23 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
   _lastLoadedFragSN: number = -1;
   _sameFragSNLoadedCount: number = 0;
   /**
+   * an object containing all the events we bind and unbind to.
+   * @member {Object} - _adapterEventsBindings
+   * @type {Object}
+   * @private
+   */
+  _adapterEventsBindings: {[name: string]: Function} = {
+    [Hlsjs.Events.ERROR]: (e, data) => this._onError(data),
+    [Hlsjs.Events.MANIFEST_LOADED]: (e, data) => this._onManifestLoaded(data),
+    [Hlsjs.Events.LEVEL_SWITCHED]: (e, data) => this._onLevelSwitched(e, data),
+    [Hlsjs.Events.AUDIO_TRACK_SWITCHED]: (e, data) => this._onAudioTrackSwitched(e, data),
+    [Hlsjs.Events.FPS_DROP]: (e, data) => this._onFpsDrop(data),
+    [Hlsjs.Events.FRAG_PARSING_METADATA]: (e, data) => this._onFragParsingMetadata(data),
+    [Hlsjs.Events.FRAG_LOADED]: (e, data) => this._onFragLoaded(data),
+    [Hlsjs.Events.MEDIA_ATTACHED]: () => this._onMediaAttached(),
+    [Hlsjs.Events.LEVEL_LOADED]: (e, data) => this._onLevelLoaded(e, data)
+  };
+  /**
    * Factory method to create media source adapter.
    * @function createAdapter
    * @param {HTMLVideoElement} videoElement - The video element that the media source adapter work with.
@@ -394,16 +411,10 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    * @returns {void}
    */
   _addBindings(): void {
-    this._hls.on(Hlsjs.Events.ERROR, (e, data) => this._onError(data));
-    this._hls.on(Hlsjs.Events.MANIFEST_LOADED, (e, data) => this._onManifestLoaded(data));
-    this._hls.on(Hlsjs.Events.LEVEL_SWITCHED, this._onLevelSwitched.bind(this));
-    this._hls.on(Hlsjs.Events.AUDIO_TRACK_SWITCHED, this._onAudioTrackSwitched.bind(this));
-    this._hls.on(Hlsjs.Events.FPS_DROP, (e, data) => this._onFpsDrop(data));
-    this._hls.on(Hlsjs.Events.FRAG_PARSING_METADATA, (e, data) => this._onFragParsingMetadata(data));
-    this._hls.on(Hlsjs.Events.FRAG_LOADED, (e, data) => this._onFragLoaded(data));
-    this._hls.on(Hlsjs.Events.LEVEL_LOADED, this._onLevelLoaded);
     this._mediaAttachedPromise = new Promise(resolve => (this._onMediaAttached = resolve));
-    this._hls.on(Hlsjs.Events.MEDIA_ATTACHED, () => this._onMediaAttached());
+    for (const [event, callback] of Object.entries(this._adapterEventsBindings)) {
+      this._hls.on(event, callback);
+    }
     this._onRecoveredCallback = () => this._onRecovered();
     this._onAddTrack = this._onAddTrack.bind(this);
     this._eventManager.listen(this._videoElement, 'addtrack', this._onAddTrack);
@@ -1174,11 +1185,9 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    * @private
    */
   _removeBindings(): void {
-    this._hls.off(Hlsjs.Events.ERROR, this._onError);
-    this._hls.off(Hlsjs.Events.LEVEL_SWITCHED, this._onLevelSwitched);
-    this._hls.off(Hlsjs.Events.AUDIO_TRACK_SWITCHED, this._onAudioTrackSwitched);
-    this._hls.off(Hlsjs.Events.MANIFEST_LOADED, this._onManifestLoaded);
-    this._hls.off(Hlsjs.Events.FPS_DROP, this._onFpsDrop);
+    for (const [event, callback] of Object.entries(this._adapterEventsBindings)) {
+      this._hls.off(event, callback);
+    }
     this._videoElement.textTracks.onaddtrack = null;
     this._onRecoveredCallback = null;
     if (this._eventManager) {
