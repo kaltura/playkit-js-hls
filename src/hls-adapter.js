@@ -401,15 +401,13 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     this._hls.on(Hlsjs.Events.FPS_DROP, (e, data) => this._onFpsDrop(data));
     this._hls.on(Hlsjs.Events.FRAG_PARSING_METADATA, (e, data) => this._onFragParsingMetadata(data));
     this._hls.on(Hlsjs.Events.FRAG_LOADED, (e, data) => this._onFragLoaded(data));
+    this._hls.on(Hlsjs.Events.LEVEL_LOADED, this._onLevelLoaded);
     this._mediaAttachedPromise = new Promise(resolve => (this._onMediaAttached = resolve));
     this._hls.on(Hlsjs.Events.MEDIA_ATTACHED, () => this._onMediaAttached());
     this._onRecoveredCallback = () => this._onRecovered();
     this._onAddTrack = this._onAddTrack.bind(this);
     this._eventManager.listen(this._videoElement, 'addtrack', this._onAddTrack);
     this._videoElement.textTracks.onaddtrack = this._onAddTrack;
-    if (this.isLive()) {
-      this._hls.on(Hlsjs.Events.LEVEL_LOADED, this._onLevelLoaded);
-    }
   }
 
   _onFpsDrop(data: Object): void {
@@ -1225,25 +1223,27 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    * @returns {void}
    */
   _onLevelLoaded = (e: any, data: any) => {
-    const {
-      details: {endSN}
-    } = data;
-    if (this._lastLoadedFragSN === endSN) {
-      this._sameFragSNLoadedCount++;
-      HlsAdapter._logger.debug(`Same frag SN. Count is: ${this._sameFragSNLoadedCount}, Max is: ${this._config.network.maxStaleLevelReloads}`);
-      if (this._sameFragSNLoadedCount >= this._config.network.maxStaleLevelReloads) {
-        HlsAdapter._logger.error(`Same frag loading reached max count`);
-        const error = new Error(Error.Severity.CRITICAL, Error.Category.NETWORK, Error.Code.LIVE_MANIFEST_REFRESH_ERROR, {
-          fragSN: endSN
-        });
-        this._trigger(EventType.ERROR, error);
-        return this.destroy();
+    if (this.isLive()) {
+      const {
+        details: {endSN}
+      } = data;
+      if (this._lastLoadedFragSN === endSN) {
+        this._sameFragSNLoadedCount++;
+        HlsAdapter._logger.debug(`Same frag SN. Count is: ${this._sameFragSNLoadedCount}, Max is: ${this._config.network.maxStaleLevelReloads}`);
+        if (this._sameFragSNLoadedCount >= this._config.network.maxStaleLevelReloads) {
+          HlsAdapter._logger.error(`Same frag loading reached max count`);
+          const error = new Error(Error.Severity.CRITICAL, Error.Category.NETWORK, Error.Code.LIVE_MANIFEST_REFRESH_ERROR, {
+            fragSN: endSN
+          });
+          this._trigger(EventType.ERROR, error);
+          return this.destroy();
+        }
+        HlsAdapter._logger.debug(`Last frag SN is: ${endSN}`);
+      } else {
+        this._sameFragSNLoadedCount = 0;
       }
-      HlsAdapter._logger.debug(`Last frag SN is: ${endSN}`);
-    } else {
-      this._sameFragSNLoadedCount = 0;
+      this._lastLoadedFragSN = endSN;
     }
-    this._lastLoadedFragSN = endSN;
   };
 
   /**
