@@ -853,10 +853,10 @@
   resolved "https://registry.yarnpkg.com/@istanbuljs/schema/-/schema-0.1.2.tgz#26520bf09abe4a5644cd5414e37125a8954241dd"
   integrity sha512-tsAQNx32a8CoFhjhijUIhI4kccIAgmGhy8LZMZgGfmXcpMbPRUqn5LWmgRttILi6yeGmBJd2xsPkFMs0PzgPCw==
 
-"@playkit-js/playkit-js@0.63.0":
-  version "0.63.0"
-  resolved "https://registry.yarnpkg.com/@playkit-js/playkit-js/-/playkit-js-0.63.0.tgz#01c073dc2067befe57cdca168ea54b8583e07a30"
-  integrity sha512-nJejwY2HQGk/imgqtkma79KOII4F2LIYm5E2irUJHv/8luflCuBwsihX/jD1H+kdkXvB5GjT9v2LHHHbfcj6Sg==
+"@playkit-js/playkit-js@0.67.0-canary.8d385c8":
+  version "0.67.0-canary.8d385c8"
+  resolved "https://registry.yarnpkg.com/@playkit-js/playkit-js/-/playkit-js-0.67.0-canary.8d385c8.tgz#8e4e56f81a8a84149362713d08bf86935ca2953b"
+  integrity sha512-3wy00sLLE2QtysQ6FAK5AL0VWaxOd+KAiXPSMR0sYyf1uUKRv5BoZKEN1J0AXWSNzxDNG8UFPVr6rIUIdt+N5Q==
   dependencies:
     js-logger "^1.6.0"
     ua-parser-js "^0.7.21"
