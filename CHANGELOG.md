@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.23.0](https://github.com/kaltura/playkit-js-hls/compare/v1.22.0...v1.23.0) (2021-01-28)
+
+
+### Bug Fixes
+
+* **FEC-10657:** move isLive check for LEVEL_LOADED event ([#131](https://github.com/kaltura/playkit-js-hls/issues/131)) ([f0dc741](https://github.com/kaltura/playkit-js-hls/commit/f0dc741))
+
+
+### Features
+
+* **FEC-10657:** add max stale level reloads config ([#127](https://github.com/kaltura/playkit-js-hls/issues/127)) ([1d8f1d0](https://github.com/kaltura/playkit-js-hls/commit/1d8f1d0))
+* **FEC-10686:** move startTime config from playback to sources ([#128](https://github.com/kaltura/playkit-js-hls/issues/128)) ([b24f0fd](https://github.com/kaltura/playkit-js-hls/commit/b24f0fd))
+
+
+
 ## [1.22.0](https://github.com/kaltura/playkit-js-hls/compare/v1.21.2...v1.22.0) (2021-01-07)
 
 
