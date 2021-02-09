@@ -460,7 +460,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
       // 1 second different between duration and current time will signal as end - will enable replay button
       if (Math.floor(this.duration - this.currentTime) === 0) {
         this._config.hlsConfig.startPosition = 0;
-      } else {
+      } else if (this.currentTime > 0) {
         this._config.hlsConfig.startPosition = this.currentTime;
       }
       this._reset();
