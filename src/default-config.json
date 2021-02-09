@@ -8,5 +8,6 @@
   "hlsConfig": {
     "fragLoadingMaxRetry": 4,
     "maxMaxBufferLength": 60
-  }
+  },
+  "network": {}
 }

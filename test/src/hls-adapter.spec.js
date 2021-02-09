@@ -539,7 +539,7 @@ describe('HlsAdapter Instance - change media', function () {
       hlsAdapterInstance = HlsAdapter.createAdapter(video, source1, config);
       video.addEventListener(EventType.PLAYING, () => {
         const targetBufferVal = hlsAdapterInstance._hls.config.maxMaxBufferLength + hlsAdapterInstance._getLevelDetails().targetduration;
-        Math.round(hlsAdapterInstance.targetBuffer - targetBufferVal).should.equal(0);
+        Math.floor(hlsAdapterInstance.targetBuffer - targetBufferVal).should.equal(0);
 
         done();
       });
@@ -558,7 +558,7 @@ describe('HlsAdapter Instance - change media', function () {
         video.currentTime = video.duration - 1;
         video.addEventListener(EventType.SEEKED, () => {
           const targetBufferVal = video.duration - video.currentTime;
-          Math.round(hlsAdapterInstance.targetBuffer - targetBufferVal).should.equal(0);
+          Math.floor(hlsAdapterInstance.targetBuffer - targetBufferVal).should.equal(0);
           done();
         });
       });
@@ -582,7 +582,7 @@ describe('HlsAdapter Instance - change media', function () {
           hlsAdapterInstance._hls.config.liveSyncDurationCount * hlsAdapterInstance._getLevelDetails().targetduration -
           (hlsAdapterInstance._videoElement.currentTime - hlsAdapterInstance._getLiveEdge());
 
-        Math.round(hlsAdapterInstance.targetBuffer - targetBufferVal).should.equal(0);
+        Math.floor(hlsAdapterInstance.targetBuffer - targetBufferVal).should.equal(0);
         done();
       });
 
@@ -604,7 +604,7 @@ describe('HlsAdapter Instance - change media', function () {
       video.addEventListener(EventType.PLAYING, () => {
         let targetBufferVal = hlsAdapterInstance._hls.config.maxMaxBufferLength + hlsAdapterInstance._getLevelDetails().targetduration;
 
-        Math.round(hlsAdapterInstance.targetBuffer - targetBufferVal).should.equal(0);
+        Math.floor(hlsAdapterInstance.targetBuffer - targetBufferVal).should.equal(0);
         done();
       });
 
