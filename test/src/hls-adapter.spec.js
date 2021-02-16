@@ -575,7 +575,7 @@ describe('HlsAdapter Instance - change media', function () {
       hlsAdapterInstance = HlsAdapter.createAdapter(
         video,
         liveSource,
-        Utils.Object.mergeDeep(config, {playback: {options: {html5: {hls: {maxMaxBufferLength: 120}}}}})
+        Utils.Object.mergeDeep(config, {network: {}, playback: {options: {html5: {hls: {maxMaxBufferLength: 120}}}}})
       );
       video.addEventListener(EventType.PLAYING, () => {
         let targetBufferVal =

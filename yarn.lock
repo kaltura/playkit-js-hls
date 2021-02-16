@@ -853,10 +853,10 @@
   resolved "https://registry.yarnpkg.com/@istanbuljs/schema/-/schema-0.1.2.tgz#26520bf09abe4a5644cd5414e37125a8954241dd"
   integrity sha512-tsAQNx32a8CoFhjhijUIhI4kccIAgmGhy8LZMZgGfmXcpMbPRUqn5LWmgRttILi6yeGmBJd2xsPkFMs0PzgPCw==
 
-"@playkit-js/playkit-js@0.67.0-canary.8d385c8":
-  version "0.67.0-canary.8d385c8"
-  resolved "https://registry.yarnpkg.com/@playkit-js/playkit-js/-/playkit-js-0.67.0-canary.8d385c8.tgz#8e4e56f81a8a84149362713d08bf86935ca2953b"
-  integrity sha512-3wy00sLLE2QtysQ6FAK5AL0VWaxOd+KAiXPSMR0sYyf1uUKRv5BoZKEN1J0AXWSNzxDNG8UFPVr6rIUIdt+N5Q==
+"@playkit-js/playkit-js@0.68.0-canary.9436db6":
+  version "0.68.0-canary.9436db6"
+  resolved "https://registry.yarnpkg.com/@playkit-js/playkit-js/-/playkit-js-0.68.0-canary.9436db6.tgz#b3d9b197c63ceb8d5a3a8b65a6c4751fb7a03aa6"
+  integrity sha512-g/6pyHfiySWZ9c1KNPNRDBByIAEoCrkl6QIW9JxnTXanM12+Fe61Ez3uGgSbZsplwGJR6wLlTEOS98/QSdHXjA==
   dependencies:
     js-logger "^1.6.0"
     ua-parser-js "^0.7.21"
@@ -4140,10 +4140,10 @@ he@1.2.0:
   resolved "https://registry.yarnpkg.com/he/-/he-1.2.0.tgz#84ae65fa7eafb165fddb61566ae14baf05664f0f"
   integrity sha512-F/1DnUGPopORZi0ni+CvrCgHQ5FyEAHRLSApuYWMmrbSwoN2Mn/7k+Gl38gJnR7yyDZk6WLXwiGod1JOWNDKGw==
 
-hls.js@0.14.9:
-  version "0.14.9"
-  resolved "https://registry.yarnpkg.com/hls.js/-/hls.js-0.14.9.tgz#e85be87d94385ed9947155716578f7c568957d15"
-  integrity sha512-5j1ONTvIzcIxCtg2eafikFbZ3b/9fDhR6u871LmK7jZ44/Qdc2G4xaSBCwcVK61gz7kTyiobaAhB++2M4J58rQ==
+hls.js@0.14.17:
+  version "0.14.17"
+  resolved "https://registry.yarnpkg.com/hls.js/-/hls.js-0.14.17.tgz#0127cff2ec2f994a54eb955fe669ef6153a8e317"
+  integrity sha512-25A7+m6qqp6UVkuzUQ//VVh2EEOPYlOBg32ypr34bcPO7liBMOkKFvbjbCBfiPAOTA/7BSx1Dujft3Th57WyFg==
   dependencies:
     eventemitter3 "^4.0.3"
     url-toolkit "^2.1.6"
