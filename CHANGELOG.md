@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.24.0](https://github.com/kaltura/playkit-js-hls/compare/v1.23.0...v1.24.0) (2021-02-24)
+
+
+### Bug Fixes
+
+* **FEC-10773:** reuse HLS.js config to start load from the detached point ([#130](https://github.com/kaltura/playkit-js-hls/issues/130)) ([cb04819](https://github.com/kaltura/playkit-js-hls/commit/cb04819))
+* events doesn't remove in removeBinding method ([#132](https://github.com/kaltura/playkit-js-hls/issues/132)) ([9b33f9a](https://github.com/kaltura/playkit-js-hls/commit/9b33f9a))
+
+
+### Features
+
+* **FEC-11013:** upgrade to hlsjs latest (0.14.17) ([#133](https://github.com/kaltura/playkit-js-hls/issues/133)) ([4f1a4c7](https://github.com/kaltura/playkit-js-hls/commit/4f1a4c7))
+
+
+
 ## [1.23.0](https://github.com/kaltura/playkit-js-hls/compare/v1.22.0...v1.23.0) (2021-01-28)
 
 
