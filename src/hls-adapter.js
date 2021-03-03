@@ -898,9 +898,8 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
   }
 
   _applyAbrSetting(): void {
-    if (this._config.abr.enabled) {
-      this._maybeApplyAbrRestrictions();
-    } else {
+    this._maybeApplyAbrRestrictions();
+    if (!this._config.abr.enabled) {
       this._hls.currentLevel = 0;
     }
   }
@@ -910,29 +909,27 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    * @returns {void}
    */
   _maybeApplyAbrRestrictions(): void {
-    if (this._config.abr.enabled) {
-      if (this._config.abr.restrictions) {
-        const restrictions = this._config.abr.restrictions;
-        if (restrictions) {
-          const minBitrate = restrictions.minBitrate ? restrictions.minBitrate : 0;
-          const maxBitrate = restrictions.maxBitrate ? restrictions.maxBitrate : Infinity;
-          if (maxBitrate > minBitrate) {
-            if (restrictions.minBitrate >= 0) {
-              this._hls.minAutoBitrate = restrictions.minBitrate;
-            }
-            if (restrictions.maxBitrate) {
-              //Get the first level that is above our bitrate restriction
-              //If the corresponding level is not in the edges (level 0 or last level) then get the previous level index
-              //which has a bitrate value which is lower then the max bitrate restriction
-              let maxLevel = this._hls.levels.findIndex(level => level.bitrate > restrictions.maxBitrate);
-              if (maxLevel > 0) {
-                maxLevel = maxLevel - 1;
-              }
-              this._hls.autoLevelCapping = maxLevel;
-            }
-          } else {
-            HlsAdapter._logger.warn('Invalid maxBitrate restriction, maxBitrate must be greater than minBitrate', minBitrate, maxBitrate);
+    if (this._config.abr.restrictions) {
+      const restrictions = this._config.abr.restrictions;
+      if (restrictions) {
+        const minBitrate = restrictions.minBitrate ? restrictions.minBitrate : 0;
+        const maxBitrate = restrictions.maxBitrate ? restrictions.maxBitrate : Infinity;
+        if (maxBitrate > minBitrate) {
+          if (restrictions.minBitrate >= 0) {
+            this._hls.minAutoBitrate = restrictions.minBitrate;
           }
+          if (restrictions.maxBitrate) {
+            //Get the first level that is above our bitrate restriction
+            //If the corresponding level is not in the edges (level 0 or last level) then get the previous level index
+            //which has a bitrate value which is lower then the max bitrate restriction
+            let maxLevel = this._hls.levels.findIndex(level => level.bitrate > restrictions.maxBitrate);
+            if (maxLevel > 0) {
+              maxLevel = maxLevel - 1;
+            }
+            this._hls.autoLevelCapping = maxLevel;
+          }
+        } else {
+          HlsAdapter._logger.warn('Invalid maxBitrate restriction, maxBitrate must be greater than minBitrate', minBitrate, maxBitrate);
         }
       }
     }
