@@ -889,7 +889,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
       this._hls.startLoad(this._startTime);
     }
     this._playerTracks = this._parseTracks();
-    this._maybeApplyAbrRestrictions();
+    this._applyAbrSetting();
     this._mediaAttachedPromise.then(() => {
       this._resolveLoad({tracks: this._playerTracks});
     });
@@ -897,6 +897,13 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     this._trigger(EventType.MANIFEST_LOADED, {miliSeconds: manifestDownloadTime});
   }
 
+  _applyAbrSetting(): void {
+    if (this._config.abr.enabled) {
+      this._maybeApplyAbrRestrictions();
+    } else {
+      this._hls.currentLevel = 0;
+    }
+  }
   /**
    * apply ABR restrictions
    * @private
@@ -928,11 +935,6 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
           }
         }
       }
-    } else {
-      if (this._hls.autoLevelCapping > 0) {
-        this._hls.autoLevelCapping = -1;
-      }
-      this._hls.currentLevel = 0;
     }
   }
 
