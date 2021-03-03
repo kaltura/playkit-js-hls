@@ -807,8 +807,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    * @public
    */
   applyABRRestriction(ABRConfig: Object): void {
-    this._config.abr = Utils.Object.mergeDeep(this._config.abr, ABRConfig);
-    this._maybeApplyAbrRestrictions();
+    this._maybeApplyAbrRestrictions(ABRConfig);
   }
 
   /**
@@ -898,7 +897,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
   }
 
   _applyAbrSetting(): void {
-    this._maybeApplyAbrRestrictions();
+    this._maybeApplyAbrRestrictions(this._config.abr);
     if (!this._config.abr.enabled) {
       this._hls.currentLevel = 0;
     }
@@ -906,17 +905,19 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
   /**
    * apply ABR restrictions
    * @private
+   * @param {Object} ABRConfig - abr config
    * @returns {void}
    */
-  _maybeApplyAbrRestrictions(): void {
-    if (this._config.abr.restrictions) {
-      const restrictions = this._config.abr.restrictions;
+  _maybeApplyAbrRestrictions(ABRConfig: Object): void {
+    if (ABRConfig.restrictions) {
+      const restrictions = ABRConfig.restrictions;
       if (restrictions) {
         const minBitrate = restrictions.minBitrate ? restrictions.minBitrate : 0;
         const maxBitrate = restrictions.maxBitrate ? restrictions.maxBitrate : Infinity;
         if (maxBitrate > minBitrate) {
           if (restrictions.minBitrate >= 0) {
             this._hls.minAutoBitrate = restrictions.minBitrate;
+            this._config.abr.restrictions.minBitrate = minBitrate;
           }
           if (restrictions.maxBitrate) {
             //Get the first level that is above our bitrate restriction
@@ -927,6 +928,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
               maxLevel = maxLevel - 1;
             }
             this._hls.autoLevelCapping = maxLevel;
+            this._config.abr.restrictions.maxBitrate = maxBitrate;
           }
         } else {
           HlsAdapter._logger.warn('Invalid maxBitrate restriction, maxBitrate must be greater than minBitrate', minBitrate, maxBitrate);
