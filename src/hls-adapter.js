@@ -2,7 +2,20 @@
 import Hlsjs from 'hls.js';
 import DefaultConfig from './default-config';
 import {type ErrorDetailsType, HlsJsErrorMap} from './errors';
-import {AudioTrack, BaseMediaSourceAdapter, Env, Error, EventType, TextTrack, Track, Utils, VideoTrack, RequestType} from '@playkit-js/playkit-js';
+import {
+  AudioTrack,
+  BaseMediaSourceAdapter,
+  Env,
+  Error,
+  EventType,
+  TextTrack,
+  Track,
+  Utils,
+  VideoTrack,
+  RequestType,
+  filterTracksByRestriction,
+  PKABRRestrictionObject
+} from '@playkit-js/playkit-js';
 import pLoader from './jsonp-ploader';
 import loader from './loader';
 
@@ -184,16 +197,17 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
       if (abr.defaultBandwidthEstimate) {
         adapterConfig.hlsConfig.abrEwmaDefaultEstimate = abr.defaultBandwidthEstimate;
       }
-
       if (abr.restrictions) {
-        if (abr.restrictions.minBitrate > 0) {
-          adapterConfig.hlsConfig.capLevelToPlayerSize = false;
-          adapterConfig.hlsConfig.minAutoBitrate = abr.restrictions.minBitrate;
-        }
-        if (abr.restrictions.maxBitrate < Infinity) {
-          //You can either set capping by size or bitrate, if bitrate is set then disable size capping
-          adapterConfig.hlsConfig.capLevelToPlayerSize = false;
-          adapterConfig.abr.restrictions = abr.restrictions;
+        if (abr.restrictions.maxBitrate > abr.restrictions.minBitrate) {
+          if (abr.restrictions.minBitrate > 0) {
+            adapterConfig.hlsConfig.capLevelToPlayerSize = false;
+            adapterConfig.hlsConfig.minAutoBitrate = abr.restrictions.minBitrate;
+          }
+          if (abr.restrictions.maxBitrate < Infinity) {
+            //You can either set capping by size or bitrate, if bitrate is set then disable size capping
+            adapterConfig.hlsConfig.capLevelToPlayerSize = false;
+            adapterConfig.abr.restrictions = abr.restrictions;
+          }
         }
       }
     }
@@ -802,12 +816,12 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
   /**
    * Apply ABR restriction.
    * @function applyABRRestriction
-   * @param {Object} ABRConfig - abr config
+   * @param {PKABRRestrictionObject} restrictions - abr restrictions config
    * @returns {void}
    * @public
    */
-  applyABRRestriction(ABRConfig: Object): void {
-    this._maybeApplyAbrRestrictions(ABRConfig);
+  applyABRRestriction(restrictions: PKABRRestrictionObject): void {
+    this._maybeApplyAbrRestrictions(restrictions);
   }
 
   /**
@@ -897,38 +911,35 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
   }
 
   _applyAbrSetting(): void {
-    this._maybeApplyAbrRestrictions(this._config.abr);
-    if (!this._config.abr.enabled) {
+    if (this._config.abr.enabled) {
+      this._maybeApplyAbrRestrictions(this._config.abr.restrictions);
+    } else {
       this._hls.currentLevel = 0;
     }
   }
   /**
    * apply ABR restrictions
    * @private
-   * @param {Object} ABRConfig - abt config object
+   * @param {PKABRRestrictionObject} restrictions - abt config object
    * @returns {void}
    */
-  _maybeApplyAbrRestrictions(ABRConfig: Object): void {
-    let maxLevel = null;
-    const {maxHeight, maxWidth, maxBitrate, minBitrate} = ABRConfig.restrictions;
-    if (maxHeight || maxWidth) {
-      maxLevel = this._hls.levels.filter(level => level.height <= (maxHeight || Infinity) && level.width <= (maxWidth || Infinity)).pop();
-    } else {
-      maxLevel = maxBitrate && this._hls.levels.filter(level => level.bitrate <= maxBitrate).pop();
-    }
-    if (maxLevel || minBitrate) {
-      const minBitrateOrDefault = minBitrate || 0;
-      const maxBitrate = maxLevel && maxLevel.bitrate;
-      if (maxBitrate > minBitrateOrDefault) {
-        if (minBitrate >= 0) {
-          this._hls.minAutoBitrate = minBitrateOrDefault;
+  _maybeApplyAbrRestrictions(restrictions: PKABRRestrictionObject): void {
+    const videoTracks = this._playerTracks.filter(track => track instanceof VideoTrack);
+    const availableTracks = filterTracksByRestriction(this._playerTracks, restrictions);
+    if (availableTracks.length) {
+      this._hls.capLevelToPlayerSize = false;
+      const minLevel = availableTracks[0];
+      const maxLevel = availableTracks.pop();
+      if (maxLevel !== minLevel) {
+        if (minLevel) {
+          this._hls.minAutoBitrate = minLevel.bandwidth;
         }
-        if (maxBitrate) {
-          this._hls.autoLevelCapping = this._hls.levels.findIndex(level => level === maxLevel);
-        }
-      } else {
-        HlsAdapter._logger.warn('Invalid maxBitrate restriction, maxBitrate must be greater than minBitrate', minBitrateOrDefault, maxBitrate);
       }
+      if (maxLevel) {
+        this._hls.autoLevelCapping = videoTracks.findIndex(level => level === maxLevel);
+      }
+    } else {
+      HlsAdapter._logger.warn('Doesnt meet the restriction');
     }
   }
 
