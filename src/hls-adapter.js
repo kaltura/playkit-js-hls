@@ -939,7 +939,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
         this._hls.autoLevelCapping = videoTracks.findIndex(level => level === maxLevel);
       }
     } else {
-      HlsAdapter._logger.warn('Doesnt meet the restriction');
+      HlsAdapter._logger.warn('Does not meet the restriction');
     }
   }
 
