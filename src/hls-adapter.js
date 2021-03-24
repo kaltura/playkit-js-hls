@@ -198,7 +198,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
         adapterConfig.hlsConfig.abrEwmaDefaultEstimate = abr.defaultBandwidthEstimate;
       }
       if (abr.restrictions) {
-        if (abr.restrictions.maxBitrate > abr.restrictions.minBitrate) {
+        if (abr.restrictions.maxBitrate >= abr.restrictions.minBitrate) {
           if (abr.restrictions.minBitrate > 0) {
             adapterConfig.hlsConfig.capLevelToPlayerSize = false;
             adapterConfig.hlsConfig.minAutoBitrate = abr.restrictions.minBitrate;
