@@ -198,17 +198,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
         adapterConfig.hlsConfig.abrEwmaDefaultEstimate = abr.defaultBandwidthEstimate;
       }
       if (abr.restrictions) {
-        if (abr.restrictions.maxBitrate >= abr.restrictions.minBitrate) {
-          if (abr.restrictions.minBitrate > 0) {
-            adapterConfig.hlsConfig.capLevelToPlayerSize = false;
-            adapterConfig.hlsConfig.minAutoBitrate = abr.restrictions.minBitrate;
-          }
-          if (abr.restrictions.maxBitrate < Infinity) {
-            //You can either set capping by size or bitrate, if bitrate is set then disable size capping
-            adapterConfig.hlsConfig.capLevelToPlayerSize = false;
-            adapterConfig.abr.restrictions = abr.restrictions;
-          }
-        }
+        adapterConfig.abr.restrictions = abr.restrictions;
       }
     }
     if (Utils.Object.hasPropertyPath(config, 'playback.options.html5.hls')) {
@@ -925,7 +915,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    */
   _maybeApplyAbrRestrictions(restrictions: PKABRRestrictionObject): void {
     const videoTracks = this._playerTracks.filter(track => track instanceof VideoTrack);
-    const availableTracks = filterTracksByRestriction(this._playerTracks, restrictions);
+    const availableTracks = filterTracksByRestriction(videoTracks, restrictions);
     if (availableTracks.length) {
       this._hls.capLevelToPlayerSize = false;
       const minLevel = availableTracks[0];
