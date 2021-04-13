@@ -902,7 +902,9 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
 
   _applyAbrSetting(): void {
     if (this._config.abr.enabled) {
-      this._maybeApplyAbrRestrictions(this._config.abr.restrictions);
+      if (!this._config.capLevelToPlayerSize) {
+        this._maybeApplyAbrRestrictions(this._config.abr.restrictions);
+      }
     } else {
       this._hls.currentLevel = 0;
     }
