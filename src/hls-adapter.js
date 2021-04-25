@@ -888,11 +888,11 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    */
   _onManifestLoaded(data: any): void {
     HlsAdapter._logger.debug('The source has been loaded successfully');
+    this._playerTracks = this._parseTracks();
+    this._applyAbrSetting();
     if (!this._hls.config.autoStartLoad) {
       this._hls.startLoad(this._startTime);
     }
-    this._playerTracks = this._parseTracks();
-    this._applyAbrSetting();
     this._mediaAttachedPromise.then(() => {
       this._resolveLoad({tracks: this._playerTracks});
     });
@@ -902,9 +902,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
 
   _applyAbrSetting(): void {
     if (this._config.abr.enabled) {
-      if (!this._config.capLevelToPlayerSize) {
-        this._maybeApplyAbrRestrictions(this._config.abr.restrictions);
-      }
+      this._maybeApplyAbrRestrictions(this._config.abr.restrictions);
     } else {
       this._hls.currentLevel = 0;
     }
@@ -916,6 +914,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    * @returns {void}
    */
   _maybeApplyAbrRestrictions(restrictions: PKABRRestrictionObject): void {
+    if (this._hls.capLevelToPlayerSize) return;
     const videoTracks = this._playerTracks.filter(track => track instanceof VideoTrack);
     const availableTracks = filterTracksByRestriction(videoTracks, restrictions);
     if (availableTracks.length) {
@@ -924,11 +923,14 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
       const maxLevel = availableTracks.pop();
       if (maxLevel !== minLevel) {
         if (minLevel) {
+          if (this._hls.currentLevel < minLevel.index || this._hls.currentLevel === -1) {
+            this._hls.nextLoadLevel = minLevel.index;
+          }
           this._hls.minAutoBitrate = minLevel.bandwidth;
         }
       }
-      if (maxLevel) {
-        this._hls.autoLevelCapping = videoTracks.findIndex(level => level === maxLevel);
+      if (maxLevel && maxLevel !== this._hls.autoLevelCapping) {
+        this._hls.autoLevelCapping = maxLevel.index;
       }
     } else {
       HlsAdapter._logger.warn('Does not meet the restriction');
