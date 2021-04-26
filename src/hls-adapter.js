@@ -296,6 +296,9 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
               Object.entries(updatedRequest.headers).forEach(entry => {
                 xhr.setRequestHeader(...entry);
               });
+              if (typeof updatedRequest.withCredentials === 'boolean') {
+                xhr.withCredentials = updatedRequest.withCredentials;
+              }
             })
             .catch(error => {
               this._requestFilterError = true;
