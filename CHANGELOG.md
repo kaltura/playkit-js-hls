@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.25.0](https://github.com/kaltura/playkit-js-hls/compare/v1.24.0...v1.25.0) (2021-04-28)
+
+
+### Features
+
+* **FEC-11091:** add support for XMLHttpRequest.withCredentials in request filter ([#137](https://github.com/kaltura/playkit-js-hls/issues/137)) ([e4f5126](https://github.com/kaltura/playkit-js-hls/commit/e4f5126))
+
+
+
 ## [1.24.0](https://github.com/kaltura/playkit-js-hls/compare/v1.23.0...v1.24.0) (2021-02-24)
 
 
