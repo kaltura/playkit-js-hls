@@ -918,19 +918,18 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     const videoTracks = this._playerTracks.filter(track => track instanceof VideoTrack);
     const availableTracks = filterTracksByRestriction(videoTracks, restrictions);
     if (availableTracks.length) {
-      this._hls.capLevelToPlayerSize = false;
       const minLevel = availableTracks[0];
       const maxLevel = availableTracks.pop();
-      if (maxLevel !== minLevel) {
-        if (minLevel) {
-          if (this._hls.currentLevel < minLevel.index || this._hls.currentLevel === -1) {
-            this._hls.nextLoadLevel = minLevel.index;
-          }
-          this._hls.minAutoBitrate = minLevel.bandwidth;
+      if (minLevel) {
+        if (this._hls.currentLevel < minLevel.index || this._hls.currentLevel === -1) {
+          this._hls.nextLoadLevel = minLevel.index;
         }
+        this._hls.minAutoBitrate = minLevel.bandwidth;
       }
-      if (maxLevel && maxLevel !== this._hls.autoLevelCapping) {
-        this._hls.autoLevelCapping = maxLevel.index;
+      if (maxLevel !== minLevel) {
+        if (maxLevel && maxLevel !== this._hls.autoLevelCapping) {
+          this._hls.autoLevelCapping = maxLevel.index;
+        }
       }
     } else {
       HlsAdapter._logger.warn('Does not meet the restriction');
