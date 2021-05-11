@@ -198,7 +198,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
         adapterConfig.hlsConfig.abrEwmaDefaultEstimate = abr.defaultBandwidthEstimate;
       }
       if (abr.restrictions) {
-        adapterConfig.abr.restrictions = abr.restrictions;
+        Utils.Object.createPropertyPath(adapterConfig, 'abr.restrictions', abr.restrictions);
       }
     }
     if (Utils.Object.hasPropertyPath(config, 'playback.options.html5.hls')) {
@@ -814,6 +814,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    * @public
    */
   applyABRRestriction(restrictions: PKABRRestrictionObject): void {
+    Utils.Object.createPropertyPath(this._config, 'abr.restrictions', restrictions);
     this._maybeApplyAbrRestrictions(restrictions);
   }
 
@@ -892,7 +893,6 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
   _onManifestLoaded(data: any): void {
     HlsAdapter._logger.debug('The source has been loaded successfully');
     this._playerTracks = this._parseTracks();
-    this._applyAbrSetting();
     if (!this._hls.config.autoStartLoad) {
       this._hls.startLoad(this._startTime);
     }
@@ -903,13 +903,6 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     this._trigger(EventType.MANIFEST_LOADED, {miliSeconds: manifestDownloadTime});
   }
 
-  _applyAbrSetting(): void {
-    if (this._config.abr.enabled) {
-      this._maybeApplyAbrRestrictions(this._config.abr.restrictions);
-    } else {
-      this._hls.currentLevel = 0;
-    }
-  }
   /**
    * apply ABR restrictions
    * @private
