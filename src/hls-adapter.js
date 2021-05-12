@@ -917,10 +917,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
       const minLevel = availableTracks[0];
       const maxLevel = availableTracks.pop();
       if (minLevel) {
-        if (this._hls.currentLevel < minLevel.index || this._hls.currentLevel === -1) {
-          this._hls.nextLoadLevel = minLevel.index;
-        }
-        this._hls.minAutoBitrate = minLevel.bandwidth;
+        this._hls.config.minAutoBitrate = minLevel.bandwidth;
       }
       if (maxLevel !== minLevel) {
         if (maxLevel && maxLevel !== this._hls.autoLevelCapping) {
