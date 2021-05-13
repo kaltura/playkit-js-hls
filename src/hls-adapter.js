@@ -815,7 +815,9 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    */
   applyABRRestriction(restrictions: PKABRRestrictionObject): void {
     Utils.Object.createPropertyPath(this._config, 'abr.restrictions', restrictions);
-    this._maybeApplyAbrRestrictions(restrictions);
+    if (!this._hls.capLevelToPlayerSize) {
+      this._maybeApplyAbrRestrictions(restrictions);
+    }
   }
 
   /**
@@ -910,22 +912,21 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    * @returns {void}
    */
   _maybeApplyAbrRestrictions(restrictions: PKABRRestrictionObject): void {
-    if (this._hls.capLevelToPlayerSize) return;
     const videoTracks = this._playerTracks.filter(track => track instanceof VideoTrack);
     const availableTracks = filterTracksByRestriction(videoTracks, restrictions);
     if (availableTracks.length) {
       const minLevel = availableTracks[0];
       const maxLevel = availableTracks.pop();
-      if (minLevel) {
-        this._hls.config.minAutoBitrate = minLevel.bandwidth;
-      }
-      if (maxLevel !== minLevel) {
-        if (maxLevel && maxLevel !== this._hls.autoLevelCapping) {
-          this._hls.autoLevelCapping = maxLevel.index;
+      this._hls.config.minAutoBitrate = minLevel.bandwidth;
+      this._hls.autoLevelCapping = maxLevel.index;
+      if (!this.isAdaptiveBitrateEnabled()) {
+        const activeTrackInRange = availableTracks.find(track => track.active);
+        if (!activeTrackInRange) {
+          this.selectVideoTrack(minLevel);
         }
       }
     } else {
-      HlsAdapter._logger.warn('Does not meet the restriction');
+      HlsAdapter._logger.warn('Invalid restrictions, there are not tracks within the restriction range');
     }
   }
 
