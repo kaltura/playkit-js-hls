@@ -2,7 +2,20 @@
 import Hlsjs from 'hls.js';
 import DefaultConfig from './default-config';
 import {type ErrorDetailsType, HlsJsErrorMap} from './errors';
-import {AudioTrack, BaseMediaSourceAdapter, Env, Error, EventType, TextTrack, Track, Utils, VideoTrack, RequestType} from '@playkit-js/playkit-js';
+import {
+  AudioTrack,
+  BaseMediaSourceAdapter,
+  Env,
+  Error,
+  EventType,
+  TextTrack,
+  Track,
+  Utils,
+  VideoTrack,
+  RequestType,
+  filterTracksByRestriction,
+  PKABRRestrictionObject
+} from '@playkit-js/playkit-js';
 import pLoader from './jsonp-ploader';
 import loader from './loader';
 
@@ -184,16 +197,8 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
       if (abr.defaultBandwidthEstimate) {
         adapterConfig.hlsConfig.abrEwmaDefaultEstimate = abr.defaultBandwidthEstimate;
       }
-
       if (abr.restrictions) {
-        if (abr.restrictions.minBitrate > 0) {
-          adapterConfig.hlsConfig.minAutoBitrate = abr.restrictions.minBitrate;
-        }
-        if (abr.restrictions.maxBitrate < Infinity) {
-          //You can either set capping by size or bitrate, if bitrate is set then disable size capping
-          adapterConfig.hlsConfig.capLevelToPlayerSize = false;
-          adapterConfig.abr.restrictions = abr.restrictions;
-        }
+        Utils.Object.createPropertyPath(adapterConfig, 'abr.restrictions', abr.restrictions);
       }
     }
     if (Utils.Object.hasPropertyPath(config, 'playback.options.html5.hls')) {
@@ -744,7 +749,6 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
   }
 
   _notifyTrackChanged(textTrack: TextTrack): void {
-    HlsAdapter._logger.debug('Text track changed', textTrack);
     this._onTrackChanged(textTrack);
   }
 
@@ -798,6 +802,20 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
       return this._hls.autoLevelEnabled;
     } else {
       return false;
+    }
+  }
+
+  /**
+   * Apply ABR restriction.
+   * @function applyABRRestriction
+   * @param {PKABRRestrictionObject} restrictions - abr restrictions config
+   * @returns {void}
+   * @public
+   */
+  applyABRRestriction(restrictions: PKABRRestrictionObject): void {
+    Utils.Object.createPropertyPath(this._config, 'abr.restrictions', restrictions);
+    if (!this._hls.capLevelToPlayerSize) {
+      this._maybeApplyAbrRestrictions(restrictions);
     }
   }
 
@@ -879,7 +897,6 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
       this._hls.startLoad(this._startTime);
     }
     this._playerTracks = this._parseTracks();
-    this._maybeApplyAbrRestrictions();
     this._mediaAttachedPromise.then(() => {
       this._resolveLoad({tracks: this._playerTracks});
     });
@@ -890,34 +907,24 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
   /**
    * apply ABR restrictions
    * @private
+   * @param {PKABRRestrictionObject} restrictions - abt config object
    * @returns {void}
    */
-  _maybeApplyAbrRestrictions(): void {
-    if (this._config.abr.enabled) {
-      if (this._config.abr.restrictions) {
-        const restrictions = this._config.abr.restrictions;
-        if (restrictions.maxBitrate) {
-          const minBitrate = restrictions.minBitrate ? restrictions.minBitrate : 0;
-          if (restrictions.maxBitrate > minBitrate) {
-            //Get the first level that is above our bitrate restriction
-            //If the corresponding level is not in the edges (level 0 or last level) then get the previous level index
-            //which has a bitrate value which is lower then the max bitrate restriction
-            let maxLevel = this._hls.levels.findIndex(level => level.bitrate > restrictions.maxBitrate);
-            if (maxLevel > 0) {
-              maxLevel = maxLevel - 1;
-            }
-            this._hls.autoLevelCapping = maxLevel;
-          } else {
-            HlsAdapter._logger.warn(
-              'Invalid maxBitrate restriction, maxBitrate must be greater than minBitrate',
-              minBitrate,
-              restrictions.maxBitrate
-            );
-          }
-        }
+  _maybeApplyAbrRestrictions(restrictions: PKABRRestrictionObject): void {
+    const videoTracks = this._playerTracks.filter(track => track instanceof VideoTrack);
+    const availableTracks = filterTracksByRestriction(videoTracks, restrictions);
+    if (availableTracks.length) {
+      const minLevel = availableTracks[0];
+      const maxLevel = availableTracks.pop();
+      this._hls.config.minAutoBitrate = minLevel.bandwidth;
+      this._hls.autoLevelCapping = maxLevel.index;
+
+      const activeTrackInRange = availableTracks.some(track => track.active);
+      if (!this.isAdaptiveBitrateEnabled() && !activeTrackInRange) {
+        this.selectVideoTrack(minLevel);
       }
     } else {
-      this._hls.currentLevel = 0;
+      HlsAdapter._logger.warn('Invalid restrictions, there are not tracks within the restriction range');
     }
   }
 
@@ -933,7 +940,6 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     let videoTrack = this._playerTracks.find(track => {
       return track instanceof VideoTrack && track.index === data.level;
     });
-    HlsAdapter._logger.debug('Video track changed', videoTrack);
     this._onTrackChanged(videoTrack);
   }
 
@@ -949,7 +955,6 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     let audioTrack = this._playerTracks.find(track => {
       return track instanceof AudioTrack && track.id === data.id;
     });
-    HlsAdapter._logger.debug('Audio track changed', audioTrack);
     this._onTrackChanged(audioTrack);
     this._handleWaitingUponAudioTrackSwitch();
   }
