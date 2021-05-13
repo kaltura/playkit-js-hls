@@ -749,7 +749,6 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
   }
 
   _notifyTrackChanged(textTrack: TextTrack): void {
-    HlsAdapter._logger.debug('Text track changed', textTrack);
     this._onTrackChanged(textTrack);
   }
 
@@ -919,11 +918,10 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
       const maxLevel = availableTracks.pop();
       this._hls.config.minAutoBitrate = minLevel.bandwidth;
       this._hls.autoLevelCapping = maxLevel.index;
-      if (!this.isAdaptiveBitrateEnabled()) {
-        const activeTrackInRange = availableTracks.find(track => track.active);
-        if (!activeTrackInRange) {
-          this.selectVideoTrack(minLevel);
-        }
+
+      const activeTrackInRange = availableTracks.some(track => track.active);
+      if (!this.isAdaptiveBitrateEnabled() && !activeTrackInRange) {
+        this.selectVideoTrack(minLevel);
       }
     } else {
       HlsAdapter._logger.warn('Invalid restrictions, there are not tracks within the restriction range');
@@ -942,7 +940,6 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     let videoTrack = this._playerTracks.find(track => {
       return track instanceof VideoTrack && track.index === data.level;
     });
-    HlsAdapter._logger.debug('Video track changed', videoTrack);
     this._onTrackChanged(videoTrack);
   }
 
@@ -958,7 +955,6 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     let audioTrack = this._playerTracks.find(track => {
       return track instanceof AudioTrack && track.id === data.id;
     });
-    HlsAdapter._logger.debug('Audio track changed', audioTrack);
     this._onTrackChanged(audioTrack);
     this._handleWaitingUponAudioTrackSwitch();
   }
