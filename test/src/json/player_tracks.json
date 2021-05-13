@@ -2,6 +2,7 @@
   "audioTracks": [
     {
       "_id": 0,
+      "_available": true,
       "_active": false,
       "_label": "English",
       "_language": "en",
@@ -9,6 +10,7 @@
     },
     {
       "_id": 1,
+      "_available": true,
       "_active": true,
       "_label": "Spanish",
       "_language": "es",
@@ -16,6 +18,7 @@
     },
     {
       "_id": 2,
+      "_available": true,
       "_active": false,
       "_label": "Commentary (eng)",
       "_language": "en",
@@ -24,6 +27,7 @@
   ],
   "videoTracks": [
     {
+      "_available": true,
       "_bandwidth": 2962000,
       "_active": false,
       "_label": "720p",
@@ -33,6 +37,7 @@
       "_width": 1280
     },
     {
+      "_available": true,
       "_bandwidth": 1427000,
       "_active": true,
       "_label": "432p",
@@ -42,6 +47,7 @@
       "_width": 768
     },
     {
+      "_available": true,
       "_bandwidth": 688000,
       "_active": false,
       "_label": "252p",
@@ -51,6 +57,7 @@
       "_width": 448
     },
     {
+      "_available": true,
       "_bandwidth": 331000,
       "_active": false,
       "_label": "160p",
@@ -67,7 +74,8 @@
       "_label": "Chinese",
       "_language": "zho",
       "_index": 0,
-      "_kind": "subtitles"
+      "_kind": "subtitles",
+      "_available": true
     },
     {
       "_id": 1,
@@ -75,7 +83,8 @@
       "_label": "Chinese",
       "_language": "zho",
       "_index": 1,
-      "_kind": "subtitles"
+      "_kind": "subtitles",
+      "_available": true
     },
     {
       "_id": 2,
@@ -83,7 +92,8 @@
       "_label": "French",
       "_language": "fra",
       "_index": 2,
-      "_kind": "subtitles"
+      "_kind": "subtitles",
+      "_available": true
     },
     {
       "_id": 3,
@@ -91,7 +101,8 @@
       "_label": "German",
       "_language": "deu",
       "_index": 3,
-      "_kind": "subtitles"
+      "_kind": "subtitles",
+      "_available": true
     },
     {
       "_id": 4,
@@ -99,7 +110,8 @@
       "_label": "Portuguese",
       "_language": "por",
       "_index": 4,
-      "_kind": "subtitles"
+      "_kind": "subtitles",
+      "_available": true
     },
     {
       "_id": 5,
@@ -107,7 +119,8 @@
       "_label": "Spanish; Castilian",
       "_language": "spa",
       "_index": 5,
-      "_kind": "subtitles"
+      "_kind": "subtitles",
+      "_available": true
     }
   ]
 }
