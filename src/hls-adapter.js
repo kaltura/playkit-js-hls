@@ -894,10 +894,10 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    */
   _onManifestLoaded(data: any): void {
     HlsAdapter._logger.debug('The source has been loaded successfully');
-    this._playerTracks = this._parseTracks();
     if (!this._hls.config.autoStartLoad) {
       this._hls.startLoad(this._startTime);
     }
+    this._playerTracks = this._parseTracks();
     this._mediaAttachedPromise.then(() => {
       this._resolveLoad({tracks: this._playerTracks});
     });
