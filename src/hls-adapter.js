@@ -897,6 +897,10 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
       this._hls.startLoad(this._startTime);
     }
     this._playerTracks = this._parseTracks();
+    // set current level to disable the auto selection in hls
+    if (!this._config.abr.enabled) {
+      this._hls.currentLevel = 0;
+    }
     this._mediaAttachedPromise.then(() => {
       this._resolveLoad({tracks: this._playerTracks});
     });
