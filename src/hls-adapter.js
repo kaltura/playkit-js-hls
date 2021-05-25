@@ -141,6 +141,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     [Hlsjs.Events.MEDIA_ATTACHED]: () => this._onMediaAttached(),
     [Hlsjs.Events.LEVEL_LOADED]: (e, data) => this._onLevelLoaded(e, data)
   };
+
   /**
    * Factory method to create media source adapter.
    * @function createAdapter
@@ -868,6 +869,25 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     } catch (e) {
       return;
     }
+  }
+
+  /**
+   * Gets the segment duration of the stream
+   * @return {number|NaN|*|number|undefined} - Segment duration in seconds
+   */
+  getSegmentDuration(): number {
+    if (this._hls) {
+      return this._hls.streamController.fragCurrent?.duration;
+    }
+    return 0;
+  }
+
+  /**
+   * Gets the live duration
+   * @return {number} - live duration
+   */
+  get liveDuration(): number {
+    return this._getLiveEdge() + this.getSegmentDuration();
   }
 
   /**
