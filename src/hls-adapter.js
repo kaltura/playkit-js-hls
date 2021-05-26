@@ -876,10 +876,8 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    * @return {number} - Segment duration in seconds
    */
   getSegmentDuration(): number {
-    if (Utils.Object.hasPropertyPath(this._hls, 'streamController.fragCurrent')) {
-      return this._hls.streamController.fragCurrent.duration;
-    }
-    return 0;
+    const fragCurrent = Utils.Object.getPropertyPath(this._hls, 'streamController.fragCurrent');
+    return fragCurrent ? fragCurrent.duration : 0;
   }
 
   /**
