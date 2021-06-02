@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.26.0](https://github.com/kaltura/playkit-js-hls/compare/v1.25.1...v1.26.0) (2021-06-02)
+
+
+### Bug Fixes
+
+* **FEC-11126:** if set abrEnabled=false, auto mode still remains enabled - HLS ([#143](https://github.com/kaltura/playkit-js-hls/issues/143)) ([62c4db6](https://github.com/kaltura/playkit-js-hls/commit/62c4db6))
+
+
+### Features
+
+* **FEC-10980:** Enable setting ABR settings on-the-fly ([#134](https://github.com/kaltura/playkit-js-hls/issues/134)) ([d3b19dd](https://github.com/kaltura/playkit-js-hls/commit/d3b19dd))
+
+
+
 ### [1.25.1](https://github.com/kaltura/playkit-js-hls/compare/v1.25.0...v1.25.1) (2021-04-28)
 
 
