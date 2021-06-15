@@ -141,6 +141,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     [Hlsjs.Events.MEDIA_ATTACHED]: () => this._onMediaAttached(),
     [Hlsjs.Events.LEVEL_LOADED]: (e, data) => this._onLevelLoaded(e, data)
   };
+
   /**
    * Factory method to create media source adapter.
    * @function createAdapter
@@ -334,15 +335,16 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
           if (readyState >= 2) {
             // clear xhr timeout and rearm it if readyState less than 4
             window.clearTimeout(this.requestTimeout);
-            if (stats.tfirst === 0) {
-              stats.tfirst = Math.max(performance.now(), stats.trequest);
+            const {loading} = stats;
+            if (loading.first === 0) {
+              loading.first = Math.max(performance.now(), loading.start);
             }
 
             if (readyState === 4) {
               let status = xhr.status;
               // http status between 200 to 299 are all successful
               if (status >= 200 && status < 300) {
-                stats.tload = Math.max(stats.tfirst, performance.now());
+                loading.end = Math.max(stats.tfirst, performance.now());
                 let data, len;
                 if (context.responseType === 'arraybuffer') {
                   data = xhr.response;
@@ -904,7 +906,8 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     this._mediaAttachedPromise.then(() => {
       this._resolveLoad({tracks: this._playerTracks});
     });
-    const manifestDownloadTime = data.stats.tload - data.stats.trequest;
+    const {loading} = data.stats;
+    const manifestDownloadTime = loading.end - loading.start;
     this._trigger(EventType.MANIFEST_LOADED, {miliSeconds: manifestDownloadTime});
   }
 
@@ -1259,12 +1262,15 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    * @returns {void}
    */
   _onFragLoaded(data: any): void {
-    const fragmentDownloadTime = data.stats.tload - data.stats.trequest;
-    this._trigger(EventType.FRAG_LOADED, {
-      miliSeconds: fragmentDownloadTime,
-      bytes: data.stats.loaded,
-      url: data.frag.url
-    });
+    if (Utils.Object.hasPropertyPath(data, 'frag.stats.loading')) {
+      const {stats} = data.frag;
+      const fragmentDownloadTime = stats.loading.end - stats.loading.start;
+      this._trigger(EventType.FRAG_LOADED, {
+        miliSeconds: fragmentDownloadTime,
+        bytes: stats.loaded,
+        url: data.frag.url
+      });
+    }
   }
 
   /**
