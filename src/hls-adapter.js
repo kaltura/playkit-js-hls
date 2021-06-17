@@ -873,6 +873,23 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
   }
 
   /**
+   * Gets the segment duration of the stream
+   * @return {number} - Segment duration in seconds
+   */
+  getSegmentDuration(): number {
+    const fragCurrent = Utils.Object.getPropertyPath(this._hls, 'streamController.fragCurrent');
+    return fragCurrent ? fragCurrent.duration : 0;
+  }
+
+  /**
+   * Gets the live duration
+   * @return {number} - live duration
+   */
+  get liveDuration(): number {
+    return this._getLiveEdge() + this.getSegmentDuration();
+  }
+
+  /**
    * Checking if the current playback is live.
    * @function isLive
    * @returns {boolean} - Whether playback is live.
