@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.27.0](https://github.com/kaltura/playkit-js-hls/compare/v1.26.0...v1.27.0) (2021-07-01)
+
+
+### Features
+
+* **FEC-10817:** expose the current time of the video element in live streams ([#146](https://github.com/kaltura/playkit-js-hls/issues/146)) ([72dfe7a](https://github.com/kaltura/playkit-js-hls/commit/72dfe7a))
+* **FEC-11337:** Upgrade hls.js to 1.0  ([#147](https://github.com/kaltura/playkit-js-hls/issues/147)) ([32cc00e](https://github.com/kaltura/playkit-js-hls/commit/32cc00e))
+
+
+
 ## [1.26.0](https://github.com/kaltura/playkit-js-hls/compare/v1.25.1...v1.26.0) (2021-06-02)
 
 
