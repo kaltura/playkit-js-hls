@@ -744,7 +744,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
   _selectNativeTextTrack(textTrack: TextTrack): void {
     const selectedTrack = this._nativeTextTracksMap[textTrack.index];
     if (selectedTrack) {
-      this._disableNativeTextTracks();
+      this.disableNativeTextTracks();
       selectedTrack.mode = this._config.subtitleDisplay ? 'showing' : 'hidden';
       this._notifyTrackChanged(textTrack);
     }
@@ -752,17 +752,6 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
 
   _notifyTrackChanged(textTrack: TextTrack): void {
     this._onTrackChanged(textTrack);
-  }
-
-  /**
-   * Disables all the video element text tracks.
-   * @private
-   * @returns {void}
-   */
-  _disableNativeTextTracks(): void {
-    Array.from(this._videoElement.textTracks).forEach(track => {
-      track.mode = 'disabled';
-    });
   }
 
   /** Hide the text track
@@ -775,7 +764,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
       if (this._hls.subtitleTracks.length) {
         this._hls.subtitleTrack = -1;
       } else {
-        this._disableNativeTextTracks();
+        this.disableNativeTextTracks();
       }
     }
   }
