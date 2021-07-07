@@ -1111,10 +1111,9 @@ describe('HlsAdapter Instance - Integration', function () {
   });
 
   beforeEach(function () {
-    player = loadPlayer({
-      sources: {
-        hls: [hls_sources.ElephantsDream]
-      }
+    player = loadPlayer();
+    player.setSources({
+      hls: [hls_sources.ElephantsDream]
     });
     playerContainer.appendChild(player.getView());
   });
