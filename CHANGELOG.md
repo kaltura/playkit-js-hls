@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.27.1](https://github.com/kaltura/playkit-js-hls/compare/v1.27.0...v1.27.1) (2021-07-27)
+
+
+### Bug Fixes
+
+* **FEC-10832:** captions not shown in change media from media with 608 captions ([#149](https://github.com/kaltura/playkit-js-hls/issues/149)) ([84e2e97](https://github.com/kaltura/playkit-js-hls/commit/84e2e97))
+
+
+
 ## [1.27.0](https://github.com/kaltura/playkit-js-hls/compare/v1.26.0...v1.27.0) (2021-07-01)
 
 
