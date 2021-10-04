@@ -423,6 +423,13 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     this._onAddTrack = this._onAddTrack.bind(this);
     this._eventManager.listen(this._videoElement, 'addtrack', this._onAddTrack);
     this._videoElement.textTracks.onaddtrack = this._onAddTrack;
+
+    this._subtitleTrackInitializedPromise = new Promise(resolve => {
+      this._hls.on([Hlsjs.Events.SUBTITLE_TRACK_LOADED], () => {
+        resolve();
+        this._hls.off([Hlsjs.Events.SUBTITLE_TRACK_LOADED]);
+      });
+    });
   }
 
   _onFpsDrop(data: Object): void {
@@ -762,7 +769,14 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
   hideTextTrack(): void {
     if (this._hls) {
       if (this._hls.subtitleTracks.length) {
-        this._hls.subtitleTrack = -1;
+        const currentSubtitleTrack = this._hls.subtitleTracks[this._hls.subtitleTrack];
+        if (currentSubtitleTrack && currentSubtitleTrack.default) {
+          this._subtitleTrackInitializedPromise.then(() => {
+            this._hls.subtitleTrack = -1;
+          });
+        } else {
+          this._hls.subtitleTrack = -1;
+        }
       } else {
         this.disableNativeTextTracks();
       }
