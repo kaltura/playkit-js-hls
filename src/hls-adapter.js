@@ -118,6 +118,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
   _onRecoveredCallback: ?Function;
   _onAddTrack: Function;
   _onMediaAttached: Function;
+  _onSubtitleTrackLoaded: Function;
   _mediaAttachedPromise: Promise<*>;
   _requestFilterError: boolean = false;
   _responseFilterError: boolean = false;
@@ -139,7 +140,8 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     [Hlsjs.Events.FRAG_PARSING_METADATA]: (e, data) => this._onFragParsingMetadata(data),
     [Hlsjs.Events.FRAG_LOADED]: (e, data) => this._onFragLoaded(data),
     [Hlsjs.Events.MEDIA_ATTACHED]: () => this._onMediaAttached(),
-    [Hlsjs.Events.LEVEL_LOADED]: (e, data) => this._onLevelLoaded(e, data)
+    [Hlsjs.Events.LEVEL_LOADED]: (e, data) => this._onLevelLoaded(e, data),
+    [Hlsjs.Events.SUBTITLE_TRACK_LOADED]: (e, data) => this._onSubtitleTrackLoaded(e, data)
   };
 
   /**
@@ -416,6 +418,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    */
   _addBindings(): void {
     this._mediaAttachedPromise = new Promise(resolve => (this._onMediaAttached = resolve));
+    this._subtitleTrackInitializedPromise = new Promise(resolve => (this._onSubtitleTrackLoaded = resolve));
     for (const [event, callback] of Object.entries(this._adapterEventsBindings)) {
       this._hls.on(event, callback);
     }
@@ -423,13 +426,6 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     this._onAddTrack = this._onAddTrack.bind(this);
     this._eventManager.listen(this._videoElement, 'addtrack', this._onAddTrack);
     this._videoElement.textTracks.onaddtrack = this._onAddTrack;
-
-    this._subtitleTrackInitializedPromise = new Promise(resolve => {
-      this._hls.on([Hlsjs.Events.SUBTITLE_TRACK_LOADED], () => {
-        resolve();
-        this._hls.off([Hlsjs.Events.SUBTITLE_TRACK_LOADED]);
-      });
-    });
   }
 
   _onFpsDrop(data: Object): void {
