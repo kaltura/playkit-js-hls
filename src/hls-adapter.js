@@ -141,7 +141,10 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     [Hlsjs.Events.FRAG_LOADED]: (e, data) => this._onFragLoaded(data),
     [Hlsjs.Events.MEDIA_ATTACHED]: () => this._onMediaAttached(),
     [Hlsjs.Events.LEVEL_LOADED]: (e, data) => this._onLevelLoaded(e, data),
-    [Hlsjs.Events.SUBTITLE_TRACK_LOADED]: (e, data) => this._onSubtitleTrackLoaded(e, data)
+    [Hlsjs.Events.SUBTITLE_TRACK_LOADED]: (e, data) => {
+      this._onSubtitleTrackLoaded(e, data);
+      this._hls.off(Hlsjs.Events.SUBTITLE_TRACK_LOADED, this._onSubtitleTrackLoaded);
+    }
   };
 
   /**
