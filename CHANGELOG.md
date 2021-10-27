@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.27.3](https://github.com/kaltura/playkit-js-hls/compare/v1.27.2...v1.27.3) (2021-10-27)
+
+
+### Build System
+
+* fix node 17 issue ([51785fe](https://github.com/kaltura/playkit-js-hls/commit/51785fe))
+
+
+
 ### [1.27.2](https://github.com/kaltura/playkit-js-hls/compare/v1.27.1...v1.27.2) (2021-10-27)
 
 
