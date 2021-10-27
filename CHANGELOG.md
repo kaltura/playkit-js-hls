@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.27.2](https://github.com/kaltura/playkit-js-hls/compare/v1.27.1...v1.27.2) (2021-10-27)
+
+
+### Bug Fixes
+
+* **FEC-11585:** Captions are not loading after being selected ([#152](https://github.com/kaltura/playkit-js-hls/issues/152)) ([2500dc0](https://github.com/kaltura/playkit-js-hls/commit/2500dc0))
+
+
+
 ### [1.27.1](https://github.com/kaltura/playkit-js-hls/compare/v1.27.0...v1.27.1) (2021-07-27)
 
 
