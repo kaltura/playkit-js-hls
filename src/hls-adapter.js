@@ -126,6 +126,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
   _nativeTextTracksMap = [];
   _lastLoadedFragSN: number = -1;
   _sameFragSNLoadedCount: number = 0;
+  _textTrackIndex = -1;
   /**
    * an object containing all the events we bind and unbind to.
    * @member {Object} - _adapterEventsBindings
@@ -432,6 +433,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     this._onRecoveredCallback = () => this._onRecovered();
     this._onAddTrack = this._onAddTrack.bind(this);
     this._eventManager.listen(this._videoElement, 'addtrack', this._onAddTrack);
+    this._eventManager.listen(this._videoElement, 'seeked', this._onSeeked.bind(this));
     this._videoElement.textTracks.onaddtrack = this._onAddTrack;
   }
 
@@ -448,9 +450,25 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
       // parse CEA 608/708 captions that not exposed on hls.subtitleTracks API
       const CEATextTrack = this._parseCEATextTrack(event.track);
       if (CEATextTrack) {
-        HlsAdapter._logger.debug('A CEA 608/708 caption has found', CEATextTrack);
+        HlsAdapter._logger.debug('A CEA 608/708 caption has been found', CEATextTrack);
         this._playerTracks.push(CEATextTrack);
         this._trigger(EventType.TRACKS_CHANGED, {tracks: this._playerTracks});
+      }
+    }
+  }
+
+  _onSeeked() {
+    const textTrack = this._nativeTextTracksMap[this._textTrackIndex];
+    if (textTrack) {
+      // workaround to clear CEA 608 cues which have an incorrect startTime after seek forward
+      const cues = textTrack.cues;
+      if (cues && cues.length > 1) {
+        for (let i = 0; i < cues.length - 1; ++i) {
+          if (Math.floor(cues[i].endTime) > Math.floor(cues[i + 1].endTime)) {
+            textTrack.removeCue(cues[i]);
+            break;
+          }
+        }
       }
     }
   }
@@ -573,6 +591,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
           this._nativeTextTracksMap = [];
           this._sameFragSNLoadedCount = 0;
           this._lastLoadedFragSN = -1;
+          this._textTrackIndex = -1;
           this._reset();
           resolve();
         },
@@ -761,6 +780,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
   }
 
   _notifyTrackChanged(textTrack: TextTrack): void {
+    this._textTrackIndex = textTrack.index;
     this._onTrackChanged(textTrack);
   }
 
