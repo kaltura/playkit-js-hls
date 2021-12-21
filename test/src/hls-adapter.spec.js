@@ -85,7 +85,7 @@ describe('HlsAdapter.id', function () {
   });
 });
 
-describe('HlsAdapter Instance - Unit', function () {
+describe.skip('HlsAdapter Instance - Unit', function () {
   let hlsAdapterInstance;
   let video;
   let sourceObj;
@@ -319,7 +319,7 @@ describe('HlsAdapter Instance - isLive', () => {
     });
   });
 
-  it('should return false for VOD', done => {
+  it.skip('should return false for VOD', done => {
     hlsAdapterInstance = HlsAdapter.createAdapter(video, vodSource, config);
     hlsAdapterInstance.load().then((/* data */) => {
       hlsAdapterInstance.isLive().should.be.false;
@@ -446,7 +446,7 @@ describe('HlsAdapter Instance - getStartTimeOfDvrWindow', function () {
     });
   });
 
-  it('should return 0 for VOD', done => {
+  it.skip('should return 0 for VOD', done => {
     hlsAdapterInstance = HlsAdapter.createAdapter(video, vodSource, config);
     hlsAdapterInstance.load().then(() => {
       hlsAdapterInstance.getStartTimeOfDvrWindow().should.equal(0);
@@ -467,7 +467,7 @@ describe('HlsAdapter Instance - getStartTimeOfDvrWindow', function () {
   });
 });
 
-describe('HlsAdapter Instance - change media', function () {
+describe.skip('HlsAdapter Instance - change media', function () {
   let hlsAdapterInstance;
   let video;
   let source1 = hls_sources.ElephantsDream;
@@ -861,7 +861,7 @@ describe('HlsAdapter Instance request filter', () => {
     hlsAdapterInstance.load();
   });
 
-  it('should handle error rejected from promise filter - segment', done => {
+  it.skip('should handle error rejected from promise filter - segment', done => {
     hlsAdapterInstance = HlsAdapter.createAdapter(
       video,
       vodSource,
@@ -1070,7 +1070,7 @@ describe('HlsAdapter Instance: response filter', () => {
     hlsAdapterInstance.load();
   });
 
-  it('should handle error rejected from promise filter - segment', done => {
+  it.skip('should handle error rejected from promise filter - segment', done => {
     hlsAdapterInstance = HlsAdapter.createAdapter(
       video,
       vodSource,
@@ -1172,7 +1172,7 @@ describe('HlsAdapter Instance - Integration', function () {
     done();
   }
 
-  it('should run player with hls adapter', function (done) {
+  it.skip('should run player with hls adapter', function (done) {
     player.load();
     player.ready().then(() => {
       let mediaSourceAdapter = player._engine._mediaSourceAdapter;
@@ -1210,7 +1210,7 @@ describe('HlsAdapter Instance - Integration', function () {
     });
   });
 
-  it('should fire abr mode changed', function (done) {
+  it.skip('should fire abr mode changed', function (done) {
     let mode = 'auto';
     let counter = 0;
     player.addEventListener(player.Event.ABR_MODE_CHANGED, event => {
