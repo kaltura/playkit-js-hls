@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.27.4](https://github.com/kaltura/playkit-js-hls/compare/v1.27.3...v1.27.4) (2021-12-21)
+
+
+### Bug Fixes
+
+* **FEC-11760:** ignore cue with wrong start time ([#154](https://github.com/kaltura/playkit-js-hls/issues/154)) ([6211f18](https://github.com/kaltura/playkit-js-hls/commit/6211f18))
+
+
+
 ### [1.27.3](https://github.com/kaltura/playkit-js-hls/compare/v1.27.2...v1.27.3) (2021-10-27)
 
 
