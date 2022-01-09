@@ -119,7 +119,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
   _onAddTrack: Function;
   _onMediaAttached: Function;
   _mediaAttachedPromise: Promise<*>;
-  _onSubtitleTrackLoaded: Function;
+  _onSubtitleFragProcessed: Function;
   _subtitleTrackInitializedPromise: Promise<*>;
   _requestFilterError: boolean = false;
   _responseFilterError: boolean = false;
@@ -143,7 +143,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     [Hlsjs.Events.FRAG_LOADED]: (e, data) => this._onFragLoaded(data),
     [Hlsjs.Events.MEDIA_ATTACHED]: () => this._onMediaAttached(),
     [Hlsjs.Events.LEVEL_LOADED]: (e, data) => this._onLevelLoaded(e, data),
-    [Hlsjs.Events.SUBTITLE_TRACK_LOADED]: (e, data) => this._onSubtitleTrackLoaded(e, data)
+    [Hlsjs.Events.SUBTITLE_FRAG_PROCESSED]: (e, data) => this._onSubtitleFragProcessed(e, data)
   };
 
   /**
@@ -421,9 +421,9 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
   _addBindings(): void {
     this._mediaAttachedPromise = new Promise(resolve => (this._onMediaAttached = resolve));
     this._subtitleTrackInitializedPromise = new Promise(resolve => {
-      this._onSubtitleTrackLoaded = () => {
+      this._onSubtitleFragProcessed = () => {
         resolve();
-        this._hls.off(Hlsjs.Events.SUBTITLE_TRACK_LOADED, this._adapterEventsBindings[Hlsjs.Events.SUBTITLE_TRACK_LOADED]);
+        this._hls.off(Hlsjs.Events.SUBTITLE_FRAG_PROCESSED, this._adapterEventsBindings[Hlsjs.Events.SUBTITLE_FRAG_PROCESSED]);
       };
     });
 
