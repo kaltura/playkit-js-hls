@@ -14,7 +14,9 @@ import {
   VideoTrack,
   RequestType,
   filterTracksByRestriction,
-  PKABRRestrictionObject
+  PKABRRestrictionObject,
+  CuePoint,
+  createCuePoint
 } from '@playkit-js/playkit-js';
 import pLoader from './jsonp-ploader';
 import loader from './loader';
@@ -443,6 +445,19 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
 
   _onFragParsingMetadata(data: Object): void {
     this._trigger('hlsFragParsingMetadata', data);
+    const id3Track = Array.from(this._videoElement?.textTracks).find(track => track.label === 'id3');
+    const id3Cues = Array.from(id3Track?.cues || []);
+    const newCues = [];
+    data?.samples.forEach(sample => {
+      const cue = Utils.binarySearch(id3Cues, cue => cue.startTime - sample.pts);
+      if (cue) {
+        const cuePoint: CuePoint = createCuePoint(cue);
+        newCues.push(cuePoint);
+      }
+    });
+    if (newCues.length) {
+      this._trigger(EventType.TIMED_METADATA_ADDED, {cues: newCues});
+    }
   }
 
   _onAddTrack(event: any) {
