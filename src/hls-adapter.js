@@ -184,8 +184,8 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
       adapterConfig.hlsConfig.capLevelOnFPSDrop = config.abr.capLevelOnFPSDrop;
     }
     if (Utils.Object.hasPropertyPath(config, 'text')) {
+      adapterConfig.hlsConfig.enableCEA708Captions = config.text.enableCEA708Captions;
       if (config.text.enableCEA708Captions) {
-        adapterConfig.hlsConfig.enableCEA708Captions = true;
         adapterConfig.hlsConfig.timelineController = CustomTimelineController;
       }
       adapterConfig.hlsConfig.captionsTextTrack1Label = config.text.captionsTextTrack1Label;
