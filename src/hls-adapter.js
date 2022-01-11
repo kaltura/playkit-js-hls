@@ -18,7 +18,7 @@ import {
 } from '@playkit-js/playkit-js';
 import pLoader from './jsonp-ploader';
 import loader from './loader';
-import CustomTimelineController from './custom-timeline-controller';
+import {CustomTimelineController} from './custom-timeline-controller';
 
 /**
  * Adapter of hls.js lib for hls content.
@@ -184,7 +184,10 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
       adapterConfig.hlsConfig.capLevelOnFPSDrop = config.abr.capLevelOnFPSDrop;
     }
     if (Utils.Object.hasPropertyPath(config, 'text')) {
-      adapterConfig.hlsConfig.enableCEA708Captions = config.text.enableCEA708Captions;
+      if (config.text.enableCEA708Captions) {
+        adapterConfig.hlsConfig.enableCEA708Captions = true;
+        adapterConfig.hlsConfig.timelineController = CustomTimelineController;
+      }
       adapterConfig.hlsConfig.captionsTextTrack1Label = config.text.captionsTextTrack1Label;
       adapterConfig.hlsConfig.captionsTextTrack1LanguageCode = config.text.captionsTextTrack1LanguageCode;
       adapterConfig.hlsConfig.captionsTextTrack2Label = config.text.captionsTextTrack2Label;
@@ -274,7 +277,6 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
       this._config.hlsConfig['pLoader'] = pLoader;
     }
     this._maybeSetFilters();
-    this._config.hlsConfig.timelineController = CustomTimelineController;
     this._hls = new Hlsjs(this._config.hlsConfig);
     this._capabilities.fpsControl = true;
     this._hls.subtitleDisplay = this._config.subtitleDisplay;

@@ -23,4 +23,4 @@ function resetParser(originalResetParser) {
   originalResetParser.apply(this);
 }
 
-export default CustomTimelineController;
+export {CustomTimelineController};
