@@ -13,7 +13,10 @@ class CustomTimelineController extends Hlsjs.DefaultConfig.timelineController {
   }
 }
 
-// eslint-disable-next-line require-jsdoc
+/**
+ * @param {*} originalResetParser - original parser reset function
+ * @returns {void}
+ */
 function resetParser(originalResetParser) {
   for (const channel of this.channels) {
     if (channel) {
