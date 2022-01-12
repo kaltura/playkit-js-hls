@@ -1,4 +1,14 @@
-import loadPlayer, {Error, RequestType, Utils, EventType, VideoTrack, AudioTrack, TextTrack} from '@playkit-js/playkit-js';
+import loadPlayer, {
+  Error,
+  RequestType,
+  Utils,
+  EventType,
+  VideoTrack,
+  AudioTrack,
+  TextTrack,
+  createTextTrackCue,
+  createTimedMetadata
+} from '@playkit-js/playkit-js';
 import * as TestUtils from '../utils/test-utils';
 import HlsAdapter from '../../src';
 import * as hls_sources from './json/hls_sources.json';
@@ -1233,6 +1243,58 @@ describe('HlsAdapter Instance - Integration', function () {
       } else {
         done();
       }
+    });
+  });
+});
+
+describe('HlsAdapter Instance - _onFragParsingMetadata', function () {
+  let hlsAdapterInstance;
+  let video;
+  let vodSource = hls_sources.ElephantsDream;
+  let config;
+  let sandbox;
+
+  beforeEach(function () {
+    sandbox = sinon.createSandbox();
+    video = document.createElement('video');
+    config = {playback: {options: {html5: {hls: {}}}}};
+  });
+
+  afterEach(function (done) {
+    sandbox.restore();
+    hlsAdapterInstance.destroy().then(() => {
+      hlsAdapterInstance = null;
+      video = null;
+      TestUtils.removeVideoElementsFromTestPage();
+      done();
+    });
+  });
+
+  it('should dispatch TIMED_METADATA_ADDED event on hlsFragParsingMetadata', done => {
+    hlsAdapterInstance = HlsAdapter.createAdapter(video, vodSource, config);
+    const metadataTrack = video.addTextTrack(TextTrack.KIND.METADATA, 'id3');
+    const cue = {
+      startTime: 20,
+      endTime: 30,
+      id: 'id',
+      metadata: {
+        data: 'data',
+        info: 'info',
+        type: 'type'
+      }
+    };
+    const textTrackCue = createTextTrackCue(cue);
+    metadataTrack.addCue(textTrackCue);
+    hlsAdapterInstance.addEventListener(EventType.TIMED_METADATA_ADDED, event => {
+      try {
+        event.payload.cues[0].should.deep.equal(createTimedMetadata(video.textTracks[0].cues[0]));
+        done();
+      } catch (e) {
+        done(e);
+      }
+    });
+    hlsAdapterInstance._onFragParsingMetadata({
+      samples: [{pts: 20}]
     });
   });
 });
