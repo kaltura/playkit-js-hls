@@ -15,8 +15,8 @@ import {
   RequestType,
   filterTracksByRestriction,
   PKABRRestrictionObject,
-  CuePoint,
-  createCuePoint
+  TimedMetadata,
+  createTimedMetadata
 } from '@playkit-js/playkit-js';
 import pLoader from './jsonp-ploader';
 import loader from './loader';
@@ -451,8 +451,8 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     data?.samples.forEach(sample => {
       const cue = Utils.binarySearch(id3Cues, cue => cue.startTime - sample.pts);
       if (cue) {
-        const cuePoint: CuePoint = createCuePoint(cue);
-        newCues.push(cuePoint);
+        const timedMetadata: TimedMetadata = createTimedMetadata(cue);
+        newCues.push(timedMetadata);
       }
     });
     if (newCues.length) {
