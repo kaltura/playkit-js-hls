@@ -2,6 +2,26 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.28.0](https://github.com/kaltura/playkit-js-hls/compare/v1.27.5...v1.28.0) (2022-01-19)
+
+
+### Bug Fixes
+
+* **FEC-11760:** Live captioning with Virtuvent not updating captions ([#156](https://github.com/kaltura/playkit-js-hls/issues/156)) ([72aabf1](https://github.com/kaltura/playkit-js-hls/commit/72aabf1))
+* **FEC-11800:** captions taking longer to load ([#155](https://github.com/kaltura/playkit-js-hls/issues/155)) ([06ef041](https://github.com/kaltura/playkit-js-hls/commit/06ef041))
+
+
+### Features
+
+* **FEC-11761:** expose stream timed metadata - phase 2 ([#157](https://github.com/kaltura/playkit-js-hls/issues/157)) ([5234d41](https://github.com/kaltura/playkit-js-hls/commit/5234d41))
+
+
+### Tests
+
+* restore ignored tests ([6964ed2](https://github.com/kaltura/playkit-js-hls/commit/6964ed2))
+
+
+
 ### [1.27.5](https://github.com/kaltura/playkit-js-hls/compare/v1.27.4...v1.27.5) (2021-12-21)
 
 
