@@ -211,6 +211,9 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
         Utils.Object.createPropertyPath(adapterConfig, 'abr.restrictions', abr.restrictions);
       }
     }
+    if (Utils.Object.hasPropertyPath(config, 'streaming.lowLatencyMode')) {
+      adapterConfig.hlsConfig.lowLatencyMode = Utils.Object.getPropertyPath(config, 'streaming.lowLatencyMode');
+    }
     if (Utils.Object.hasPropertyPath(config, 'playback.options.html5.hls')) {
       Utils.Object.mergeDeep(adapterConfig.hlsConfig, config.playback.options.html5.hls);
     }
