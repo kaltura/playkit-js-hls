@@ -681,15 +681,14 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    */
   _parseTextTracks(hlsTextTracks: Array<Object>): Array<TextTrack> {
     let textTracks = [];
-    for (let i = 0; i < hlsTextTracks.length; i++) {
+    for (const hlsTextTrack of hlsTextTracks) {
       // Create text tracks
       let settings = {
-        id: hlsTextTracks[i].id,
-        active: hlsTextTracks[i].default,
-        label: hlsTextTracks[i].name,
-        kind: hlsTextTracks[i].type.toLowerCase(),
-        language: hlsTextTracks[i].lang,
-        index: i
+        id: hlsTextTrack.id,
+        active: hlsTextTrack.default,
+        label: hlsTextTrack.name,
+        kind: hlsTextTrack.type.toLowerCase(),
+        language: hlsTextTrack.lang
       };
       textTracks.push(new TextTrack(settings));
     }
@@ -710,11 +709,10 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
         active: CEATextTrack.mode === 'showing',
         label: CEATextTrack.label,
         kind: CEATextTrack.kind,
-        language: CEATextTrack.language,
-        index: this._playerTracks.filter(track => track instanceof TextTrack).length
+        language: CEATextTrack.language
       };
       textTrack = new TextTrack(settings);
-      this._nativeTextTracksMap[settings.index] = CEATextTrack;
+      this._nativeTextTracksMap[textTrack.index] = CEATextTrack;
     }
     return textTrack;
   }
