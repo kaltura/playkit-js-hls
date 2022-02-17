@@ -126,7 +126,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
   _subtitleTrackInitializedPromise: Promise<*>;
   _requestFilterError: boolean = false;
   _responseFilterError: boolean = false;
-  _nativeTextTracksMap = [];
+  _nativeTextTracksMap = {};
   _lastLoadedFragSN: number = -1;
   _sameFragSNLoadedCount: number = 0;
   /**
@@ -592,7 +592,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
           HlsAdapter._logger.debug('destroy');
           this._loadPromise = null;
           this._playerTracks = [];
-          this._nativeTextTracksMap = [];
+          this._nativeTextTracksMap = {};
           this._sameFragSNLoadedCount = 0;
           this._lastLoadedFragSN = -1;
           this._reset();
