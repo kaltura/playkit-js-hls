@@ -73,7 +73,6 @@
       "_active": false,
       "_label": "Chinese",
       "_language": "zho",
-      "_index": 0,
       "_kind": "subtitles",
       "_available": true
     },
@@ -82,7 +81,6 @@
       "_active": false,
       "_label": "Chinese",
       "_language": "zho",
-      "_index": 1,
       "_kind": "subtitles",
       "_available": true
     },
@@ -91,7 +89,6 @@
       "_active": true,
       "_label": "French",
       "_language": "fra",
-      "_index": 2,
       "_kind": "subtitles",
       "_available": true
     },
@@ -100,7 +97,6 @@
       "_active": false,
       "_label": "German",
       "_language": "deu",
-      "_index": 3,
       "_kind": "subtitles",
       "_available": true
     },
@@ -109,7 +105,6 @@
       "_active": false,
       "_label": "Portuguese",
       "_language": "por",
-      "_index": 4,
       "_kind": "subtitles",
       "_available": true
     },
@@ -118,7 +113,6 @@
       "_active": false,
       "_label": "Spanish; Castilian",
       "_language": "spa",
-      "_index": 5,
       "_kind": "subtitles",
       "_available": true
     }

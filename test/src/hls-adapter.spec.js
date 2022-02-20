@@ -193,7 +193,10 @@ describe('HlsAdapter Instance - Unit', function () {
       },
       off: function () {}
     };
-    let textTracks = hlsAdapterInstance._parseTextTracks(hls_tracks.subtitles);
+    let textTracks = hlsAdapterInstance._parseTextTracks(hls_tracks.subtitles).map(hlsTrack => {
+      delete hlsTrack._index;
+      return hlsTrack;
+    });
     JSON.parse(JSON.stringify(textTracks)).should.deep.equal(player_tracks.textTracks);
   });
 
@@ -214,7 +217,14 @@ describe('HlsAdapter Instance - Unit', function () {
       },
       off: function () {}
     };
-    let tracks = hlsAdapterInstance._parseTracks();
+    let tracks = hlsAdapterInstance._parseTracks().map(hlsTrack => {
+      if (hlsTrack._kind === 'subtitles') {
+        delete hlsTrack._index;
+        return hlsTrack;
+      } else {
+        return hlsTrack;
+      }
+    });
     let allTracks = player_tracks.audioTracks.concat(player_tracks.videoTracks).concat(player_tracks.textTracks);
     JSON.parse(JSON.stringify(tracks)).should.deep.equal(allTracks);
   });
