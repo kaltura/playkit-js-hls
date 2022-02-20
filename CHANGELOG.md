@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.29.0](https://github.com/kaltura/playkit-js-hls/compare/v1.28.0...v1.29.0) (2022-02-16)
+
+
+### Features
+
+* **FEC-10548:** Low-Latency support ([#160](https://github.com/kaltura/playkit-js-hls/issues/160)) ([b602213](https://github.com/kaltura/playkit-js-hls/commit/b602213))
+
+
+
 ## [1.28.0](https://github.com/kaltura/playkit-js-hls/compare/v1.27.5...v1.28.0) (2022-01-19)
 
 
