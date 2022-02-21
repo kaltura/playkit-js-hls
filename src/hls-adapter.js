@@ -622,6 +622,10 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     this._responseFilterError = false;
     this._hls.detachMedia();
     this._hls.destroy();
+    if (this._loadPromiseHandlers) {
+      this._loadPromiseHandlers.reject('adapter was reset/destoryd while loading');
+    }
+    this._loadPromiseHandlers = null;
   }
 
   /**
