@@ -100,6 +100,14 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
   _loadPromise: ?Promise<Object>;
 
   /**
+   * the _loadPromise handlers
+   * @member {{resolve: (result: Promise<R> | R) => void, reject: (error: any) => void}} - _loadPromiseHandlers
+   * @type {{resolve: (result: Promise<R> | R) => void, reject: (error: any) => void}}
+   * @private
+   */
+  _loadPromiseHandlers: {resolve: (result: Promise<R> | R) => void, reject: (error: any) => void};
+
+  /**
    * Reference to the player tracks.
    * @member {Array<Track>} - _playerTracks
    * @type {Array<Track>}
