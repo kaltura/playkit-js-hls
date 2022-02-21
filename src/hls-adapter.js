@@ -948,6 +948,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     }
     this._mediaAttachedPromise.then(() => {
       this._loadPromiseHandlers.resolve({tracks: this._playerTracks});
+      this._loadPromiseHandlers = null;
     });
     const {loading} = data.stats;
     const manifestDownloadTime = loading.end - loading.start;
