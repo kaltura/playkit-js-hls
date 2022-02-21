@@ -495,18 +495,15 @@ describe('HlsAdapter Instance - change media', function () {
     });
   });
 
-  it('should clean the text tracks on change media', done => {
+  it('should clean the text tracks on change media', async () => {
+    let data;
     hlsAdapterInstance = HlsAdapter.createAdapter(video, source1, config);
-    hlsAdapterInstance.load().then(data => {
-      data.tracks.filter(track => track instanceof TextTrack).length.should.equal(6);
-      hlsAdapterInstance.destroy().then(() => {
-        hlsAdapterInstance = HlsAdapter.createAdapter(video, source2, config);
-        hlsAdapterInstance.load().then(data => {
-          data.tracks.filter(track => track instanceof TextTrack).length.should.equal(2);
-          done();
-        });
-      });
-    });
+    data = await hlsAdapterInstance.load();
+    data.tracks.filter(track => track instanceof TextTrack).length.should.equal(6);
+    await hlsAdapterInstance.destroy();
+    hlsAdapterInstance = HlsAdapter.createAdapter(video, source2, config);
+    data = await hlsAdapterInstance.load();
+    data.tracks.filter(track => track instanceof TextTrack).length.should.equal(2);
   });
 
   it('should fire FRAG_LOADED', done => {
