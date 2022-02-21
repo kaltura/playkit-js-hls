@@ -103,7 +103,7 @@
     "webpack-dev-server": "^3.11.0"
   },
   "peerDependencies": {
-    "@playkit-js/playkit-js": "kaltura/playkit-js#FEC-11697",
+    "@playkit-js/playkit-js": "canary",
     "hls.js": "^1.0.7"
   },
   "publishConfig": {
