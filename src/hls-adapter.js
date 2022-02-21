@@ -539,8 +539,8 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
   load(startTime: ?number): Promise<Object> {
     if (!this._loadPromise) {
       this._startTime = startTime;
-      this._loadPromise = new Promise(resolve => {
-        this._resolveLoad = resolve;
+      this._loadPromise = new Promise((resolve, reject) => {
+        this._loadPromiseHandlers = {resolve, reject};
         this._loadInternal();
       });
     }
@@ -947,7 +947,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
       this._hls.currentLevel = 0;
     }
     this._mediaAttachedPromise.then(() => {
-      this._resolveLoad({tracks: this._playerTracks});
+      this._loadPromiseHandlers.resolve({tracks: this._playerTracks});
     });
     const {loading} = data.stats;
     const manifestDownloadTime = loading.end - loading.start;
@@ -1099,6 +1099,11 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     const errorFatal = data.fatal;
     let errorDataObject = this._getErrorDataObject(data);
     if (errorFatal) {
+      if (this._loadPromiseHandlers) {
+        const {type, details, url} = data;
+        this._loadPromiseHandlers.reject({type, details, url});
+        this._loadPromiseHandlers = null;
+      }
       let error: typeof Error;
       switch (errorType) {
         case Hlsjs.ErrorTypes.NETWORK_ERROR:
