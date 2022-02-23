@@ -505,26 +505,36 @@ describe('HlsAdapter Instance - change media', function () {
   it('should clean the text tracks on change media', done => {
     hlsAdapterInstance = HlsAdapter.createAdapter(video, source1, config);
     hlsAdapterInstance.load().then(data => {
-      data.tracks.filter(track => track instanceof TextTrack).length.should.equal(6);
-      hlsAdapterInstance.destroy().then(() => {
-        hlsAdapterInstance = HlsAdapter.createAdapter(video, source2, config);
-        hlsAdapterInstance.load().then(data => {
-          data.tracks.filter(track => track instanceof TextTrack).length.should.equal(2);
-          done();
+      try {
+        data.tracks.filter(track => track instanceof TextTrack).length.should.equal(5);
+        hlsAdapterInstance.destroy().then(() => {
+          hlsAdapterInstance = HlsAdapter.createAdapter(video, source2, config);
+          hlsAdapterInstance.load().then(data => {
+            try {
+              data.tracks.filter(track => track instanceof TextTrack).length.should.equal(2);
+              done();
+            } catch (e) {
+              done(e);
+            }
+          });
         });
-      });
+      } catch (e) {
+        done(e);
+      }
     });
   });
 
   it('should fire FRAG_LOADED', done => {
     try {
       hlsAdapterInstance = HlsAdapter.createAdapter(video, source1, config);
-      hlsAdapterInstance.addEventListener(EventType.FRAG_LOADED, event => {
+      const onFragLoaded = event => {
+        hlsAdapterInstance.removeEventListener(EventType.FRAG_LOADED, onFragLoaded);
         event.payload.miliSeconds.should.exist;
         event.payload.bytes.should.exist;
         event.payload.url.should.not.be.empty;
         done();
-      });
+      };
+      hlsAdapterInstance.addEventListener(EventType.FRAG_LOADED, onFragLoaded);
       hlsAdapterInstance.load();
     } catch (e) {
       done(e);
