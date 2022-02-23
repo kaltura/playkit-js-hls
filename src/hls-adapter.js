@@ -20,7 +20,6 @@ import {
 } from '@playkit-js/playkit-js';
 import pLoader from './jsonp-ploader';
 import loader from './loader';
-import {CustomTimelineController} from './custom-timeline-controller';
 
 /**
  * Adapter of hls.js lib for hls content.
@@ -184,9 +183,6 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     }
     if (Utils.Object.hasPropertyPath(config, 'text')) {
       adapterConfig.hlsConfig.enableCEA708Captions = config.text.enableCEA708Captions;
-      if (config.text.enableCEA708Captions) {
-        adapterConfig.hlsConfig.timelineController = CustomTimelineController;
-      }
       adapterConfig.hlsConfig.captionsTextTrack1Label = config.text.captionsTextTrack1Label;
       adapterConfig.hlsConfig.captionsTextTrack1LanguageCode = config.text.captionsTextTrack1LanguageCode;
       adapterConfig.hlsConfig.captionsTextTrack2Label = config.text.captionsTextTrack2Label;
