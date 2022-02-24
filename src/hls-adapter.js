@@ -20,7 +20,6 @@ import {
 } from '@playkit-js/playkit-js';
 import pLoader from './jsonp-ploader';
 import loader from './loader';
-import {CustomTimelineController} from './custom-timeline-controller';
 
 /**
  * Adapter of hls.js lib for hls content.
@@ -122,8 +121,6 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
   _onAddTrack: Function;
   _onMediaAttached: Function;
   _mediaAttachedPromise: Promise<*>;
-  _onSubtitleFragProcessed: Function;
-  _subtitleTrackInitializedPromise: Promise<*>;
   _requestFilterError: boolean = false;
   _responseFilterError: boolean = false;
   _nativeTextTracksMap = [];
@@ -144,8 +141,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     [Hlsjs.Events.FRAG_PARSING_METADATA]: (e, data) => this._onFragParsingMetadata(data),
     [Hlsjs.Events.FRAG_LOADED]: (e, data) => this._onFragLoaded(data),
     [Hlsjs.Events.MEDIA_ATTACHED]: () => this._onMediaAttached(),
-    [Hlsjs.Events.LEVEL_LOADED]: (e, data) => this._onLevelLoaded(e, data),
-    [Hlsjs.Events.SUBTITLE_FRAG_PROCESSED]: (e, data) => this._onSubtitleFragProcessed(e, data)
+    [Hlsjs.Events.LEVEL_LOADED]: (e, data) => this._onLevelLoaded(e, data)
   };
 
   /**
@@ -187,9 +183,6 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     }
     if (Utils.Object.hasPropertyPath(config, 'text')) {
       adapterConfig.hlsConfig.enableCEA708Captions = config.text.enableCEA708Captions;
-      if (config.text.enableCEA708Captions) {
-        adapterConfig.hlsConfig.timelineController = CustomTimelineController;
-      }
       adapterConfig.hlsConfig.captionsTextTrack1Label = config.text.captionsTextTrack1Label;
       adapterConfig.hlsConfig.captionsTextTrack1LanguageCode = config.text.captionsTextTrack1LanguageCode;
       adapterConfig.hlsConfig.captionsTextTrack2Label = config.text.captionsTextTrack2Label;
@@ -428,13 +421,6 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    */
   _addBindings(): void {
     this._mediaAttachedPromise = new Promise(resolve => (this._onMediaAttached = resolve));
-    this._subtitleTrackInitializedPromise = new Promise(resolve => {
-      this._onSubtitleFragProcessed = () => {
-        resolve();
-        this._hls.off(Hlsjs.Events.SUBTITLE_FRAG_PROCESSED, this._adapterEventsBindings[Hlsjs.Events.SUBTITLE_FRAG_PROCESSED]);
-      };
-    });
-
     for (const [event, callback] of Object.entries(this._adapterEventsBindings)) {
       this._hls.on(event, callback);
     }
@@ -794,14 +780,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
   hideTextTrack(): void {
     if (this._hls) {
       if (this._hls.subtitleTracks.length) {
-        const currentSubtitleTrack = this._hls.subtitleTracks[this._hls.subtitleTrack];
-        if (currentSubtitleTrack && currentSubtitleTrack.default) {
-          this._subtitleTrackInitializedPromise.then(() => {
-            this._hls.subtitleTrack = -1;
-          });
-        } else {
-          this._hls.subtitleTrack = -1;
-        }
+        this._hls.subtitleTrack = -1;
       } else {
         this.disableNativeTextTracks();
       }
