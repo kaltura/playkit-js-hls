@@ -105,7 +105,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    * @type {{resolve: (result: Promise<R> | R) => void, reject: (error: any) => void}}
    * @private
    */
-  _loadPromiseHandlers: {resolve: (result: Promise<R> | R) => void, reject: (error: any) => void};
+  _loadPromiseHandlers: {resolve: (result: Promise<*> | *) => void, reject: (error: any) => void} | null;
 
   /**
    * Reference to the player tracks.
@@ -567,7 +567,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
       this._hls.attachMedia(this._videoElement);
       this._trigger(EventType.ABR_MODE_CHANGED, {mode: this.isAdaptiveBitrateEnabled() ? 'auto' : 'manual'});
     } else {
-      this._loadPromiseHandlers.reject(new window.Error('no url provided'));
+      this._loadPromiseHandlers?.reject(new window.Error('no url provided'));
     }
   }
 
@@ -961,7 +961,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
       this._hls.currentLevel = 0;
     }
     this._mediaAttachedPromise.then(() => {
-      this._loadPromiseHandlers.resolve({tracks: this._playerTracks});
+      this._loadPromiseHandlers?.resolve({tracks: this._playerTracks});
       this._loadPromiseHandlers = null;
     });
     const {loading} = data.stats;
