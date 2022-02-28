@@ -566,6 +566,8 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
       this._hls.loadSource(this._sourceObj.url);
       this._hls.attachMedia(this._videoElement);
       this._trigger(EventType.ABR_MODE_CHANGED, {mode: this.isAdaptiveBitrateEnabled() ? 'auto' : 'manual'});
+    } else {
+      this._loadPromiseHandlers.reject(new window.Error('no url provided'));
     }
   }
 
@@ -598,7 +600,6 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
       super.destroy().then(
         () => {
           HlsAdapter._logger.debug('destroy');
-          this._loadPromise = null;
           this._playerTracks = [];
           this._nativeTextTracksMap = {};
           this._sameFragSNLoadedCount = 0;
@@ -606,7 +607,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
           this._reset();
           resolve();
         },
-        () => reject
+        () => reject()
       );
     });
   }
@@ -626,6 +627,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
       this._loadPromiseHandlers.reject('adapter was reset/destoryd while loading');
     }
     this._loadPromiseHandlers = null;
+    this._loadPromise = null;
   }
 
   /**
