@@ -6,7 +6,7 @@ import {
   AudioTrack,
   BaseMediaSourceAdapter,
   Env,
-  Error,
+  Error as PKError,
   EventType,
   TextTrack,
   Track,
@@ -555,7 +555,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
       this._hls.attachMedia(this._videoElement);
       this._trigger(EventType.ABR_MODE_CHANGED, {mode: this.isAdaptiveBitrateEnabled() ? 'auto' : 'manual'});
     } else {
-      this._loadPromiseHandlers?.reject(new window.Error('no url provided'));
+      this._loadPromiseHandlers?.reject(new PKError('no url provided'));
     }
   }
 
@@ -1093,17 +1093,17 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     const errorFatal = data.fatal;
     let errorDataObject = this._getErrorDataObject(data);
     if (errorFatal) {
-      let error: typeof Error;
+      let error: typeof PKError;
       switch (errorType) {
         case Hlsjs.ErrorTypes.NETWORK_ERROR:
           {
             let code;
             if (this._requestFilterError) {
-              code = Error.Code.REQUEST_FILTER_ERROR;
+              code = PKError.Code.REQUEST_FILTER_ERROR;
             } else if (this._responseFilterError) {
-              code = Error.Code.RESPONSE_FILTER_ERROR;
+              code = PKError.Code.RESPONSE_FILTER_ERROR;
             } else {
-              code = Error.Code.HTTP_ERROR;
+              code = PKError.Code.HTTP_ERROR;
             }
             if (
               [Hlsjs.ErrorDetails.MANIFEST_LOAD_ERROR, Hlsjs.ErrorDetails.MANIFEST_LOAD_TIMEOUT].includes(errorName) &&
@@ -1112,37 +1112,42 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
               !this._requestFilterError &&
               !this._responseFilterError
             ) {
-              error = new Error(Error.Severity.RECOVERABLE, Error.Category.NETWORK, code, errorDataObject);
+              error = new PKError(PKError.Severity.RECOVERABLE, PKError.Category.NETWORK, code, errorDataObject);
               this._reloadWithDirectManifest();
             } else {
-              error = new Error(Error.Severity.CRITICAL, Error.Category.NETWORK, code, errorDataObject);
+              error = new PKError(PKError.Severity.CRITICAL, PKError.Category.NETWORK, code, errorDataObject);
             }
           }
           break;
         case Hlsjs.ErrorTypes.MEDIA_ERROR:
           if (this._handleMediaError()) {
-            error = new Error(Error.Severity.RECOVERABLE, Error.Category.MEDIA, Error.Code.HLS_FATAL_MEDIA_ERROR, errorDataObject);
+            error = new PKError(PKError.Severity.RECOVERABLE, PKError.Category.MEDIA, PKError.Code.HLS_FATAL_MEDIA_ERROR, errorDataObject);
           } else {
-            error = new Error(Error.Severity.CRITICAL, Error.Category.MEDIA, Error.Code.HLS_FATAL_MEDIA_ERROR, errorDataObject);
+            error = new PKError(PKError.Severity.CRITICAL, PKError.Category.MEDIA, PKError.Code.HLS_FATAL_MEDIA_ERROR, errorDataObject);
           }
           break;
         default:
-          error = new Error(Error.Severity.CRITICAL, Error.Category.PLAYER, Error.Code.HLS_FATAL_MEDIA_ERROR, errorDataObject);
+          error = new PKError(PKError.Severity.CRITICAL, PKError.Category.PLAYER, PKError.Code.HLS_FATAL_MEDIA_ERROR, errorDataObject);
           break;
       }
       this._trigger(EventType.ERROR, error);
-      if (error && error.severity === Error.Severity.CRITICAL) {
+      if (error && error.severity === PKError.Severity.CRITICAL) {
+        if (this._loadPromiseHandlers) {
+          this._loadPromiseHandlers?.reject(error);
+          this._loadPromiseHandlers = null;
+          this._loadPromise = null;
+        }
         this.destroy();
       }
     } else {
       const {category, code}: ErrorDetailsType =
         this._requestFilterError || this._responseFilterError
           ? {
-              category: Error.Category.NETWORK,
-              code: this._requestFilterError ? Error.Code.REQUEST_FILTER_ERROR : Error.Code.RESPONSE_FILTER_ERROR
+              category: PKError.Category.NETWORK,
+              code: this._requestFilterError ? PKError.Code.REQUEST_FILTER_ERROR : PKError.Code.RESPONSE_FILTER_ERROR
             }
           : HlsJsErrorMap[errorName] || {category: 0, code: 0};
-      HlsAdapter._logger.warn(new Error(Error.Severity.RECOVERABLE, category, code, errorDataObject));
+      HlsAdapter._logger.warn(new PKError(PKError.Severity.RECOVERABLE, category, code, errorDataObject));
     }
     this._requestFilterError = false;
     this._responseFilterError = false;
@@ -1278,7 +1283,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
         HlsAdapter._logger.debug(`Same frag SN. Count is: ${this._sameFragSNLoadedCount}, Max is: ${this._config.network.maxStaleLevelReloads}`);
         if (this._sameFragSNLoadedCount >= this._config.network.maxStaleLevelReloads) {
           HlsAdapter._logger.error(`Same frag loading reached max count`);
-          const error = new Error(Error.Severity.CRITICAL, Error.Category.NETWORK, Error.Code.LIVE_MANIFEST_REFRESH_ERROR, {
+          const error = new PKError(PKError.Severity.CRITICAL, PKError.Category.NETWORK, PKError.Code.LIVE_MANIFEST_REFRESH_ERROR, {
             fragSN: endSN
           });
           this._trigger(EventType.ERROR, error);
