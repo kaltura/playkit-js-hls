@@ -500,6 +500,8 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
         this._config.hlsConfig.startPosition = this.currentTime;
       }
       this._reset();
+      this._loadPromiseHandlers?.reject('media detached while loading');
+      this._loadPromiseHandlers = null;
       this._loadPromise = null;
       this._hls = null;
     }
@@ -590,6 +592,9 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
           this._nativeTextTracksMap = {};
           this._sameFragSNLoadedCount = 0;
           this._lastLoadedFragSN = -1;
+          this._loadPromiseHandlers?.reject('The adapter has been destroyed while loading');
+          this._loadPromiseHandlers = null;
+          this._loadPromise = null;
           this._reset();
           resolve();
         },
@@ -609,11 +614,6 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     this._responseFilterError = false;
     this._hls.detachMedia();
     this._hls.destroy();
-    if (this._loadPromiseHandlers) {
-      this._loadPromiseHandlers.reject('The adapter has been reset/destoryed while loading');
-    }
-    this._loadPromiseHandlers = null;
-    this._loadPromise = null;
   }
 
   /**
@@ -1093,11 +1093,6 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     const errorFatal = data.fatal;
     let errorDataObject = this._getErrorDataObject(data);
     if (errorFatal) {
-      if (this._loadPromiseHandlers) {
-        const {type, details, url} = data;
-        this._loadPromiseHandlers.reject({type, details, url});
-        this._loadPromiseHandlers = null;
-      }
       let error: typeof Error;
       switch (errorType) {
         case Hlsjs.ErrorTypes.NETWORK_ERROR:
