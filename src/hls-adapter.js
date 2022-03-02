@@ -6,7 +6,7 @@ import {
   AudioTrack,
   BaseMediaSourceAdapter,
   Env,
-  Error,
+  Error as PKError,
   EventType,
   TextTrack,
   Track,
@@ -99,6 +99,14 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
   _loadPromise: ?Promise<Object>;
 
   /**
+   * the _loadPromise handlers
+   * @member {{resolve: (result: Promise<R> | R) => void, reject: (error: any) => void}} - _loadPromiseHandlers
+   * @type {{resolve: (result: Promise<R> | R) => void, reject: (error: any) => void}}
+   * @private
+   */
+  _loadPromiseHandlers: {resolve: (result: Promise<*> | *) => void, reject: (error: any) => void} | null;
+
+  /**
    * Reference to the player tracks.
    * @member {Array<Track>} - _playerTracks
    * @type {Array<Track>}
@@ -123,7 +131,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
   _mediaAttachedPromise: Promise<*>;
   _requestFilterError: boolean = false;
   _responseFilterError: boolean = false;
-  _nativeTextTracksMap = [];
+  _nativeTextTracksMap = {};
   _lastLoadedFragSN: number = -1;
   _sameFragSNLoadedCount: number = 0;
   /**
@@ -492,6 +500,11 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
         this._config.hlsConfig.startPosition = this.currentTime;
       }
       this._reset();
+
+      this._loadPromiseHandlers?.reject(
+        new PKError(PKError.Severity.CRITICAL, PKError.Category.PLAYER, PKError.Code.HLS_FATAL_MEDIA_ERROR, 'media detached while loading')
+      );
+      this._loadPromiseHandlers = null;
       this._loadPromise = null;
       this._hls = null;
     }
@@ -525,8 +538,8 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
   load(startTime: ?number): Promise<Object> {
     if (!this._loadPromise) {
       this._startTime = startTime;
-      this._loadPromise = new Promise(resolve => {
-        this._resolveLoad = resolve;
+      this._loadPromise = new Promise((resolve, reject) => {
+        this._loadPromiseHandlers = {resolve, reject};
         this._loadInternal();
       });
     }
@@ -544,6 +557,10 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
       this._hls.loadSource(this._sourceObj.url);
       this._hls.attachMedia(this._videoElement);
       this._trigger(EventType.ABR_MODE_CHANGED, {mode: this.isAdaptiveBitrateEnabled() ? 'auto' : 'manual'});
+    } else {
+      this._loadPromiseHandlers?.reject(
+        new PKError(PKError.Severity.CRITICAL, PKError.Category.PLAYER, PKError.Code.HLS_FATAL_MEDIA_ERROR, 'no url provided')
+      );
     }
   }
 
@@ -576,15 +593,24 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
       super.destroy().then(
         () => {
           HlsAdapter._logger.debug('destroy');
-          this._loadPromise = null;
           this._playerTracks = [];
-          this._nativeTextTracksMap = [];
+          this._nativeTextTracksMap = {};
           this._sameFragSNLoadedCount = 0;
           this._lastLoadedFragSN = -1;
+          this._loadPromiseHandlers?.reject(
+            new PKError(
+              PKError.Severity.CRITICAL,
+              PKError.Category.PLAYER,
+              PKError.Code.HLS_FATAL_MEDIA_ERROR,
+              'The adapter has been destroyed while loading'
+            )
+          );
+          this._loadPromiseHandlers = null;
+          this._loadPromise = null;
           this._reset();
           resolve();
         },
-        () => reject
+        () => reject()
       );
     });
   }
@@ -667,15 +693,14 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    */
   _parseTextTracks(hlsTextTracks: Array<Object>): Array<TextTrack> {
     let textTracks = [];
-    for (let i = 0; i < hlsTextTracks.length; i++) {
+    for (const hlsTextTrack of hlsTextTracks) {
       // Create text tracks
       let settings = {
-        id: hlsTextTracks[i].id,
-        active: hlsTextTracks[i].default,
-        label: hlsTextTracks[i].name,
-        kind: hlsTextTracks[i].type.toLowerCase(),
-        language: hlsTextTracks[i].lang,
-        index: i
+        id: hlsTextTrack.id,
+        active: hlsTextTrack.default,
+        label: hlsTextTrack.name,
+        kind: hlsTextTrack.type.toLowerCase(),
+        language: hlsTextTrack.lang
       };
       textTracks.push(new TextTrack(settings));
     }
@@ -696,11 +721,10 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
         active: CEATextTrack.mode === 'showing',
         label: CEATextTrack.label,
         kind: CEATextTrack.kind,
-        language: CEATextTrack.language,
-        index: this._playerTracks.filter(track => track instanceof TextTrack).length
+        language: CEATextTrack.language
       };
       textTrack = new TextTrack(settings);
-      this._nativeTextTracksMap[settings.index] = CEATextTrack;
+      this._nativeTextTracksMap[textTrack.index] = CEATextTrack;
     }
     return textTrack;
   }
@@ -928,7 +952,8 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
       this._hls.currentLevel = 0;
     }
     this._mediaAttachedPromise.then(() => {
-      this._resolveLoad({tracks: this._playerTracks});
+      this._loadPromiseHandlers?.resolve({tracks: this._playerTracks});
+      this._loadPromiseHandlers = null;
     });
     const {loading} = data.stats;
     const manifestDownloadTime = loading.end - loading.start;
@@ -1080,17 +1105,17 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     const errorFatal = data.fatal;
     let errorDataObject = this._getErrorDataObject(data);
     if (errorFatal) {
-      let error: typeof Error;
+      let error: typeof PKError;
       switch (errorType) {
         case Hlsjs.ErrorTypes.NETWORK_ERROR:
           {
             let code;
             if (this._requestFilterError) {
-              code = Error.Code.REQUEST_FILTER_ERROR;
+              code = PKError.Code.REQUEST_FILTER_ERROR;
             } else if (this._responseFilterError) {
-              code = Error.Code.RESPONSE_FILTER_ERROR;
+              code = PKError.Code.RESPONSE_FILTER_ERROR;
             } else {
-              code = Error.Code.HTTP_ERROR;
+              code = PKError.Code.HTTP_ERROR;
             }
             if (
               [Hlsjs.ErrorDetails.MANIFEST_LOAD_ERROR, Hlsjs.ErrorDetails.MANIFEST_LOAD_TIMEOUT].includes(errorName) &&
@@ -1099,37 +1124,42 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
               !this._requestFilterError &&
               !this._responseFilterError
             ) {
-              error = new Error(Error.Severity.RECOVERABLE, Error.Category.NETWORK, code, errorDataObject);
+              error = new PKError(PKError.Severity.RECOVERABLE, PKError.Category.NETWORK, code, errorDataObject);
               this._reloadWithDirectManifest();
             } else {
-              error = new Error(Error.Severity.CRITICAL, Error.Category.NETWORK, code, errorDataObject);
+              error = new PKError(PKError.Severity.CRITICAL, PKError.Category.NETWORK, code, errorDataObject);
             }
           }
           break;
         case Hlsjs.ErrorTypes.MEDIA_ERROR:
           if (this._handleMediaError()) {
-            error = new Error(Error.Severity.RECOVERABLE, Error.Category.MEDIA, Error.Code.HLS_FATAL_MEDIA_ERROR, errorDataObject);
+            error = new PKError(PKError.Severity.RECOVERABLE, PKError.Category.MEDIA, PKError.Code.HLS_FATAL_MEDIA_ERROR, errorDataObject);
           } else {
-            error = new Error(Error.Severity.CRITICAL, Error.Category.MEDIA, Error.Code.HLS_FATAL_MEDIA_ERROR, errorDataObject);
+            error = new PKError(PKError.Severity.CRITICAL, PKError.Category.MEDIA, PKError.Code.HLS_FATAL_MEDIA_ERROR, errorDataObject);
           }
           break;
         default:
-          error = new Error(Error.Severity.CRITICAL, Error.Category.PLAYER, Error.Code.HLS_FATAL_MEDIA_ERROR, errorDataObject);
+          error = new PKError(PKError.Severity.CRITICAL, PKError.Category.PLAYER, PKError.Code.HLS_FATAL_MEDIA_ERROR, errorDataObject);
           break;
       }
       this._trigger(EventType.ERROR, error);
-      if (error && error.severity === Error.Severity.CRITICAL) {
+      if (error && error.severity === PKError.Severity.CRITICAL) {
+        if (this._loadPromiseHandlers) {
+          this._loadPromiseHandlers?.reject(error);
+          this._loadPromiseHandlers = null;
+          this._loadPromise = null;
+        }
         this.destroy();
       }
     } else {
       const {category, code}: ErrorDetailsType =
         this._requestFilterError || this._responseFilterError
           ? {
-              category: Error.Category.NETWORK,
-              code: this._requestFilterError ? Error.Code.REQUEST_FILTER_ERROR : Error.Code.RESPONSE_FILTER_ERROR
+              category: PKError.Category.NETWORK,
+              code: this._requestFilterError ? PKError.Code.REQUEST_FILTER_ERROR : PKError.Code.RESPONSE_FILTER_ERROR
             }
           : HlsJsErrorMap[errorName] || {category: 0, code: 0};
-      HlsAdapter._logger.warn(new Error(Error.Severity.RECOVERABLE, category, code, errorDataObject));
+      HlsAdapter._logger.warn(new PKError(PKError.Severity.RECOVERABLE, category, code, errorDataObject));
     }
     this._requestFilterError = false;
     this._responseFilterError = false;
@@ -1265,7 +1295,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
         HlsAdapter._logger.debug(`Same frag SN. Count is: ${this._sameFragSNLoadedCount}, Max is: ${this._config.network.maxStaleLevelReloads}`);
         if (this._sameFragSNLoadedCount >= this._config.network.maxStaleLevelReloads) {
           HlsAdapter._logger.error(`Same frag loading reached max count`);
-          const error = new Error(Error.Severity.CRITICAL, Error.Category.NETWORK, Error.Code.LIVE_MANIFEST_REFRESH_ERROR, {
+          const error = new PKError(PKError.Severity.CRITICAL, PKError.Category.NETWORK, PKError.Code.LIVE_MANIFEST_REFRESH_ERROR, {
             fragSN: endSN
           });
           this._trigger(EventType.ERROR, error);

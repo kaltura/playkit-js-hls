@@ -18,7 +18,6 @@ const launchers = {
 module.exports = function (config) {
   let karmaConf = {
     logLevel: config.LOG_INFO,
-    browserNoActivityTimeout: 90000,
     browsers: ['Chrome', 'Firefox'],
     customLaunchers: launchers,
     concurrency: 1,
@@ -43,7 +42,8 @@ module.exports = function (config) {
     client: {
       mocha: {
         reporter: 'html',
-        timeout: 90000
+        timeout: 40000
+        // timeout: 2000 - this is the default, see https://mochajs.org/#-timeout-ms-t-ms
       }
     }
   };
