@@ -500,7 +500,10 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
         this._config.hlsConfig.startPosition = this.currentTime;
       }
       this._reset();
-      this._loadPromiseHandlers?.reject('media detached while loading');
+
+      this._loadPromiseHandlers?.reject(
+        new PKError(PKError.Severity.CRITICAL, PKError.Category.PLAYER, PKError.Code.HLS_FATAL_MEDIA_ERROR, 'media detached while loading')
+      );
       this._loadPromiseHandlers = null;
       this._loadPromise = null;
       this._hls = null;
@@ -555,7 +558,9 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
       this._hls.attachMedia(this._videoElement);
       this._trigger(EventType.ABR_MODE_CHANGED, {mode: this.isAdaptiveBitrateEnabled() ? 'auto' : 'manual'});
     } else {
-      this._loadPromiseHandlers?.reject(new PKError('no url provided'));
+      this._loadPromiseHandlers?.reject(
+        new PKError(PKError.Severity.CRITICAL, PKError.Category.PLAYER, PKError.Code.HLS_FATAL_MEDIA_ERROR, 'no url provided')
+      );
     }
   }
 
@@ -592,7 +597,14 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
           this._nativeTextTracksMap = {};
           this._sameFragSNLoadedCount = 0;
           this._lastLoadedFragSN = -1;
-          this._loadPromiseHandlers?.reject('The adapter has been destroyed while loading');
+          this._loadPromiseHandlers?.reject(
+            new PKError(
+              PKError.Severity.CRITICAL,
+              PKError.Category.PLAYER,
+              PKError.Code.HLS_FATAL_MEDIA_ERROR,
+              'The adapter has been destroyed while loading'
+            )
+          );
           this._loadPromiseHandlers = null;
           this._loadPromise = null;
           this._reset();
