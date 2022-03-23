@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.30.1](https://github.com/kaltura/playkit-js-hls/compare/v1.30.0...v1.30.1) (2022-03-23)
+
+
+### Tests
+
+* skip failing tests ([084012f](https://github.com/kaltura/playkit-js-hls/commit/084012f))
+
+
+
 ## [1.30.0](https://github.com/kaltura/playkit-js-hls/compare/v1.29.0...v1.30.0) (2022-03-23)
 
 
