@@ -96,7 +96,7 @@ describe('HlsAdapter.id', function () {
   });
 });
 
-describe('HlsAdapter Instance - Unit', function () {
+xdescribe('HlsAdapter Instance - Unit', function () {
   let hlsAdapterInstance;
   let video;
   let sourceObj;
@@ -328,7 +328,7 @@ describe('HlsAdapter Instance - Unit', function () {
   });
 });
 
-describe('HlsAdapter Instance - isLive', () => {
+xdescribe('HlsAdapter Instance - isLive', () => {
   let hlsAdapterInstance;
   let video;
   let vodSource = hls_sources.ElephantsDream;
@@ -443,7 +443,7 @@ describe.skip('HlsAdapter Instance - _getLiveEdge', function () {
   });
 });
 
-describe('HlsAdapter Instance - getStartTimeOfDvrWindow', function () {
+xdescribe('HlsAdapter Instance - getStartTimeOfDvrWindow', function () {
   let hlsAdapterInstance;
   let video;
   let vodSource = hls_sources.ElephantsDream;
@@ -488,7 +488,7 @@ describe('HlsAdapter Instance - getStartTimeOfDvrWindow', function () {
   });
 });
 
-describe('HlsAdapter Instance - change media', function () {
+xdescribe('HlsAdapter Instance - change media', function () {
   let hlsAdapterInstance;
   let video;
   let source1 = hls_sources.ElephantsDream;
@@ -1112,7 +1112,7 @@ describe('HlsAdapter Instance: response filter', () => {
   });
 });
 
-describe('HlsAdapter Instance - Integration', function () {
+xdescribe('HlsAdapter Instance - Integration', function () {
   let playerContainer;
   let player;
   let tracks;
@@ -1289,7 +1289,7 @@ describe('HlsAdapter Instance - Integration', function () {
   });
 });
 
-describe('HlsAdapter Instance - _onFragParsingMetadata', function () {
+xdescribe('HlsAdapter Instance - _onFragParsingMetadata', function () {
   let hlsAdapterInstance;
   let video;
   let vodSource = hls_sources.ElephantsDream;
