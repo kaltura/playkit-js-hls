@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.30.0](https://github.com/kaltura/playkit-js-hls/compare/v1.29.0...v1.30.0) (2022-03-23)
+
+
+### Bug Fixes
+
+* **FEC-11697:** 2 captions are selected in the menu ([#161](https://github.com/kaltura/playkit-js-hls/issues/161)) ([b3d21fe](https://github.com/kaltura/playkit-js-hls/commit/b3d21fe))
+
+
+### Features
+
+* **FEC-11889:** upgrade to hlsjs 1.1.5 ([#167](https://github.com/kaltura/playkit-js-hls/issues/167)) ([d7a4fdd](https://github.com/kaltura/playkit-js-hls/commit/d7a4fdd))
+
+
+
 ## [1.29.0](https://github.com/kaltura/playkit-js-hls/compare/v1.28.0...v1.29.0) (2022-02-16)
 
 
