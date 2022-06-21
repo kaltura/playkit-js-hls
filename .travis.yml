@@ -1,9 +1,8 @@
 notifications:
-  webhooks: https://kaltura.webhook.office.com/webhookb2/b992a7e1-5ff6-49a7-8d78-2f5e2909a982@0c503748-de3f-4e25-97e2-6819d53a42b6/TravisCI/b57a40c4a12d4b5d8948083e243067c0/4779c8dc-fa74-44a9-9710-010265f09a25
+  webhooks: https://kaltura.webhook.office.com/webhookb2/b992a7e1-5ff6-49a7-8d78-2f5e2909a982@0c503748-de3f-4e25-97e2-6819d53a42b6/TravisCI/8ee374eb79a8409fb0ca7cd27a49cf69/4779c8dc-fa74-44a9-9710-010265f09a25
+  if: branch = test-notifications-2
   on_success: change
   on_failure: always
-  on_start: change
-  on_cancel: always
   on_error: always
 
 conditions: v1
@@ -11,7 +10,7 @@ sudo: required
 dist: xenial
 language: node_js
 node_js:
-  - 17
+  - 'node'
 env:
   global:
     - NODE_OPTIONS="--openssl-legacy-provider"
