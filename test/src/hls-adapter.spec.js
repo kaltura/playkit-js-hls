@@ -1329,7 +1329,7 @@ xdescribe('HlsAdapter Instance - _onFragParsingMetadata', function () {
     metadataTrack.addCue(textTrackCue);
     hlsAdapterInstance.addEventListener(EventType.TIMED_METADATA_ADDED, event => {
       try {
-        event.payload.cues[0].should.deep.equal(1);
+        event.payload.cues[0].should.deep.equal(createTimedMetadata(video.textTracks[0].cues[0]));
         done();
       } catch (e) {
         done(e);
