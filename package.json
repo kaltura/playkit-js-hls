@@ -53,6 +53,7 @@
     ]
   },
   "devDependencies": {
+    "hls.js": "^1.2.0",
     "@babel/cli": "^7.10.5",
     "@babel/core": "^7.10.5",
     "@babel/plugin-proposal-class-properties": "^7.10.4",
@@ -75,7 +76,6 @@
     "eslint-plugin-mocha-no-only": "^1.1.0",
     "eslint-plugin-prettier": "^3.1.4",
     "flow-bin": "^0.129.0",
-    "hls.js": "^1.1.5",
     "husky": "^4.2.5",
     "istanbul": "^0.4.5",
     "karma": "^5.1.0",
@@ -104,7 +104,7 @@
   },
   "peerDependencies": {
     "@playkit-js/playkit-js": "canary",
-    "hls.js": "^1.1.5"
+    "hls.js": "^1.2.0"
   },
   "publishConfig": {
     "access": "public"
