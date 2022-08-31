@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.30.2](https://github.com/kaltura/playkit-js-hls/compare/v1.30.1...v1.30.2) (2022-08-31)
+
+
+### Bug Fixes
+
+* **FEC-12460:** upgrade HLS.JS player to v1.2.0 ([#175](https://github.com/kaltura/playkit-js-hls/issues/175)) ([bd51ea2](https://github.com/kaltura/playkit-js-hls/commit/bd51ea2))
+
+
+### Build System
+
+* set prerelease false ([56f87f7](https://github.com/kaltura/playkit-js-hls/commit/56f87f7))
+
+
+
 ### [1.30.1](https://github.com/kaltura/playkit-js-hls/compare/v1.30.0...v1.30.1) (2022-03-23)
 
 
