@@ -282,14 +282,6 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     if (this._config.forceRedirectExternalStreams) {
       this._config.hlsConfig['pLoader'] = pLoader;
     }
-    //this._config.hlsConfig.debug = true;
-    //this._config.hlsConfig.autoStartLoad = false;
-    //this._config.hlsConfig.lowLatencyMode = true;
-    //this._config.hlsConfig.liveSyncDurationCount = 20;
-    //this._config.hlsConfig.liveDurationInfinity = true;
-    this._config.hlsConfig.startLevel = 0;
-    this._config.hlsConfig.startFragPrefetch = true;
-
     this._maybeSetFilters();
     this._hls = new Hlsjs(this._config.hlsConfig);
     this._capabilities.fpsControl = true;
