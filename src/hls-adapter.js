@@ -112,7 +112,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    * @type {Array<Track>}
    * @private
    */
-  _playerTracks: Array<Track>;
+  _playerTracks: Array<Track> = [];
   /**
    * stream start time in seconds
    * @type {?number}
