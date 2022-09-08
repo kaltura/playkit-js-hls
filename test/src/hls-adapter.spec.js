@@ -956,7 +956,7 @@ describe('HlsAdapter Instance: response filter', () => {
     hlsAdapterInstance.load();
   });
 
-  it('should apply void filter for manifest', done => {
+  xit('should apply void filter for manifest', done => {
     hlsAdapterInstance = HlsAdapter.createAdapter(
       video,
       vodSource,
@@ -982,7 +982,7 @@ describe('HlsAdapter Instance: response filter', () => {
     hlsAdapterInstance.load().catch(done);
   });
 
-  it('should apply promise filter for manifest - response', done => {
+  xit('should apply promise filter for manifest - response', done => {
     hlsAdapterInstance = HlsAdapter.createAdapter(
       video,
       vodSource,
