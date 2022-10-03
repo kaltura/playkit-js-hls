@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.31.0](https://github.com/kaltura/playkit-js-hls/compare/v1.30.2...v1.31.0) (2022-10-03)
+
+
+### Bug Fixes
+
+* **FEC-12527:** turning on hls debug mode in config causes the player to crash ([#176](https://github.com/kaltura/playkit-js-hls/issues/176)) ([78793b4](https://github.com/kaltura/playkit-js-hls/commit/78793b4))
+
+
+### Features
+
+* **FEC-12492:** upgrade hls.js v1.2.3 ([#178](https://github.com/kaltura/playkit-js-hls/issues/178)) ([cf47bb0](https://github.com/kaltura/playkit-js-hls/commit/cf47bb0)), closes [kaltura/kaltura-player-js#568](https://github.com/kaltura/playkit-js-hls/issues/568)
+
+
+
 ### [1.30.2](https://github.com/kaltura/playkit-js-hls/compare/v1.30.1...v1.30.2) (2022-08-31)
 
 
