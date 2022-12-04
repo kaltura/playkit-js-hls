@@ -697,6 +697,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
       // Create text tracks
       let settings = {
         id: hlsTextTrack.id,
+        active: false,
         default: hlsTextTrack.default,
         label: hlsTextTrack.name,
         kind: hlsTextTrack.type.toLowerCase(),
