@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.31.2](https://github.com/kaltura/playkit-js-hls/compare/v1.31.1...v1.31.2) (2022-12-28)
+
+
+### Bug Fixes
+
+* **FEC-12760:** Blank Transcript Box In V7 Player ([#183](https://github.com/kaltura/playkit-js-hls/issues/183)) ([c37143b](https://github.com/kaltura/playkit-js-hls/commit/c37143b)), closes [kaltura/playkit-js#682](https://github.com/kaltura/playkit-js-hls/issues/682)
+* **FEC-12780:** upgrade hls.js v1.2.8 ([#185](https://github.com/kaltura/playkit-js-hls/issues/185)) ([40baedc](https://github.com/kaltura/playkit-js-hls/commit/40baedc))
+
+
+
 ### [1.31.1](https://github.com/kaltura/playkit-js-hls/compare/v1.31.0...v1.31.1) (2022-11-02)
 
 
