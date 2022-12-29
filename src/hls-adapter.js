@@ -187,6 +187,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
       adapterConfig.hlsConfig.fpsDroppedMonitoringThreshold = config.abr.fpsDroppedMonitoringThreshold;
     }
     if (Utils.Object.hasPropertyPath(config, 'abr.capLevelOnFPSDrop')) {
+      HlsAdapter._logger.debug('capLevelOnFPSDrop = ', config.abr.capLevelOnFPSDrop);
       adapterConfig.hlsConfig.capLevelOnFPSDrop = config.abr.capLevelOnFPSDrop;
     }
     if (Utils.Object.hasPropertyPath(config, 'text')) {
