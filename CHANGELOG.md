@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.32.0](https://github.com/kaltura/playkit-js-hls/compare/v1.31.2...v1.32.0) (2023-01-26)
+
+
+### Bug Fixes
+
+* **FEC-12848:** add log for capLevelOnFPSDrop state ([#192](https://github.com/kaltura/playkit-js-hls/issues/192)) ([d0c6713](https://github.com/kaltura/playkit-js-hls/commit/d0c6713))
+
+
+### Features
+
+* **)FEC-12873:** upgrade hls.js library to v1.3.1 ([#194](https://github.com/kaltura/playkit-js-hls/issues/194)) ([b56ba97](https://github.com/kaltura/playkit-js-hls/commit/b56ba97))
+
+
+
 ### [1.31.2](https://github.com/kaltura/playkit-js-hls/compare/v1.31.1...v1.31.2) (2022-12-28)
 
 
