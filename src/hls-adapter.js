@@ -523,7 +523,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
         'The video playback was aborted due to a corruption problem or because the video used features your browser did not support.',
         error.message
       );
-      return this._handleMediaError();
+      return this._handleMediaError(Hlsjs.ErrorDetails.MANIFEST_INCOMPATIBLE_CODECS_ERROR);
     } else {
       return false;
     }
@@ -1134,7 +1134,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
           }
           break;
         case Hlsjs.ErrorTypes.MEDIA_ERROR:
-          if (this._handleMediaError()) {
+          if (this._handleMediaError(errorName)) {
             error = new PKError(PKError.Severity.RECOVERABLE, PKError.Category.MEDIA, PKError.Code.HLS_FATAL_MEDIA_ERROR, errorDataObject);
           } else {
             error = new PKError(PKError.Severity.CRITICAL, PKError.Category.MEDIA, PKError.Code.HLS_FATAL_MEDIA_ERROR, errorDataObject);
@@ -1169,22 +1169,29 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
 
   /**
    * Tries to handle media errors via hls.js error handlers
+   * @param {string} mediaErrorName - Media Error Name
    * @returns {boolean} - if media error is handled or not
    * @private
    */
-  _handleMediaError(): boolean {
+  _handleMediaError(mediaErrorName: string): boolean {
+    HlsAdapter._logger.error('_handleMediaError mediaErrorName:', mediaErrorName);
     const now: number = performance.now();
     let recover = true;
-    if (this._checkTimeDeltaHasPassed(now, this._recoverDecodingErrorDate, this._config.recoverDecodingErrorDelay)) {
+    if (mediaErrorName === Hlsjs.ErrorDetails.MANIFEST_INCOMPATIBLE_CODECS_ERROR) {
+      HlsAdapter._logger.error('recover aborted due to: MANIFEST_INCOMPATIBLE_CODECS_ERROR');
+      recover = false;
+    } else if (this._checkTimeDeltaHasPassed(now, this._recoverDecodingErrorDate, this._config.recoverDecodingErrorDelay)) {
       this._eventManager.listen(this._videoElement, EventType.LOADED_METADATA, this._onRecoveredCallback);
+      HlsAdapter._logger.debug('try to recover using: _recoverDecodingError()');
       this._recoverDecodingError();
     } else {
       if (this._checkTimeDeltaHasPassed(now, this._recoverSwapAudioCodecDate, this._config.recoverSwapAudioCodecDelay)) {
         this._eventManager.listen(this._videoElement, EventType.LOADED_METADATA, this._onRecoveredCallback);
+        HlsAdapter._logger.debug('try to recover using: _recoverSwapAudioCodec()');
         this._recoverSwapAudioCodec();
       } else {
+        HlsAdapter._logger.error('cannot recover, last media error recovery failed error: ', mediaErrorName);
         recover = false;
-        HlsAdapter._logger.error('cannot recover, last media error recovery failed');
       }
     }
     return recover;
@@ -1201,7 +1208,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
   }
 
   /**
-   * Check if time ahs passed a certain delta
+   * Check if time has passed a certain delta
    * @param {number} now - current time
    * @param {number} then - previous time
    * @param {number} delay - time delta in ms
