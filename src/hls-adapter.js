@@ -1174,19 +1174,20 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    * @private
    */
   _handleMediaError(mediaErrorName: string): boolean {
+    HlsAdapter._logger.error('_handleMediaError mediaErrorName:', mediaErrorName);
     const now: number = performance.now();
     let recover = true;
     if (mediaErrorName === Hlsjs.ErrorDetails.MANIFEST_INCOMPATIBLE_CODECS_ERROR) {
-      HlsAdapter._logger.error('cannot recover, MANIFEST_INCOMPATIBLE_CODECS_ERROR');
+      HlsAdapter._logger.error('recover aborted due to: MANIFEST_INCOMPATIBLE_CODECS_ERROR');
       recover = false;
     } else if (this._checkTimeDeltaHasPassed(now, this._recoverDecodingErrorDate, this._config.recoverDecodingErrorDelay)) {
       this._eventManager.listen(this._videoElement, EventType.LOADED_METADATA, this._onRecoveredCallback);
-      HlsAdapter._logger.debug('trying to recoverDecodingError error: ', mediaErrorName);
+      HlsAdapter._logger.debug('try to recover using: _recoverDecodingError()');
       this._recoverDecodingError();
     } else {
       if (this._checkTimeDeltaHasPassed(now, this._recoverSwapAudioCodecDate, this._config.recoverSwapAudioCodecDelay)) {
         this._eventManager.listen(this._videoElement, EventType.LOADED_METADATA, this._onRecoveredCallback);
-        HlsAdapter._logger.debug('trying to recoverSwapAudioCodec error: ', mediaErrorName);
+        HlsAdapter._logger.debug('try to recover using: _recoverSwapAudioCodec()');
         this._recoverSwapAudioCodec();
       } else {
         HlsAdapter._logger.error('cannot recover, last media error recovery failed error: ', mediaErrorName);
