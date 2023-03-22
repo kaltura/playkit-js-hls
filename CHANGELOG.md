@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.32.1](https://github.com/kaltura/playkit-js-hls/compare/v1.32.0...v1.32.1) (2023-03-22)
+
+
+### Bug Fixes
+
+* **FEC-13010:** exclude Hlsjs.ErrorDetails.MANIFEST_INCOMPATIBLE_CODECS_ERROR  ([#195](https://github.com/kaltura/playkit-js-hls/issues/195)) ([adafc36](https://github.com/kaltura/playkit-js-hls/commit/adafc36))
+
+
+
 ## [1.32.0](https://github.com/kaltura/playkit-js-hls/compare/v1.31.2...v1.32.0) (2023-01-26)
 
 
