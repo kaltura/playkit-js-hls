@@ -5,7 +5,7 @@ run-name: Canary Full Flow
 on:
   push:
     branches:
-      - master
+      - devops-deployment
 
 jobs:
   canary-full-flow:
@@ -25,3 +25,4 @@ jobs:
       stage: "canary"
       schema-type: "playerV3Versions"
       tests-yarn-run-to-execute: 'eslint flow test'
+
