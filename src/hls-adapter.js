@@ -70,21 +70,21 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
   _hls: any;
 
   /**
-   * last recover date from decoding error
+   * Last recover date from decoding error
    * @type {number}
    * @private
    */
   _recoverDecodingErrorDate: number;
 
   /**
-   * last recover date from audio swap codec operation
+   * Last recover date from audio swap codec operation
    * @type {number}
    * @private
    */
   _recoverSwapAudioCodecDate: number;
 
   /**
-   * indicate if external redirect was performed
+   * Indicates if external redirect was performed
    * @type {boolean}
    * @private
    */
@@ -99,7 +99,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
   _loadPromise: ?Promise<Object>;
 
   /**
-   * the _loadPromise handlers
+   * The _loadPromise handlers
    * @member {{resolve: (result: Promise<R> | R) => void, reject: (error: any) => void}} - _loadPromiseHandlers
    * @type {{resolve: (result: Promise<R> | R) => void, reject: (error: any) => void}}
    * @private
@@ -114,7 +114,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    */
   _playerTracks: Array<Track> = [];
   /**
-   * stream start time in seconds
+   * Stream start time in seconds
    * @type {?number}
    * @private
    */
