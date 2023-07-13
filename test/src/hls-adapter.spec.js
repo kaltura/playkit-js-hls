@@ -970,10 +970,11 @@ describe('HlsAdapter Instance: response filter', () => {
         }
       })
     );
-    sandbox.spy(hlsAdapterInstance._hls.networkControllers[0], 'loadsuccess');
+
+    sandbox.spy(hlsAdapterInstance._hls.networkControllers[0], 'handleMasterPlaylist');
     hlsAdapterInstance._hls.on(hlsAdapterInstance._hlsjsLib.Events.MANIFEST_LOADED, () => {
       try {
-        hlsAdapterInstance._hls.networkControllers[0].loadsuccess.getCall(0).firstArg.data.indexOf('&test').should.be.gt(-1);
+        hlsAdapterInstance._hls.networkControllers[0].handleMasterPlaylist.getCall(0).firstArg.data.indexOf('&test').should.be.gt(-1);
         done();
       } catch (e) {
         done(e);
@@ -997,7 +998,7 @@ describe('HlsAdapter Instance: response filter', () => {
         }
       })
     );
-    sandbox.stub(hlsAdapterInstance._hls.networkControllers[0], 'loadsuccess').callsFake(value => {
+    sandbox.stub(hlsAdapterInstance._hls.networkControllers[0], 'handleMasterPlaylist').callsFake(value => {
       try {
         value.data.indexOf('&test').should.be.gt(-1);
         done();
