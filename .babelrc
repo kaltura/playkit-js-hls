@@ -14,7 +14,7 @@
         "bugfixes": true,
         "include": ["@babel/plugin-proposal-optional-chaining"],
         "targets": {
-          "browsers": ["chrome >= 47", "firefox >= 51", "ie >= 11", "safari >= 8", "ios >= 8", "android >= 4"]
+          "browsers": ["defaults"]
         }
       }
     ],
