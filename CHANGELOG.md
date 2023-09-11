@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### 1.32.8 (2023-09-11)
+
+
+### Bug Fixes
+
+* **FEC-13212:** upgrade hls.js to 1.4.11 ([#208](https://github.com/kaltura/playkit-js-hls/issues/208)) ([671f986](https://github.com/kaltura/playkit-js-hls/commit/671f986))
+
+
+
 ### 1.32.7 (2023-07-31)
 
 
