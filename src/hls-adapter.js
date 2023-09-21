@@ -671,7 +671,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    */
   _parseVideoTracks(hlsVideoTracks: Array<Object>): Array<VideoTrack> {
     let videoTracks = [];
-    let audioTracks = [];
+    let audioOnlyTracks = [];
 
     for (let i = 0; i < hlsVideoTracks.length; i++) {
       // Create video tracks
@@ -686,11 +686,11 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
       if (hlsVideoTracks[i].height || hlsVideoTracks[i].width) {
         videoTracks.push(new VideoTrack(settings));
       } else {
-        audioTracks.push(new VideoTrack(settings));
+        audioOnlyTracks.push(new VideoTrack(settings));
       }
     }
     if (!videoTracks.length) {
-      return audioTracks;
+      return audioOnlyTracks;
     }
     return videoTracks;
   }
