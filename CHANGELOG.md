@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### 1.32.9 (2023-11-26)
+
+
+### Bug Fixes
+
+* **SUP-39292:** V7 Player v3.15.2 Shows ReferenceError ([0b80551](https://github.com/kaltura/playkit-js-hls/commit/0b80551))
+
+
+
 ### 1.32.8 (2023-09-11)
 
 
