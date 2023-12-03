@@ -1,4 +1,5 @@
-//@flow
+// eslint-disable-next-line  @typescript-eslint/ban-ts-comment
+// @ts-nocheck
 import Hlsjs from 'hls.js';
 
 /**
@@ -6,7 +7,7 @@ import Hlsjs from 'hls.js';
  * It passes the context for the xhrSetup config
  */
 export default class loader extends Hlsjs.DefaultConfig.loader {
-  constructor(config: Object) {
+  constructor(config: any) {
     super(config);
     if (config && config.readystatechange) {
       this.readystatechange = config.readystatechange;

@@ -1,7 +1,6 @@
-//@flow
 import Hlsjs from 'hls.js';
-import DefaultConfig from './default-config';
-import {type ErrorDetailsType, HlsJsErrorMap} from './errors';
+import DefaultConfig from './default-config.json';
+import {ErrorDetailsType, HlsJsErrorMap} from './errors';
 import {
   AudioTrack,
   BaseMediaSourceAdapter,
@@ -16,8 +15,8 @@ import {
   filterTracksByRestriction,
   PKABRRestrictionObject,
   TimedMetadata,
-  createTimedMetadata
-} from '@playkit-js/playkit-js';
+  createTimedMetadata, PKMediaSourceObject, PKResponseObject, PKRequestObject, IMediaSourceAdapter
+} from "@playkit-js/playkit-js";
 import pLoader from './jsonp-ploader';
 import loader from './loader';
 
@@ -32,21 +31,21 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    * @static
    * @private
    */
-  static id: string = 'HlsAdapter';
+  public static id: string = 'HlsAdapter';
   /**
    * The adapter logger.
    * @member {any} _logger
    * @static
    * @private
    */
-  static _logger = BaseMediaSourceAdapter.getLogger(HlsAdapter.id);
+  protected static _logger = BaseMediaSourceAdapter.getLogger(HlsAdapter.id);
   /**
    * The supported mime types by the hls adapter.
    * @member {Array<string>} _hlsMimeType
    * @static
    * @private
    */
-  static _hlsMimeTypes: Array<string> = [
+  private static _hlsMimeTypes: Array<string> = [
     'application/x-mpegurl',
     'application/vnd.apple.mpegurl',
     'audio/mpegurl',
@@ -61,42 +60,34 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    * @type {any}
    * @private
    */
-  _hlsjsLib: any = Hlsjs;
+  private _hlsjsLib: any = Hlsjs;
   /**
    * The hls player instance.
    * @member {any} _hls
    * @private
    */
-  _hls: any;
+  private _hls: any;
 
   /**
    * Last recover date from decoding error
    * @type {number}
    * @private
    */
-  _recoverDecodingErrorDate: number;
+  private _recoverDecodingErrorDate!: number;
 
   /**
    * Last recover date from audio swap codec operation
    * @type {number}
    * @private
    */
-  _recoverSwapAudioCodecDate: number;
+  private _recoverSwapAudioCodecDate!: number;
 
   /**
    * Indicates if external redirect was performed
    * @type {boolean}
    * @private
    */
-  _triedReloadWithRedirect: boolean = false;
-
-  /**
-   * The load promise
-   * @member {Promise<Object>} - _loadPromise
-   * @type {Promise<Object>}
-   * @private
-   */
-  _loadPromise: ?Promise<Object>;
+  private _triedReloadWithRedirect: boolean = false;
 
   /**
    * The _loadPromise handlers
@@ -104,7 +95,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    * @type {{resolve: (result: Promise<R> | R) => void, reject: (error: any) => void}}
    * @private
    */
-  _loadPromiseHandlers: {resolve: (result: Promise<*> | *) => void, reject: (error: any) => void} | null;
+  private _loadPromiseHandlers!: {resolve: (result: any) => void, reject: (error: any) => void} | null;
 
   /**
    * Reference to the player tracks.
@@ -112,28 +103,27 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    * @type {Array<Track>}
    * @private
    */
-  _playerTracks: Array<Track> = [];
+  private _playerTracks: Array<Track> = [];
   /**
    * Stream start time in seconds
    * @type {?number}
    * @private
    */
-  _startTime: ?number = 0;
+  private _startTime: number | undefined = 0;
   /**
    * Reference to _onRecoveredCallback function
    * @member {?Function} - _onRecoveredCallback
    * @type {?Function}
    * @private
    */
-  _onRecoveredCallback: ?Function;
-  _onAddTrack: Function;
-  _onMediaAttached: Function;
-  _mediaAttachedPromise: Promise<*>;
-  _requestFilterError: boolean = false;
-  _responseFilterError: boolean = false;
-  _nativeTextTracksMap = {};
-  _lastLoadedFragSN: number = -1;
-  _sameFragSNLoadedCount: number = 0;
+  private _onRecoveredCallback!: (() => void) | null;
+  private _onMediaAttached!: () => void;
+  private _mediaAttachedPromise!: Promise<void>;
+  private _requestFilterError: boolean = false;
+  private _responseFilterError: boolean = false;
+  private _nativeTextTracksMap: any = {};
+  private _lastLoadedFragSN: number = -1;
+  private _sameFragSNLoadedCount: number = 0;
   /**
    * an object containing all the events we bind and unbind to.
    * @member {Object} - _adapterEventsBindings
@@ -161,15 +151,15 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    * @returns {IMediaSourceAdapter} - New instance of the run time media source adapter.
    * @static
    */
-  static createAdapter(videoElement: HTMLVideoElement, source: PKMediaSourceObject, config: Object): IMediaSourceAdapter {
-    let adapterConfig: Object = Utils.Object.copyDeep(DefaultConfig);
+  static createAdapter(videoElement: HTMLVideoElement, source: PKMediaSourceObject, config: any): IMediaSourceAdapter {
+    let adapterConfig: any = Utils.Object.copyDeep(DefaultConfig);
     if (Utils.Object.hasPropertyPath(config, 'sources.options')) {
       const options = config.sources.options;
       adapterConfig.forceRedirectExternalStreams = options.forceRedirectExternalStreams;
       adapterConfig.redirectExternalStreamsHandler = options.redirectExternalStreamsHandler;
       adapterConfig.redirectExternalStreamsTimeout = options.redirectExternalStreamsTimeout;
       pLoader.redirectExternalStreamsHandler = adapterConfig.redirectExternalStreamsHandler;
-      pLoader.redirectExternalStreamsTimeout = adapterConfig.redirectExternalStreamsTimeout;
+      pLoader['redirectExternalStreamsTimeout'] = adapterConfig.redirectExternalStreamsTimeout;
     }
     if (Utils.Object.hasPropertyPath(config, 'sources.startTime')) {
       const startTime = Utils.Object.getPropertyPath(config, 'sources.startTime');
@@ -266,7 +256,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    * @param {PKMediaSourceObject} source - The source object
    * @param {Object} config - The media source adapter configuration
    */
-  constructor(videoElement: HTMLVideoElement, source: PKMediaSourceObject, config: Object) {
+  constructor(videoElement: HTMLVideoElement, source: PKMediaSourceObject, config: any) {
     HlsAdapter._logger.debug('Creating adapter. Hls version: ' + Hlsjs.version);
     super(videoElement, source, config);
     this._config = Utils.Object.mergeDeep({}, DefaultConfig, this._config);
@@ -439,19 +429,19 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     this._videoElement.textTracks.onaddtrack = this._onAddTrack;
   }
 
-  _onFpsDrop(data: Object): void {
+  _onFpsDrop(data: any): void {
     this._trigger(EventType.FPS_DROP, data);
   }
 
-  _onFragParsingMetadata(data: Object): void {
+  _onFragParsingMetadata(data: any): void {
     this._trigger('hlsFragParsingMetadata', data);
     const id3Track = Array.from(this._videoElement?.textTracks).find(track => track.label === 'id3');
     const id3Cues = Array.from(id3Track?.cues || []);
-    const newCues = [];
+    const newCues: TimedMetadata[] = [];
     data?.samples.forEach(sample => {
       const cue = Utils.binarySearch(id3Cues, cue => cue.startTime - sample.pts);
       if (cue) {
-        const timedMetadata: TimedMetadata = createTimedMetadata(cue);
+        const timedMetadata: TimedMetadata = createTimedMetadata(cue)!;
         newCues.push(timedMetadata);
       }
     });
@@ -460,7 +450,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     }
   }
 
-  _onAddTrack(event: any) {
+  _onAddTrack(event: any): void {
     if (!this._hls.subtitleTracks.length) {
       // parse CEA 608/708 captions that not exposed on hls.subtitleTracks API
       const CEATextTrack = this._parseCEATextTrack(event.track);
@@ -495,10 +485,10 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
   detachMediaSource(): void {
     if (this._hls) {
       // 1 second different between duration and current time will signal as end - will enable replay button
-      if (Math.floor(this.duration - this.currentTime) === 0) {
-        this._config.hlsConfig.startPosition = 0;
-      } else if (this.currentTime > 0) {
-        this._config.hlsConfig.startPosition = this.currentTime;
+      if (Math.floor(this['duration'] - this['currentTime']) === 0) {
+        this._config['hlsConfig'].startPosition = 0;
+      } else if (this['currentTime'] > 0) {
+        this._config['hlsConfig'].startPosition = this['currentTime'];
       }
       this._reset();
 
@@ -506,7 +496,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
         new PKError(PKError.Severity.CRITICAL, PKError.Category.PLAYER, PKError.Code.HLS_FATAL_MEDIA_ERROR, 'media detached while loading')
       );
       this._loadPromiseHandlers = null;
-      this._loadPromise = null;
+      this._loadPromise = undefined;
       this._hls = null;
     }
   }
@@ -536,7 +526,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    * @returns {Promise<Object>} - The loaded data
    * @override
    */
-  load(startTime: ?number): Promise<Object> {
+  load(startTime?: number): Promise<any> {
     if (!this._loadPromise) {
       this._startTime = startTime;
       this._loadPromise = new Promise((resolve, reject) => {
@@ -589,7 +579,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    * @override
    * @returns {Promise<*>} - The destroy promise.
    */
-  destroy(): Promise<*> {
+  destroy(): Promise<void> {
     return new Promise((resolve, reject) => {
       super.destroy().then(
         () => {
@@ -607,7 +597,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
             )
           );
           this._loadPromiseHandlers = null;
-          this._loadPromise = null;
+          this._loadPromise = undefined;
           this._reset();
           resolve();
         },
@@ -634,7 +624,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    * @returns {Array<Track>} - The parsed tracks.
    * @private
    */
-  _parseTracks(): Array<Track> {
+  _parseTracks(): Array<TextTrack | VideoTrack | AudioTrack> {
     const audioTracks = this._parseAudioTracks(this._hls.audioTracks || []);
     const videoTracks = this._parseVideoTracks(this._hls.levels || []);
     const textTracks = this._parseTextTracks(this._hls.subtitleTracks || []);
@@ -647,8 +637,8 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    * @returns {Array<AudioTrack>} - The parsed audio tracks.
    * @private
    */
-  _parseAudioTracks(hlsAudioTracks: Array<Object>): Array<AudioTrack> {
-    let audioTracks = [];
+  _parseAudioTracks(hlsAudioTracks: Array<any>): AudioTrack[] {
+    let audioTracks: AudioTrack[] = [];
     for (let i = 0; i < hlsAudioTracks.length; i++) {
       // Create audio tracks
       let settings = {
@@ -669,8 +659,8 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    * @returns {Array<VideoTrack>} - The parsed video tracks.
    * @private
    */
-  _parseVideoTracks(hlsVideoTracks: Array<Object>): Array<VideoTrack> {
-    let videoTracks = [];
+  _parseVideoTracks(hlsVideoTracks: Array<any>): VideoTrack[] {
+    let videoTracks: VideoTrack[] = [];
     for (let i = 0; i < hlsVideoTracks.length; i++) {
       // Create video tracks
       let settings = {
@@ -692,8 +682,8 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    * @returns {Array<TextTrack>} - The parsed text tracks.
    * @private
    */
-  _parseTextTracks(hlsTextTracks: Array<Object>): Array<TextTrack> {
-    let textTracks = [];
+  _parseTextTracks(hlsTextTracks: Array<any>): Array<TextTrack> {
+    let textTracks: TextTrack[] = [];
     for (const hlsTextTrack of hlsTextTracks) {
       // Create text tracks
       let settings = {
@@ -715,8 +705,8 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    * @returns {?TextTrack} - A parsed text track if the param is a CEA 608/708 caption.
    * @private
    */
-  _parseCEATextTrack(CEATextTrack: Object): ?TextTrack {
-    let textTrack = null;
+  _parseCEATextTrack(CEATextTrack: any): TextTrack | null {
+    let textTrack:TextTrack | null = null;
     if (CEATextTrack.kind === 'captions') {
       const settings = {
         id: CEATextTrack.id,
@@ -860,7 +850,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    * @returns {Object} - Level details
    * @private
    */
-  _getLevelDetails(): Object {
+  _getLevelDetails(): any {
     const level =
       this._hls.levels[this._hls.currentLevel] ||
       this._hls.levels[this._hls.nextLevel] ||
@@ -969,13 +959,13 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    * @returns {void}
    */
   _maybeApplyAbrRestrictions(restrictions: PKABRRestrictionObject): void {
-    const videoTracks = this._playerTracks.filter(track => track instanceof VideoTrack);
+    const videoTracks = this._playerTracks.filter(track => track instanceof VideoTrack) as VideoTrack[];
     const availableTracks = filterTracksByRestriction(videoTracks, restrictions);
     if (availableTracks.length) {
       const minLevel = availableTracks[0];
       const maxLevel = availableTracks.pop();
       this._hls.config.minAutoBitrate = minLevel.bandwidth;
-      this._hls.autoLevelCapping = maxLevel.index;
+      this._hls.autoLevelCapping = maxLevel!.index;
 
       const activeTrackInRange = availableTracks.some(track => track.active);
       if (!this.isAdaptiveBitrateEnabled() && !activeTrackInRange) {
@@ -997,7 +987,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
   _onLevelSwitched(event: string, data: any): void {
     let videoTrack = this._playerTracks.find(track => {
       return track instanceof VideoTrack && track.index === data.level;
-    });
+    })!;
     this._onTrackChanged(videoTrack);
   }
 
@@ -1010,9 +1000,9 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    * @returns {void}
    */
   _onAudioTrackSwitched(event: string, data: any): void {
-    let audioTrack = this._playerTracks.find(track => {
+    const audioTrack = this._playerTracks.find(track => {
       return track instanceof AudioTrack && track.id === data.id;
-    });
+    })!;
     this._onTrackChanged(audioTrack);
     this._handleWaitingUponAudioTrackSwitch();
   }
@@ -1026,7 +1016,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    */
   _handleWaitingUponAudioTrackSwitch(): void {
     const affectedBrowsers = ['IE', 'Edge'];
-    if (affectedBrowsers.includes(Env.browser.name)) {
+    if (affectedBrowsers.includes(Env.browser.name!)) {
       const timeUpdateListener = () => {
         this._trigger(EventType.PLAYING);
       };
@@ -1041,7 +1031,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    * @returns {any} - the relevant error data object
    */
   _getErrorDataObject(data: any): any {
-    let errorDataObject = {};
+    let errorDataObject: any = {};
     errorDataObject.name = data.details;
     switch (errorDataObject.name) {
       case Hlsjs.ErrorDetails.MANIFEST_LOAD_ERROR:
@@ -1105,9 +1095,9 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     const errorType = data.type;
     const errorName = data.details;
     const errorFatal = data.fatal;
-    let errorDataObject = this._getErrorDataObject(data);
+    let errorDataObject: any = this._getErrorDataObject(data);
     if (errorFatal) {
-      let error: typeof PKError;
+      let error: PKError;
       switch (errorType) {
         case Hlsjs.ErrorTypes.NETWORK_ERROR:
           {
@@ -1149,7 +1139,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
         if (this._loadPromiseHandlers) {
           this._loadPromiseHandlers?.reject(error);
           this._loadPromiseHandlers = null;
-          this._loadPromise = null;
+          this._loadPromise = undefined;
         }
         this.destroy();
       }
@@ -1181,12 +1171,12 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
       HlsAdapter._logger.error('recover aborted due to: MANIFEST_INCOMPATIBLE_CODECS_ERROR');
       recover = false;
     } else if (this._checkTimeDeltaHasPassed(now, this._recoverDecodingErrorDate, this._config.recoverDecodingErrorDelay)) {
-      this._eventManager.listen(this._videoElement, EventType.LOADED_METADATA, this._onRecoveredCallback);
+      this._eventManager.listen(this._videoElement, EventType.LOADED_METADATA, this._onRecoveredCallback!);
       HlsAdapter._logger.debug('try to recover using: _recoverDecodingError()');
       this._recoverDecodingError();
     } else {
       if (this._checkTimeDeltaHasPassed(now, this._recoverSwapAudioCodecDate, this._config.recoverSwapAudioCodecDelay)) {
-        this._eventManager.listen(this._videoElement, EventType.LOADED_METADATA, this._onRecoveredCallback);
+        this._eventManager.listen(this._videoElement, EventType.LOADED_METADATA, this._onRecoveredCallback!);
         HlsAdapter._logger.debug('try to recover using: _recoverSwapAudioCodec()');
         this._recoverSwapAudioCodec();
       } else {
@@ -1204,7 +1194,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    */
   _onRecovered(): void {
     this._trigger(EventType.MEDIA_RECOVERED);
-    this._videoElement.removeEventListener(EventType.LOADED_METADATA, this._onRecoveredCallback);
+    this._videoElement.removeEventListener(EventType.LOADED_METADATA, this._onRecoveredCallback!);
   }
 
   /**
@@ -1363,3 +1353,5 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     }
   }
 }
+
+export {HlsAdapter}
