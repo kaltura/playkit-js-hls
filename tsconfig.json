@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "target": "ESNext",
-    "module": "commonjs",
+    "module": "ES6",
     "baseUrl": ".",
     "sourceMap": true,
     "strict": false,
@@ -11,9 +11,6 @@
     "esModuleInterop": true,
     "experimentalDecorators": true,
     "skipLibCheck": true,
-//    "paths": {
-//      "@playkit-js/playkit-js": ["./node_modules/@playkit-js/playkit-js/dist/playkit-js"]
-//    },
     "lib": [
       "dom",
       "ESNext"

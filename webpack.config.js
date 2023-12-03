@@ -20,7 +20,7 @@ module.exports = (env, { mode }) => {
       ]
     },
     // devtool: 'source-map',
-    devtool: 'eval-source-map',
+    devtool: mode === 'development' ? 'eval-source-map' : 'source-map',
     module: {
       rules: [
         {
@@ -59,12 +59,17 @@ module.exports = (env, { mode }) => {
       // devtoolModuleFilenameTemplate: './hls/[resource-path]'
     },
     externals: {
-      'hls.js': {root: 'Hls'},
+      'hls.js': {
+        commonjs: 'hls.js',
+        commonjs2: 'hls.js',
+        amd: 'hls.js',
+        root: ['Hls']
+      },
       '@playkit-js/@playkit-js': {root: ['playkit', 'core']}
     },
     devServer: {
       static: {
-        directory: path.join(__dirname, 'demo')
+        directory: path.join(__dirname, 'dist')
       },
       client: {
         progress: true

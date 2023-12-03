@@ -1353,5 +1353,3 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     }
   }
 }
-
-export {HlsAdapter}
