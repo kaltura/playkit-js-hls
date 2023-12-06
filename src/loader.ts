@@ -1,4 +1,4 @@
-// eslint-disable-next-line  @typescript-eslint/ban-ts-comment
+/* eslint-disable */
 // @ts-nocheck
 import Hlsjs from 'hls.js';
 
@@ -19,7 +19,7 @@ export default class loader extends Hlsjs.DefaultConfig.loader {
       context = this.context;
     xhr = this.loader = new XMLHttpRequest();
 
-    let stats = this.stats;
+    const stats = this.stats;
     stats.tfirst = 0;
     stats.loaded = 0;
     const xhrSetup = this.xhrSetup;

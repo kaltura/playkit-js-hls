@@ -16,7 +16,7 @@ export default class pLoader extends loader {
    * @returns {string} uri - the redirected URI
    * @static
    */
-  static redirectExternalStreamsHandler = (data, uri) => uri;
+  public static redirectExternalStreamsHandler = (data, uri): string => uri;
 
   /**
    * @constructor
@@ -26,7 +26,7 @@ export default class pLoader extends loader {
     super(config);
     const loadOrig = this.load.bind(this);
     const callback = pLoader.redirectExternalStreamsHandler;
-    this.load = (context, config, callbacks) => {
+    this.load = (context, config, callbacks): void => {
       const url = context.url;
       if (context.type === 'manifest') {
         Utils.Http.jsonp(url, callback, {
