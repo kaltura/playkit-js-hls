@@ -1,4 +1,5 @@
-import Hlsjs from 'hls.js';
+import Hls from "hls.js";
+import Hlsjs, { HlsListeners, Level, MediaPlaylist } from "hls.js";
 import DefaultConfig from './default-config.json';
 import {ErrorDetailsType, HlsJsErrorMap} from './errors';
 import {
@@ -60,13 +61,13 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    * @type {any}
    * @private
    */
-  private _hlsjsLib: any = Hlsjs;
+  private _hlsjsLib: typeof Hlsjs = Hlsjs;
   /**
    * The hls player instance.
    * @member {any} _hls
    * @private
    */
-  private _hls: any;
+  private _hls!: Hls;
 
   /**
    * Last recover date from decoding error
@@ -130,7 +131,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    * @type {Object}
    * @private
    */
-  private _adapterEventsBindings: {[name: string]: Function} = {
+  private _adapterEventsBindings: Record<keyof HlsListeners, (...parms: any) => any> = {
     [Hlsjs.Events.ERROR]: (e, data) => this._onError(data),
     [Hlsjs.Events.MANIFEST_LOADED]: (e, data) => this._onManifestLoaded(data),
     [Hlsjs.Events.LEVEL_SWITCHED]: (e, data) => this._onLevelSwitched(e, data),
@@ -140,7 +141,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     [Hlsjs.Events.FRAG_LOADED]: (e, data) => this._onFragLoaded(data),
     [Hlsjs.Events.MEDIA_ATTACHED]: () => this._onMediaAttached(),
     [Hlsjs.Events.LEVEL_LOADED]: (e, data) => this._onLevelLoaded(e, data)
-  };
+  } as Record<keyof HlsListeners, (...parms: any) => any>;
 
   /**
    * Factory method to create media source adapter.
@@ -257,8 +258,8 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    * @param {Object} config - The media source adapter configuration
    */
   constructor(videoElement: HTMLVideoElement, source: PKMediaSourceObject, config: any) {
-    HlsAdapter._logger.debug('Creating adapter. Hls version: ' + Hlsjs.version);
     super(videoElement, source, config);
+    HlsAdapter._logger.debug('Creating adapter. Hls version: ' + Hlsjs.version);
     this._config = Utils.Object.mergeDeep({}, DefaultConfig, this._config);
     this._init();
   }
@@ -421,8 +422,8 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    */
   private _addBindings(): void {
     this._mediaAttachedPromise = new Promise(resolve => (this._onMediaAttached = resolve));
-    for (const [event, callback] of Object.entries(this._adapterEventsBindings)) {
-      this._hls.on(event, callback);
+    for (const [event, callback] of Object.entries<(...parms: any) => any>(this._adapterEventsBindings)) {
+      this._hls.on(event as keyof HlsListeners, callback);
     }
     this._onRecoveredCallback = (): void => this._onRecovered();
     this._onAddTrack = this._onAddTrack.bind(this);
@@ -498,7 +499,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
       );
       this._loadPromiseHandlers = null;
       this._loadPromise = undefined;
-      this._hls = null;
+      this._hls = null as unknown as Hls;
     }
   }
 
@@ -625,7 +626,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    * @returns {Array<Track>} - The parsed tracks.
    * @private
    */
-  private _parseTracks(): Array<TextTrack | VideoTrack | AudioTrack> {
+  private _parseTracks(): Array<Track> {
     const audioTracks = this._parseAudioTracks(this._hls.audioTracks || []);
     const videoTracks = this._parseVideoTracks(this._hls.levels || []);
     const textTracks = this._parseTextTracks(this._hls.subtitleTracks || []);
@@ -638,7 +639,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    * @returns {Array<AudioTrack>} - The parsed audio tracks.
    * @private
    */
-  private _parseAudioTracks(hlsAudioTracks: Array<any>): AudioTrack[] {
+  private _parseAudioTracks(hlsAudioTracks: Array<MediaPlaylist>): AudioTrack[] {
     const audioTracks: AudioTrack[] = [];
     for (let i = 0; i < hlsAudioTracks.length; i++) {
       // Create audio tracks
@@ -660,7 +661,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    * @returns {Array<VideoTrack>} - The parsed video tracks.
    * @private
    */
-  private _parseVideoTracks(hlsVideoTracks: Array<any>): VideoTrack[] {
+  private _parseVideoTracks(hlsVideoTracks: Level[]): VideoTrack[] {
     const videoTracks: VideoTrack[] = [];
     for (let i = 0; i < hlsVideoTracks.length; i++) {
       // Create video tracks
@@ -683,7 +684,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    * @returns {Array<TextTrack>} - The parsed text tracks.
    * @private
    */
-  private _parseTextTracks(hlsTextTracks: Array<any>): Array<TextTrack> {
+  private _parseTextTracks(hlsTextTracks: Array<MediaPlaylist>): Array<TextTrack> {
     const textTracks: TextTrack[] = [];
     for (const hlsTextTrack of hlsTextTracks) {
       // Create text tracks
@@ -1239,8 +1240,8 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    * @private
    */
   private _removeBindings(): void {
-    for (const [event, callback] of Object.entries(this._adapterEventsBindings)) {
-      this._hls.off(event, callback);
+    for (const [event, callback] of Object.entries<(...parms: any) => any>(this._adapterEventsBindings)) {
+      this._hls.off(event as keyof HlsListeners, callback);
     }
     this._videoElement.textTracks.onaddtrack = null;
     this._onRecoveredCallback = null;
@@ -1258,7 +1259,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     if (this.isLive()) {
       try {
         const nextLoadLevel = this._hls.levels[this._hls.nextLoadLevel],
-          details = nextLoadLevel.details,
+          details = nextLoadLevel.details!,
           fragments = details.fragments,
           fragLength = fragments.length,
           start = fragments[0].start + fragments[0].duration,
