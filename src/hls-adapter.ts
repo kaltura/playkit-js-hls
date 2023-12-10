@@ -1,5 +1,5 @@
-import Hls from "hls.js";
-import Hlsjs, { HlsListeners, Level, MediaPlaylist } from "hls.js";
+import Hls from 'hls.js';
+import Hlsjs, { HlsListeners, Level, MediaPlaylist } from 'hls.js';
 import DefaultConfig from './default-config.json';
 import {ErrorDetailsType, HlsJsErrorMap} from './errors';
 import {
@@ -39,7 +39,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    * @static
    * @private
    */
-  protected static _logger: import("js-logger").ILogger = BaseMediaSourceAdapter.getLogger(HlsAdapter.id);
+  protected static _logger: import('js-logger').ILogger = BaseMediaSourceAdapter.getLogger(HlsAdapter.id);
   /**
    * The supported mime types by the hls adapter.
    * @member {Array<string>} _hlsMimeType
