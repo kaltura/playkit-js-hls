@@ -19,13 +19,11 @@ module.exports = (env, { mode }) => {
         })
       ]
     },
-    // devtool: 'source-map',
     devtool: mode === 'development' ? 'eval-source-map' : 'source-map',
     module: {
       rules: [
         {
           test: /\.(ts|js)$/,
-          // test: /\.ts$/,
           exclude: /node_modules/,
           use: {
             loader: 'babel-loader',
