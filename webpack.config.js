@@ -3,9 +3,9 @@ const path = require('path');
 const packageData = require('./package.json');
 const TerserPlugin = require('terser-webpack-plugin');
 
-module.exports = (env, { mode }) => {
+module.exports = (env, {mode}) => {
   return {
-    entry:  './src/index.ts',
+    entry: './src/index.ts',
     optimization: {
       minimize: mode !== 'development',
       minimizer: [
@@ -19,7 +19,7 @@ module.exports = (env, { mode }) => {
         })
       ]
     },
-    devtool: mode === 'development' ? 'eval-source-map' : 'source-map',
+    devtool: 'source-map',
     module: {
       rules: [
         {
@@ -28,22 +28,23 @@ module.exports = (env, { mode }) => {
           use: {
             loader: 'babel-loader',
             options: {
-              presets: [['@babel/preset-env', {
-                loose: true,
-                bugfixes: true,
-                targets: "defaults"
-                // targets: {
-                //   "browsers": ["chrome >= 47", "firefox >= 51", "ie >= 11", "safari >= 8", "ios >= 8", "android >= 4"]
-                // }
-              }], '@babel/preset-typescript'],
+              presets: [
+                [
+                  '@babel/preset-env',
+                  {
+                    bugfixes: true
+                  }
+                ],
+                '@babel/preset-typescript'
+              ],
               plugins: [['@babel/plugin-transform-runtime']]
             }
           }
-        },
+        }
       ]
     },
     resolve: {
-      extensions: ['.ts', '.js'],
+      extensions: ['.ts', '.js']
     },
     output: {
       filename: 'playkit-hls.js',
@@ -51,10 +52,9 @@ module.exports = (env, { mode }) => {
       library: {
         umdNamedDefine: true,
         name: ['playkit', 'hls'],
-        type: 'umd',
+        type: 'umd'
       },
       clean: true
-      // devtoolModuleFilenameTemplate: './hls/[resource-path]'
     },
     externals: {
       'hls.js': {
@@ -68,7 +68,7 @@ module.exports = (env, { mode }) => {
         commonjs2: '@playkit-js/playkit-js',
         amd: 'playkit-js',
         root: ['playkit', 'core']
-      },
+      }
     },
     devServer: {
       static: {
@@ -84,5 +84,5 @@ module.exports = (env, { mode }) => {
         __NAME__: JSON.stringify(packageData.name)
       })
     ]
-  }
+  };
 };

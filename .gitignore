@@ -46,4 +46,4 @@ dist/
 lib
 api-extractor/report/
 api-extractor/report-temp/
-api-extractor/report-temp/playkit-js-hls.api.md
+api-extractor/playkit-js-hls.api.json
