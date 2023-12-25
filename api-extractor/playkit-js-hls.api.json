@@ -239,7 +239,7 @@
                 },
                 {
                   "kind": "Content",
-                  "text": "import(\"js-logger\")."
+                  "text": "import('js-logger')."
                 },
                 {
                   "kind": "Reference",
