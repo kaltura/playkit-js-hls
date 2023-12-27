@@ -10,7 +10,7 @@ import loadPlayer, {
   createTimedMetadata,
   EventManager
 } from '@playkit-js/playkit-js';
-import * as TestUtils from '../utils/test-utils';
+import * as TestUtils from './utils/test-utils';
 import HlsAdapter from '../../src';
 import * as hls_sources from './json/hls_sources.json';
 import * as hls_tracks from './json/hls_tracks.json';

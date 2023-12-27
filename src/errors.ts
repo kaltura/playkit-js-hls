@@ -1,4 +1,3 @@
-// @flow
 import Hlsjs from 'hls.js';
 import {Error} from '@playkit-js/playkit-js';
 
@@ -31,10 +30,6 @@ const HlsJsErrorMap: HlsJsErrorMapType = {
     code: Error.Code.BITRATE_SWITCH_ISSUE
   },
   [Hlsjs.ErrorDetails.FRAG_LOAD_ERROR]: {
-    category: Error.Category.NETWORK,
-    code: Error.Code.HTTP_ERROR
-  },
-  [Hlsjs.ErrorDetails.FRAG_LOOP_LOADING_ERROR]: {
     category: Error.Category.NETWORK,
     code: Error.Code.HTTP_ERROR
   },

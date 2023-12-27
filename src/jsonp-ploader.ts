@@ -1,4 +1,5 @@
-//@flow
+// eslint-disable-next-line  @typescript-eslint/ban-ts-comment
+// @ts-nocheck
 import {Utils} from '@playkit-js/playkit-js';
 import loader from './loader';
 
@@ -15,17 +16,17 @@ export default class pLoader extends loader {
    * @returns {string} uri - the redirected URI
    * @static
    */
-  static redirectExternalStreamsHandler: Function = (data, uri) => uri;
+  public static redirectExternalStreamsHandler = (data, uri): string => uri;
 
   /**
    * @constructor
    * @param {Object} config - hlsjs config object. it also contains the jsonp callback function
    */
-  constructor(config: Object) {
+  constructor(config: any) {
     super(config);
     const loadOrig = this.load.bind(this);
     const callback = pLoader.redirectExternalStreamsHandler;
-    this.load = (context, config, callbacks) => {
+    this.load = (context, config, callbacks): void => {
       const url = context.url;
       if (context.type === 'manifest') {
         Utils.Http.jsonp(url, callback, {

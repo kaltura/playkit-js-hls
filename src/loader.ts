@@ -1,4 +1,5 @@
-//@flow
+/* eslint-disable */
+// @ts-nocheck
 import Hlsjs from 'hls.js';
 
 /**
@@ -6,7 +7,7 @@ import Hlsjs from 'hls.js';
  * It passes the context for the xhrSetup config
  */
 export default class loader extends Hlsjs.DefaultConfig.loader {
-  constructor(config: Object) {
+  constructor(config: any) {
     super(config);
     if (config && config.readystatechange) {
       this.readystatechange = config.readystatechange;
@@ -18,7 +19,7 @@ export default class loader extends Hlsjs.DefaultConfig.loader {
       context = this.context;
     xhr = this.loader = new XMLHttpRequest();
 
-    let stats = this.stats;
+    const stats = this.stats;
     stats.tfirst = 0;
     stats.loaded = 0;
     const xhrSetup = this.xhrSetup;

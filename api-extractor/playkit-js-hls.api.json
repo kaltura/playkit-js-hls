@@ -1,0 +1,1284 @@
+{
+  "metadata": {
+    "toolPackage": "@microsoft/api-extractor",
+    "toolVersion": "7.38.3",
+    "schemaVersion": 1011,
+    "oldestForwardsCompatibleVersion": 1001,
+    "tsdocConfig": {
+      "$schema": "https://developer.microsoft.com/json-schemas/tsdoc/v0/tsdoc.schema.json",
+      "noStandardTags": true,
+      "tagDefinitions": [
+        {
+          "tagName": "@alpha",
+          "syntaxKind": "modifier"
+        },
+        {
+          "tagName": "@beta",
+          "syntaxKind": "modifier"
+        },
+        {
+          "tagName": "@defaultValue",
+          "syntaxKind": "block"
+        },
+        {
+          "tagName": "@decorator",
+          "syntaxKind": "block",
+          "allowMultiple": true
+        },
+        {
+          "tagName": "@deprecated",
+          "syntaxKind": "block"
+        },
+        {
+          "tagName": "@eventProperty",
+          "syntaxKind": "modifier"
+        },
+        {
+          "tagName": "@example",
+          "syntaxKind": "block",
+          "allowMultiple": true
+        },
+        {
+          "tagName": "@experimental",
+          "syntaxKind": "modifier"
+        },
+        {
+          "tagName": "@inheritDoc",
+          "syntaxKind": "inline"
+        },
+        {
+          "tagName": "@internal",
+          "syntaxKind": "modifier"
+        },
+        {
+          "tagName": "@label",
+          "syntaxKind": "inline"
+        },
+        {
+          "tagName": "@link",
+          "syntaxKind": "inline",
+          "allowMultiple": true
+        },
+        {
+          "tagName": "@override",
+          "syntaxKind": "modifier"
+        },
+        {
+          "tagName": "@packageDocumentation",
+          "syntaxKind": "modifier"
+        },
+        {
+          "tagName": "@param",
+          "syntaxKind": "block",
+          "allowMultiple": true
+        },
+        {
+          "tagName": "@privateRemarks",
+          "syntaxKind": "block"
+        },
+        {
+          "tagName": "@public",
+          "syntaxKind": "modifier"
+        },
+        {
+          "tagName": "@readonly",
+          "syntaxKind": "modifier"
+        },
+        {
+          "tagName": "@remarks",
+          "syntaxKind": "block"
+        },
+        {
+          "tagName": "@returns",
+          "syntaxKind": "block"
+        },
+        {
+          "tagName": "@sealed",
+          "syntaxKind": "modifier"
+        },
+        {
+          "tagName": "@see",
+          "syntaxKind": "block"
+        },
+        {
+          "tagName": "@throws",
+          "syntaxKind": "block",
+          "allowMultiple": true
+        },
+        {
+          "tagName": "@typeParam",
+          "syntaxKind": "block",
+          "allowMultiple": true
+        },
+        {
+          "tagName": "@virtual",
+          "syntaxKind": "modifier"
+        },
+        {
+          "tagName": "@betaDocumentation",
+          "syntaxKind": "modifier"
+        },
+        {
+          "tagName": "@internalRemarks",
+          "syntaxKind": "block"
+        },
+        {
+          "tagName": "@preapproved",
+          "syntaxKind": "modifier"
+        }
+      ],
+      "supportForTags": {
+        "@alpha": true,
+        "@beta": true,
+        "@defaultValue": true,
+        "@decorator": true,
+        "@deprecated": true,
+        "@eventProperty": true,
+        "@example": true,
+        "@experimental": true,
+        "@inheritDoc": true,
+        "@internal": true,
+        "@label": true,
+        "@link": true,
+        "@override": true,
+        "@packageDocumentation": true,
+        "@param": true,
+        "@privateRemarks": true,
+        "@public": true,
+        "@readonly": true,
+        "@remarks": true,
+        "@returns": true,
+        "@sealed": true,
+        "@see": true,
+        "@throws": true,
+        "@typeParam": true,
+        "@virtual": true,
+        "@betaDocumentation": true,
+        "@internalRemarks": true,
+        "@preapproved": true
+      },
+      "reportUnsupportedHtmlElements": false
+    }
+  },
+  "kind": "Package",
+  "canonicalReference": "@playkit-js/playkit-js-hls!",
+  "docComment": "",
+  "name": "@playkit-js/playkit-js-hls",
+  "preserveMemberOrder": false,
+  "members": [
+    {
+      "kind": "EntryPoint",
+      "canonicalReference": "@playkit-js/playkit-js-hls!",
+      "name": "",
+      "preserveMemberOrder": false,
+      "members": [
+        {
+          "kind": "Class",
+          "canonicalReference": "@playkit-js/playkit-js-hls!HlsAdapter:class",
+          "docComment": "/**\n * Adapter of hls.js lib for hls content.  @classdesc\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "export default class HlsAdapter extends "
+            },
+            {
+              "kind": "Reference",
+              "text": "BaseMediaSourceAdapter",
+              "canonicalReference": "@playkit-js/playkit-js!BaseMediaSourceAdapter:class"
+            },
+            {
+              "kind": "Content",
+              "text": " "
+            }
+          ],
+          "fileUrlPath": "src/hls-adapter.ts",
+          "releaseTag": "Public",
+          "isAbstract": false,
+          "name": "HlsAdapter",
+          "preserveMemberOrder": false,
+          "members": [
+            {
+              "kind": "Method",
+              "canonicalReference": "@playkit-js/playkit-js-hls!HlsAdapter#_getLiveEdge:member(1)",
+              "docComment": "/**\n * Returns the live edge\n *\n * @returns {number} - live edge  @private\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "protected _getLiveEdge(): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "number"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "releaseTag": "Public",
+              "isProtected": true,
+              "overloadIndex": 1,
+              "parameters": [],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "_getLiveEdge"
+            },
+            {
+              "kind": "Property",
+              "canonicalReference": "@playkit-js/playkit-js-hls!HlsAdapter._logger:member",
+              "docComment": "/**\n * The adapter logger.  @member {any} _logger  @static  @private\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "protected static _logger: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "import('js-logger')."
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ILogger",
+                  "canonicalReference": "js-logger!ILogger:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": false,
+              "isOptional": false,
+              "releaseTag": "Public",
+              "name": "_logger",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 3
+              },
+              "isStatic": true,
+              "isProtected": true,
+              "isAbstract": false
+            },
+            {
+              "kind": "Constructor",
+              "canonicalReference": "@playkit-js/playkit-js-hls!HlsAdapter:constructor(1)",
+              "docComment": "/**\n * @constructor Constructs a new instance of the `HlsAdapter` class\n *\n * @param videoElement - The video element which will bind to the hls adapter\n *\n * @param source - The source object\n *\n * @param config - The media source adapter configuration\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "constructor(videoElement: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "HTMLVideoElement",
+                  "canonicalReference": "!HTMLVideoElement:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", source: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "PKMediaSourceObject",
+                  "canonicalReference": "@playkit-js/playkit-js!PKMediaSourceObject:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", config: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "any"
+                },
+                {
+                  "kind": "Content",
+                  "text": ");"
+                }
+              ],
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "videoElement",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": false
+                },
+                {
+                  "parameterName": "source",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 3,
+                    "endIndex": 4
+                  },
+                  "isOptional": false
+                },
+                {
+                  "parameterName": "config",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 5,
+                    "endIndex": 6
+                  },
+                  "isOptional": false
+                }
+              ]
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "@playkit-js/playkit-js-hls!HlsAdapter#applyABRRestriction:member(1)",
+              "docComment": "/**\n * Apply ABR restriction.  @function applyABRRestriction\n *\n * @param restrictions - abr restrictions config\n *\n * @returns {void}\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "applyABRRestriction(restrictions: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "PKABRRestrictionObject",
+                  "canonicalReference": "@playkit-js/playkit-js!PKABRRestrictionObject:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "void"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 4
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "restrictions",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": false
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "applyABRRestriction"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "@playkit-js/playkit-js-hls!HlsAdapter#attachMediaSource:member(1)",
+              "docComment": "/**\n * attach media - return the media source to handle the video tag\n *\n * @returns {void}\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "attachMediaSource(): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "void"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "attachMediaSource"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "@playkit-js/playkit-js-hls!HlsAdapter.canPlayDrm:member(1)",
+              "docComment": "/**\n * Checks if hls adapter can play a given drm data. For hls.js it always returns false.\n *\n * @returns {boolean} - Whether the hls adapter can play a specific drm data.  @static\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "static canPlayDrm(): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "boolean"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": true,
+              "returnTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "canPlayDrm"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "@playkit-js/playkit-js-hls!HlsAdapter.canPlayType:member(1)",
+              "docComment": "/**\n * Checks if hls adapter can play a given mime type.  @function canPlayType\n *\n * @param mimeType - The mime type to check.\n *\n * @returns {boolean} - Whether the hls adapter can play a specific mime type.  @static\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "static canPlayType(mimeType: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "boolean"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": true,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 4
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "mimeType",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": false
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "canPlayType"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "@playkit-js/playkit-js-hls!HlsAdapter.createAdapter:member(1)",
+              "docComment": "/**\n * Factory method to create media source adapter.  @function createAdapter\n *\n * @param videoElement - The video element that the media source adapter work with.\n *\n * @param source - The source Object.\n *\n * @param config - The player configuration.\n *\n * @returns {IMediaSourceAdapter} - New instance of the run time media source adapter.  @static\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "static createAdapter(videoElement: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "HTMLVideoElement",
+                  "canonicalReference": "!HTMLVideoElement:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", source: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "PKMediaSourceObject",
+                  "canonicalReference": "@playkit-js/playkit-js!PKMediaSourceObject:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", config: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "any"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "IMediaSourceAdapter",
+                  "canonicalReference": "@playkit-js/playkit-js!IMediaSourceAdapter:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": true,
+              "returnTypeTokenRange": {
+                "startIndex": 7,
+                "endIndex": 8
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "videoElement",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": false
+                },
+                {
+                  "parameterName": "source",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 3,
+                    "endIndex": 4
+                  },
+                  "isOptional": false
+                },
+                {
+                  "parameterName": "config",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 5,
+                    "endIndex": 6
+                  },
+                  "isOptional": false
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "createAdapter"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "@playkit-js/playkit-js-hls!HlsAdapter#destroy:member(1)",
+              "docComment": "/**\n * Destroys the hls adapter.  @function destroy\n *\n * @returns {Promise<*>} - The destroy promise.\n *\n * @override\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "destroy(): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<void>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 3
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "destroy"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "@playkit-js/playkit-js-hls!HlsAdapter#detachMediaSource:member(1)",
+              "docComment": "/**\n * detach media - will remove the media source from handling the video\n *\n * @returns {void}\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "detachMediaSource(): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "void"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "detachMediaSource"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "@playkit-js/playkit-js-hls!HlsAdapter#enableAdaptiveBitrate:member(1)",
+              "docComment": "/**\n * Enables adaptive bitrate switching according to hls.js logic.  @function enableAdaptiveBitrate\n *\n * @returns {void}\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "enableAdaptiveBitrate(): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "void"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "enableAdaptiveBitrate"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "@playkit-js/playkit-js-hls!HlsAdapter#getSegmentDuration:member(1)",
+              "docComment": "/**\n * Gets the segment duration of the stream  @return {number} - Segment duration in seconds\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "getSegmentDuration(): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "number"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "getSegmentDuration"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "@playkit-js/playkit-js-hls!HlsAdapter#getStartTimeOfDvrWindow:member(1)",
+              "docComment": "/**\n * Get the start time of DVR window in live playback in seconds.\n *\n * @returns {Number} - start time of DVR window.\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "getStartTimeOfDvrWindow(): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "number"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "getStartTimeOfDvrWindow"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "@playkit-js/playkit-js-hls!HlsAdapter#handleMediaError:member(1)",
+              "docComment": "/**\n * video error event handler.\n *\n * @param error - the media error\n *\n * @returns {boolean} if hls-adapter will try to recover\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "handleMediaError(error: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "MediaError",
+                  "canonicalReference": "!MediaError:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "boolean"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 4
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "error",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": false
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "handleMediaError"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "@playkit-js/playkit-js-hls!HlsAdapter#hideTextTrack:member(1)",
+              "docComment": "/**\n * Hide the text track  @function hideTextTrack\n *\n * @returns {void}\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "hideTextTrack(): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "void"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "hideTextTrack"
+            },
+            {
+              "kind": "Property",
+              "canonicalReference": "@playkit-js/playkit-js-hls!HlsAdapter.id:member",
+              "docComment": "/**\n * The id of the adapter.  @member {string} id  @static  @private\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "static id: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": false,
+              "isOptional": false,
+              "releaseTag": "Public",
+              "name": "id",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "isStatic": true,
+              "isProtected": false,
+              "isAbstract": false
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "@playkit-js/playkit-js-hls!HlsAdapter#isAdaptiveBitrateEnabled:member(1)",
+              "docComment": "/**\n * Checking if adaptive bitrate switching is enabled.  @function isAdaptiveBitrateEnabled\n *\n * @returns {boolean} - Whether adaptive bitrate is enabled.\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "isAdaptiveBitrateEnabled(): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "boolean"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "isAdaptiveBitrateEnabled"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "@playkit-js/playkit-js-hls!HlsAdapter#isLive:member(1)",
+              "docComment": "/**\n * Checking if the current playback is live.  @function isLive\n *\n * @returns {boolean} - Whether playback is live.\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "isLive(): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "boolean"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "isLive"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "@playkit-js/playkit-js-hls!HlsAdapter.isSupported:member(1)",
+              "docComment": "/**\n * Checks if the hls adapter is supported.  @function isSupported\n *\n * @returns {boolean} - Whether hls is supported.  @static\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "static isSupported(): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "boolean"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": true,
+              "returnTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "isSupported"
+            },
+            {
+              "kind": "Property",
+              "canonicalReference": "@playkit-js/playkit-js-hls!HlsAdapter#liveDuration:member",
+              "docComment": "/**\n * Gets the live duration  @return {number} - live duration\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "get liveDuration(): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "number"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": true,
+              "isOptional": false,
+              "releaseTag": "Public",
+              "name": "liveDuration",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "isStatic": false,
+              "isProtected": false,
+              "isAbstract": false
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "@playkit-js/playkit-js-hls!HlsAdapter#load:member(1)",
+              "docComment": "/**\n * Load the video source  @function load\n *\n * @param startTime - Optional time to start the video from.\n *\n * @returns {Promise<Object>} - The loaded data\n *\n * @override\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "load(startTime?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "number"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<any>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 5
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "startTime",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": true
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "load"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "@playkit-js/playkit-js-hls!HlsAdapter#seekToLiveEdge:member(1)",
+              "docComment": "/**\n * Seeking to live edge, calculated according hls configuration - liveSyncDuration or liveSyncDurationCount.  @function seekToLiveEdge\n *\n * @returns {void}\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "seekToLiveEdge(): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "void"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "seekToLiveEdge"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "@playkit-js/playkit-js-hls!HlsAdapter#selectAudioTrack:member(1)",
+              "docComment": "/**\n * Select an audio track.  @function selectAudioTrack\n *\n * @param audioTrack - the audio track to select.\n *\n * @returns {void}\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "selectAudioTrack(audioTrack: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "AudioTrack",
+                  "canonicalReference": "@playkit-js/playkit-js!AudioTrack:class"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "void"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 4
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "audioTrack",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": false
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "selectAudioTrack"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "@playkit-js/playkit-js-hls!HlsAdapter#selectTextTrack:member(1)",
+              "docComment": "/**\n * Select a text track.  @function selectTextTrack\n *\n * @param textTrack - the track to select.\n *\n * @returns {void}\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "selectTextTrack(textTrack: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "TextTrack",
+                  "canonicalReference": "@playkit-js/playkit-js!TextTrack_2:class"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "void"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 4
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "textTrack",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": false
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "selectTextTrack"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "@playkit-js/playkit-js-hls!HlsAdapter#selectVideoTrack:member(1)",
+              "docComment": "/**\n * Select a video track.  @function selectVideoTrack\n *\n * @param videoTrack - the track to select.\n *\n * @returns {void}\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "selectVideoTrack(videoTrack: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "VideoTrack",
+                  "canonicalReference": "@playkit-js/playkit-js!VideoTrack:class"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "void"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 4
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "videoTrack",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": false
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "selectVideoTrack"
+            },
+            {
+              "kind": "Property",
+              "canonicalReference": "@playkit-js/playkit-js-hls!HlsAdapter#targetBuffer:member",
+              "docComment": "/**\n * returns value the player targets the buffer\n *\n * @returns {number} buffer target length in seconds\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "get targetBuffer(): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "number"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": true,
+              "isOptional": false,
+              "releaseTag": "Public",
+              "name": "targetBuffer",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "isStatic": false,
+              "isProtected": false,
+              "isAbstract": false
+            }
+          ],
+          "extendsTokenRange": {
+            "startIndex": 1,
+            "endIndex": 2
+          },
+          "implementsTokenRanges": []
+        },
+        {
+          "kind": "Variable",
+          "canonicalReference": "@playkit-js/playkit-js-hls!NAME:var",
+          "docComment": "",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "NAME: "
+            },
+            {
+              "kind": "Content",
+              "text": "string"
+            }
+          ],
+          "fileUrlPath": "src/index.ts",
+          "isReadonly": true,
+          "releaseTag": "Public",
+          "name": "NAME",
+          "variableTypeTokenRange": {
+            "startIndex": 1,
+            "endIndex": 2
+          }
+        },
+        {
+          "kind": "Variable",
+          "canonicalReference": "@playkit-js/playkit-js-hls!VERSION:var",
+          "docComment": "",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "VERSION: "
+            },
+            {
+              "kind": "Content",
+              "text": "string"
+            }
+          ],
+          "fileUrlPath": "src/index.ts",
+          "isReadonly": true,
+          "releaseTag": "Public",
+          "name": "VERSION",
+          "variableTypeTokenRange": {
+            "startIndex": 1,
+            "endIndex": 2
+          }
+        }
+      ]
+    }
+  ]
+}
