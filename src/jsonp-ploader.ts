@@ -1,6 +1,6 @@
 // eslint-disable-next-line  @typescript-eslint/ban-ts-comment
 // @ts-nocheck
-import {Utils} from '@playkit-js/playkit-js';
+import { Utils } from '@playkit-js/playkit-js';
 import loader from './loader';
 
 /**
@@ -32,7 +32,7 @@ export default class pLoader extends loader {
         Utils.Http.jsonp(url, callback, {
           timeout: pLoader.redirectExternalStreamsTimeout
         })
-          .then(uri => {
+          .then((uri) => {
             context.url = uri;
             loadOrig(context, config, callbacks);
           })

@@ -58,8 +58,8 @@ export default class loader extends Hlsjs.DefaultConfig.loader {
         this.requestTimeout = window.setTimeout(this.loadtimeout.bind(this), this.config.timeout);
         xhr.send();
       })
-      .catch(e => {
-        this.callbacks.onError({code: xhr.status, text: e.message}, context, xhr);
+      .catch((e) => {
+        this.callbacks.onError({ code: xhr.status, text: e.message }, context, xhr);
       });
   }
 }
