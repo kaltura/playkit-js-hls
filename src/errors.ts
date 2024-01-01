@@ -1,8 +1,8 @@
 import Hlsjs from 'hls.js';
-import {Error} from '@playkit-js/playkit-js';
+import { Error } from '@playkit-js/playkit-js';
 
-type ErrorDetailsType = {category: number, code: number};
-type HlsJsErrorMapType = {[name: string]: ErrorDetailsType};
+type ErrorDetailsType = { category: number; code: number };
+type HlsJsErrorMapType = { [name: string]: ErrorDetailsType };
 
 const HlsJsErrorMap: HlsJsErrorMapType = {
   [Hlsjs.ErrorDetails.MANIFEST_LOAD_ERROR]: {
@@ -55,5 +55,5 @@ const HlsJsErrorMap: HlsJsErrorMapType = {
   }
 };
 
-export {HlsJsErrorMap};
-export type {ErrorDetailsType};
+export { HlsJsErrorMap };
+export { ErrorDetailsType };

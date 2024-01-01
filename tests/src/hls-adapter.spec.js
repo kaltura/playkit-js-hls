@@ -109,7 +109,7 @@ xdescribe('HlsAdapter Instance - Unit', function () {
     sourceObj = hls_sources.ElephantsDream;
     config = {
       playback: {
-        options: {html5: {hls: {}}},
+        options: { html5: { hls: {} } },
         recoverDecodingErrorDelay: 0,
         recoverSwapAudioCodecDelay: 0
       }
@@ -192,7 +192,7 @@ xdescribe('HlsAdapter Instance - Unit', function () {
       off: function () {}
     };
     let videoTracks = hlsAdapterInstance._parseVideoTracks(hls_tracks.levels);
-    player_tracks.videoTracks.forEach(t => {
+    player_tracks.videoTracks.forEach((t) => {
       t._label = t._height + 'p';
     });
     JSON.parse(JSON.stringify(videoTracks)).should.deep.equal(player_tracks.videoTracks);
@@ -206,7 +206,7 @@ xdescribe('HlsAdapter Instance - Unit', function () {
       },
       off: function () {}
     };
-    let textTracks = hlsAdapterInstance._parseTextTracks(hls_tracks.subtitles).map(hlsTrack => {
+    let textTracks = hlsAdapterInstance._parseTextTracks(hls_tracks.subtitles).map((hlsTrack) => {
       delete hlsTrack._index;
       return hlsTrack;
     });
@@ -230,7 +230,7 @@ xdescribe('HlsAdapter Instance - Unit', function () {
       },
       off: function () {}
     };
-    let tracks = hlsAdapterInstance._parseTracks().map(hlsTrack => {
+    let tracks = hlsAdapterInstance._parseTracks().map((hlsTrack) => {
       if (hlsTrack._kind === 'subtitles') {
         delete hlsTrack._index;
         return hlsTrack;
@@ -256,9 +256,9 @@ xdescribe('HlsAdapter Instance - Unit', function () {
     hlsAdapterInstance._hls.nextLevel.should.equal(-1);
   });
 
-  it('should check onError when reloading manifest returns error object', done => {
+  it('should check onError when reloading manifest returns error object', (done) => {
     sandbox.stub(hlsAdapterInstance, '_reloadWithDirectManifest').callsFake(() => {});
-    hlsAdapterInstance.addEventListener(EventType.ERROR, event => {
+    hlsAdapterInstance.addEventListener(EventType.ERROR, (event) => {
       try {
         (event.payload === undefined).should.be.false;
         done();
@@ -278,7 +278,7 @@ xdescribe('HlsAdapter Instance - Unit', function () {
   });
 
   it('should dispatch event with the selected video track', function (done) {
-    let data = {level: 3};
+    let data = { level: 3 };
     hlsAdapterInstance._hls = {
       autoLevelEnabled: true,
       detachMedia: function () {},
@@ -339,7 +339,7 @@ xdescribe('HlsAdapter Instance - isLive', () => {
   beforeEach(function () {
     sandbox = sinon.createSandbox();
     video = document.createElement('video');
-    config = {playback: {options: {html5: {hls: {}}}}};
+    config = { playback: { options: { html5: { hls: {} } } } };
   });
 
   afterEach(async function () {
@@ -378,7 +378,7 @@ describe('HlsAdapter Instance - seekToLiveEdge', function () {
   beforeEach(function () {
     sandbox = sinon.createSandbox();
     video = document.createElement('video');
-    config = {playback: {options: {html5: {hls: {}}}}};
+    config = { playback: { options: { html5: { hls: {} } } } };
   });
 
   afterEach(function (done) {
@@ -415,7 +415,7 @@ describe.skip('HlsAdapter Instance - _getLiveEdge', function () {
   beforeEach(function () {
     sandbox = sinon.createSandbox();
     video = document.createElement('video');
-    config = {playback: {options: {html5: {hls: {}}}}};
+    config = { playback: { options: { html5: { hls: {} } } } };
   });
 
   afterEach(function (done) {
@@ -428,7 +428,7 @@ describe.skip('HlsAdapter Instance - _getLiveEdge', function () {
     });
   });
 
-  it('should return live edge', done => {
+  it('should return live edge', (done) => {
     hlsAdapterInstance = HlsAdapter.createAdapter(video, liveSource, config);
     hlsAdapterInstance.load().then(() => {
       hlsAdapterInstance._videoElement.addEventListener('durationchange', () => {
@@ -454,7 +454,7 @@ xdescribe('HlsAdapter Instance - getStartTimeOfDvrWindow', function () {
   beforeEach(function () {
     sandbox = sinon.createSandbox();
     video = document.createElement('video');
-    config = {playback: {options: {html5: {hls: {}}}}};
+    config = { playback: { options: { html5: { hls: {} } } } };
   });
 
   afterEach(function (done) {
@@ -467,7 +467,7 @@ xdescribe('HlsAdapter Instance - getStartTimeOfDvrWindow', function () {
     });
   });
 
-  it('should return 0 for VOD', done => {
+  it('should return 0 for VOD', (done) => {
     hlsAdapterInstance = HlsAdapter.createAdapter(video, vodSource, config);
     hlsAdapterInstance.load().then(() => {
       hlsAdapterInstance.getStartTimeOfDvrWindow().should.equal(0);
@@ -475,7 +475,7 @@ xdescribe('HlsAdapter Instance - getStartTimeOfDvrWindow', function () {
     });
   });
 
-  it.skip('should return the start of DVR window for live', done => {
+  it.skip('should return the start of DVR window for live', (done) => {
     hlsAdapterInstance = HlsAdapter.createAdapter(video, liveSource, config);
     hlsAdapterInstance.load().then(() => {
       try {
@@ -501,7 +501,7 @@ xdescribe('HlsAdapter Instance - change media', function () {
     sandbox = sinon.createSandbox();
     video = document.createElement('video');
     video.muted = 'muted';
-    config = {playback: {options: {html5: {hls: {}}}}};
+    config = { playback: { options: { html5: { hls: {} } } } };
   });
 
   afterEach(async function () {
@@ -516,18 +516,18 @@ xdescribe('HlsAdapter Instance - change media', function () {
     let data;
     hlsAdapterInstance = HlsAdapter.createAdapter(video, source1, config);
     data = await hlsAdapterInstance.load();
-    data.tracks.filter(track => track instanceof TextTrack).length.should.equal(6);
+    data.tracks.filter((track) => track instanceof TextTrack).length.should.equal(6);
     await hlsAdapterInstance.destroy();
     hlsAdapterInstance = HlsAdapter.createAdapter(video, source2, config);
     data = await hlsAdapterInstance.load();
-    data.tracks.filter(track => track instanceof TextTrack).length.should.equal(2);
+    data.tracks.filter((track) => track instanceof TextTrack).length.should.equal(2);
   });
 
-  it('should fire FRAG_LOADED', done => {
+  it('should fire FRAG_LOADED', (done) => {
     // source1.url = source1.ur + '11';
     const eventManager = new EventManager();
     hlsAdapterInstance = HlsAdapter.createAdapter(video, source1, config);
-    eventManager.listenOnce(hlsAdapterInstance, EventType.FRAG_LOADED, event => {
+    eventManager.listenOnce(hlsAdapterInstance, EventType.FRAG_LOADED, (event) => {
       try {
         event.payload.miliSeconds.should.exist;
         event.payload.bytes.should.exist;
@@ -540,16 +540,16 @@ xdescribe('HlsAdapter Instance - change media', function () {
     hlsAdapterInstance.load().catch(done);
   });
 
-  it('should fire MANIFEST_LOADED', done => {
+  it('should fire MANIFEST_LOADED', (done) => {
     hlsAdapterInstance = HlsAdapter.createAdapter(video, source1, config);
-    hlsAdapterInstance.addEventListener(EventType.MANIFEST_LOADED, event => {
+    hlsAdapterInstance.addEventListener(EventType.MANIFEST_LOADED, (event) => {
       event.payload.miliSeconds.should.exist;
       done();
     });
     hlsAdapterInstance.load().catch(done);
   });
 
-  it('should check targetBuffer in VOD far from end of stream', done => {
+  it('should check targetBuffer in VOD far from end of stream', (done) => {
     hlsAdapterInstance = HlsAdapter.createAdapter(video, source1, config);
     video.addEventListener(EventType.PLAYING, () => {
       try {
@@ -565,12 +565,12 @@ xdescribe('HlsAdapter Instance - change media', function () {
       .then(() => {
         return video.play();
       })
-      .catch(e => {
+      .catch((e) => {
         done(e);
       });
   });
 
-  it('should check targetBuffer in VOD close to end of stream (time left to end of stream is less than targetBuffer)', done => {
+  it('should check targetBuffer in VOD close to end of stream (time left to end of stream is less than targetBuffer)', (done) => {
     hlsAdapterInstance = HlsAdapter.createAdapter(video, source1, config);
     video.addEventListener(EventType.PLAYING, () => {
       video.addEventListener(EventType.SEEKED, () => {
@@ -585,16 +585,16 @@ xdescribe('HlsAdapter Instance - change media', function () {
       .then(() => {
         return video.play();
       })
-      .catch(e => {
+      .catch((e) => {
         done(e);
       });
   });
 
-  it('should check targetBuffer in LIVE', done => {
+  it('should check targetBuffer in LIVE', (done) => {
     hlsAdapterInstance = HlsAdapter.createAdapter(
       video,
       liveSource,
-      Utils.Object.mergeDeep(config, {network: {}, playback: {options: {html5: {hls: {maxMaxBufferLength: 120}}}}})
+      Utils.Object.mergeDeep(config, { network: {}, playback: { options: { html5: { hls: { maxMaxBufferLength: 120 } } } } })
     );
     video.addEventListener(EventType.PLAYING, () => {
       let targetBufferVal =
@@ -613,11 +613,11 @@ xdescribe('HlsAdapter Instance - change media', function () {
       .catch(done);
   });
 
-  it('should check targetBuffer in LIVE and restricted by maxMaxBufferLength', done => {
+  it('should check targetBuffer in LIVE and restricted by maxMaxBufferLength', (done) => {
     hlsAdapterInstance = HlsAdapter.createAdapter(
       video,
       liveSource,
-      Utils.Object.mergeDeep(config, {playback: {options: {html5: {hls: {maxMaxBufferLength: 10}}}}})
+      Utils.Object.mergeDeep(config, { playback: { options: { html5: { hls: { maxMaxBufferLength: 10 } } } } })
     );
     video.addEventListener(EventType.PLAYING, () => {
       let targetBufferVal = hlsAdapterInstance._hls.config.maxMaxBufferLength + hlsAdapterInstance._getLevelDetails().targetduration;
@@ -659,7 +659,7 @@ describe.skip('HlsAdapter [debugging and testing manually]', function (done) {
     videoTracks = [];
     textTracks = [];
     audioTracks = [];
-    tracks.filter(track => {
+    tracks.filter((track) => {
       if (track instanceof AudioTrack) {
         audioTracks.push(track);
       } else if (track instanceof VideoTrack) {
@@ -709,7 +709,7 @@ describe('HlsAdapter Instance request filter', () => {
     sandbox = sinon.createSandbox();
     video = document.createElement('video');
     video.muted = 'muted';
-    config = {playback: {options: {html5: {hls: {}}}}};
+    config = { playback: { options: { html5: { hls: {} } } } };
   });
 
   afterEach(async function () {
@@ -727,7 +727,7 @@ describe('HlsAdapter Instance request filter', () => {
     e.data.reason.should.equal('error');
   };
 
-  it('should pass the params to the request filter', done => {
+  it('should pass the params to the request filter', (done) => {
     hlsAdapterInstance = HlsAdapter.createAdapter(
       video,
       vodSource,
@@ -769,7 +769,7 @@ describe('HlsAdapter Instance request filter', () => {
     XMLHttpRequest.prototype.open.getCall(1).args[1].indexOf('?test').should.be.gt(-1);
   });
 
-  it('should apply promise filter for manifest', done => {
+  it('should apply promise filter for manifest', (done) => {
     hlsAdapterInstance = HlsAdapter.createAdapter(
       video,
       vodSource,
@@ -777,7 +777,7 @@ describe('HlsAdapter Instance request filter', () => {
         network: {
           requestFilter: function (type, request) {
             if (type === RequestType.MANIFEST) {
-              return new Promise(resolve => {
+              return new Promise((resolve) => {
                 request.url += '?test';
                 resolve(request);
               });
@@ -797,7 +797,7 @@ describe('HlsAdapter Instance request filter', () => {
     });
   });
 
-  it('should handle error thrown from void filter', done => {
+  it('should handle error thrown from void filter', (done) => {
     hlsAdapterInstance = HlsAdapter.createAdapter(
       video,
       vodSource,
@@ -809,7 +809,7 @@ describe('HlsAdapter Instance request filter', () => {
         }
       })
     );
-    hlsAdapterInstance.addEventListener(EventType.ERROR, event => {
+    hlsAdapterInstance.addEventListener(EventType.ERROR, (event) => {
       try {
         validateFilterError(event.payload, hlsAdapterInstance);
         done();
@@ -820,7 +820,7 @@ describe('HlsAdapter Instance request filter', () => {
     hlsAdapterInstance.load();
   });
 
-  it('should handle error thrown from promise filter', done => {
+  it('should handle error thrown from promise filter', (done) => {
     hlsAdapterInstance = HlsAdapter.createAdapter(
       video,
       vodSource,
@@ -834,7 +834,7 @@ describe('HlsAdapter Instance request filter', () => {
         }
       })
     );
-    hlsAdapterInstance.addEventListener(EventType.ERROR, event => {
+    hlsAdapterInstance.addEventListener(EventType.ERROR, (event) => {
       try {
         validateFilterError(event.payload, hlsAdapterInstance);
         done();
@@ -845,7 +845,7 @@ describe('HlsAdapter Instance request filter', () => {
     hlsAdapterInstance.load();
   });
 
-  it('should handle error rejected from promise filter - manifest', done => {
+  it('should handle error rejected from promise filter - manifest', (done) => {
     hlsAdapterInstance = HlsAdapter.createAdapter(
       video,
       vodSource,
@@ -861,7 +861,7 @@ describe('HlsAdapter Instance request filter', () => {
         }
       })
     );
-    hlsAdapterInstance.addEventListener(EventType.ERROR, event => {
+    hlsAdapterInstance.addEventListener(EventType.ERROR, (event) => {
       try {
         validateFilterError(event.payload, hlsAdapterInstance);
         done();
@@ -873,7 +873,7 @@ describe('HlsAdapter Instance request filter', () => {
   });
 
   // _onError doesn't trigger error on hls  fragload error (duo to the fatal condition)
-  it.skip('should handle error rejected from promise filter - segment', done => {
+  it.skip('should handle error rejected from promise filter - segment', (done) => {
     hlsAdapterInstance = HlsAdapter.createAdapter(
       video,
       vodSource,
@@ -890,7 +890,7 @@ describe('HlsAdapter Instance request filter', () => {
         }
       })
     );
-    hlsAdapterInstance.addEventListener(EventType.ERROR, event => {
+    hlsAdapterInstance.addEventListener(EventType.ERROR, (event) => {
       try {
         validateFilterError(event.payload, hlsAdapterInstance);
         done();
@@ -911,7 +911,7 @@ describe('HlsAdapter Instance: response filter', () => {
 
   beforeEach(() => {
     video = document.createElement('video');
-    config = {playback: {options: {html5: {hls: {forceRedirectExternalStreams: true}}}}};
+    config = { playback: { options: { html5: { hls: { forceRedirectExternalStreams: true } } } } };
     sandbox = sinon.createSandbox();
   });
 
@@ -925,14 +925,14 @@ describe('HlsAdapter Instance: response filter', () => {
     TestUtils.removeVideoElementsFromTestPage();
   });
 
-  const validateFilterError = e => {
+  const validateFilterError = (e) => {
     e.severity.should.equal(Error.Severity.CRITICAL);
     e.category.should.equal(Error.Category.NETWORK);
     e.code.should.equal(Error.Code.RESPONSE_FILTER_ERROR);
     e.data.reason.should.equal('error');
   };
 
-  it('should pass the params to the response filter', done => {
+  it('should pass the params to the response filter', (done) => {
     hlsAdapterInstance = HlsAdapter.createAdapter(
       video,
       vodSource,
@@ -956,7 +956,7 @@ describe('HlsAdapter Instance: response filter', () => {
     hlsAdapterInstance.load();
   });
 
-  it('should apply void filter for manifest', done => {
+  it('should apply void filter for manifest', (done) => {
     hlsAdapterInstance = HlsAdapter.createAdapter(
       video,
       vodSource,
@@ -982,7 +982,7 @@ describe('HlsAdapter Instance: response filter', () => {
     hlsAdapterInstance.load().catch(done);
   });
 
-  it('should apply promise filter for manifest - response', done => {
+  it('should apply promise filter for manifest - response', (done) => {
     hlsAdapterInstance = HlsAdapter.createAdapter(
       video,
       vodSource,
@@ -997,7 +997,7 @@ describe('HlsAdapter Instance: response filter', () => {
         }
       })
     );
-    sandbox.stub(hlsAdapterInstance._hls.networkControllers[0], 'handleMasterPlaylist').callsFake(value => {
+    sandbox.stub(hlsAdapterInstance._hls.networkControllers[0], 'handleMasterPlaylist').callsFake((value) => {
       try {
         value.data.indexOf('&test').should.be.gt(-1);
         done();
@@ -1008,7 +1008,7 @@ describe('HlsAdapter Instance: response filter', () => {
     hlsAdapterInstance.load();
   });
 
-  it('should handle error thrown from void filter', done => {
+  it('should handle error thrown from void filter', (done) => {
     hlsAdapterInstance = HlsAdapter.createAdapter(
       video,
       vodSource,
@@ -1020,7 +1020,7 @@ describe('HlsAdapter Instance: response filter', () => {
         }
       })
     );
-    hlsAdapterInstance.addEventListener(EventType.ERROR, event => {
+    hlsAdapterInstance.addEventListener(EventType.ERROR, (event) => {
       try {
         validateFilterError(event.payload, hlsAdapterInstance);
         done();
@@ -1031,7 +1031,7 @@ describe('HlsAdapter Instance: response filter', () => {
     hlsAdapterInstance.load();
   });
 
-  it('should handle error thrown from promise filter', done => {
+  it('should handle error thrown from promise filter', (done) => {
     hlsAdapterInstance = HlsAdapter.createAdapter(
       video,
       vodSource,
@@ -1045,7 +1045,7 @@ describe('HlsAdapter Instance: response filter', () => {
         }
       })
     );
-    hlsAdapterInstance.addEventListener(EventType.ERROR, event => {
+    hlsAdapterInstance.addEventListener(EventType.ERROR, (event) => {
       try {
         validateFilterError(event.payload, hlsAdapterInstance);
         done();
@@ -1056,7 +1056,7 @@ describe('HlsAdapter Instance: response filter', () => {
     hlsAdapterInstance.load();
   });
 
-  it('should handle error rejected from promise filter', done => {
+  it('should handle error rejected from promise filter', (done) => {
     hlsAdapterInstance = HlsAdapter.createAdapter(
       video,
       vodSource,
@@ -1072,7 +1072,7 @@ describe('HlsAdapter Instance: response filter', () => {
         }
       })
     );
-    hlsAdapterInstance.addEventListener(EventType.ERROR, event => {
+    hlsAdapterInstance.addEventListener(EventType.ERROR, (event) => {
       try {
         validateFilterError(event.payload, hlsAdapterInstance);
         done();
@@ -1084,7 +1084,7 @@ describe('HlsAdapter Instance: response filter', () => {
   });
 
   // _onError doesn't trigger error on hls  fragload error (duo to the fatal condition)
-  it.skip('should handle error rejected from promise filter - segment', done => {
+  it.skip('should handle error rejected from promise filter - segment', (done) => {
     hlsAdapterInstance = HlsAdapter.createAdapter(
       video,
       vodSource,
@@ -1100,7 +1100,7 @@ describe('HlsAdapter Instance: response filter', () => {
         }
       })
     );
-    hlsAdapterInstance.addEventListener(EventType.ERROR, event => {
+    hlsAdapterInstance.addEventListener(EventType.ERROR, (event) => {
       try {
         validateFilterError(event.payload, hlsAdapterInstance);
         done();
@@ -1167,7 +1167,7 @@ xdescribe('HlsAdapter Instance - Integration', function () {
   });
 
   it('should select video track', function (done) {
-    player.addEventListener(player.Event.ERROR, event => done(event));
+    player.addEventListener(player.Event.ERROR, (event) => done(event));
     player.load();
     player
       .ready()
@@ -1177,7 +1177,7 @@ xdescribe('HlsAdapter Instance - Integration', function () {
         player.play();
         const videoTracks = player.getTracks(player.Track.VIDEO);
         const someVideoTrack = videoTracks[2];
-        player.addEventListener(player.Event.VIDEO_TRACK_CHANGED, event => {
+        player.addEventListener(player.Event.VIDEO_TRACK_CHANGED, (event) => {
           try {
             event.payload.selectedVideoTrack.should.exist;
             event.payload.selectedVideoTrack.active.should.be.true;
@@ -1203,13 +1203,13 @@ xdescribe('HlsAdapter Instance - Integration', function () {
         const textTracks = player.getTracks(player.Track.TEXT);
         // no error for - invalid parmeter / text track
         const someTextTrack = textTracks[4]; //4
-        player.addEventListener(player.Event.TEXT_TRACK_CHANGED, event => {
+        player.addEventListener(player.Event.TEXT_TRACK_CHANGED, (event) => {
           try {
             event.payload.selectedTextTrack.should.exist;
             // could never be true !!! - the TEXT_TRACK_CHANGED dispatched with the payload   b e f o r e   the markActivTrack() method on playkit is calld;
             // event.payload.selectedTextTrack.active.should.be.true;
             // instead we could check like below
-            player.getTracks(player.Track.TEXT).find(track => track.index === someTextTrack.index).active.should.be.true;
+            player.getTracks(player.Track.TEXT).find((track) => track.index === someTextTrack.index).active.should.be.true;
             event.payload.selectedTextTrack.index.should.equal(someTextTrack.index);
             done();
           } catch (e) {
@@ -1232,7 +1232,7 @@ xdescribe('HlsAdapter Instance - Integration', function () {
         player.play();
         audioTracks = player.getTracks(player.Track.AUDIO);
         const someAudioTrack = audioTracks[1];
-        player.addEventListener(player.Event.AUDIO_TRACK_CHANGED, event => {
+        player.addEventListener(player.Event.AUDIO_TRACK_CHANGED, (event) => {
           try {
             event.payload.selectedAudioTrack.should.exist;
             event.payload.selectedAudioTrack.active.should.be.true;
@@ -1265,7 +1265,7 @@ xdescribe('HlsAdapter Instance - Integration', function () {
   it('should fire abr mode changed', function (done) {
     let mode = 'auto';
     let counter = 0;
-    player.addEventListener(player.Event.ABR_MODE_CHANGED, event => {
+    player.addEventListener(player.Event.ABR_MODE_CHANGED, (event) => {
       event.payload.mode.should.equal(mode);
       counter++;
       if (counter === 3) {
@@ -1299,7 +1299,7 @@ xdescribe('HlsAdapter Instance - _onFragParsingMetadata', function () {
   beforeEach(function () {
     sandbox = sinon.createSandbox();
     video = document.createElement('video');
-    config = {playback: {options: {html5: {hls: {}}}}};
+    config = { playback: { options: { html5: { hls: {} } } } };
   });
 
   afterEach(function (done) {
@@ -1312,7 +1312,7 @@ xdescribe('HlsAdapter Instance - _onFragParsingMetadata', function () {
     });
   });
 
-  it('should dispatch TIMED_METADATA_ADDED event on hlsFragParsingMetadata', done => {
+  it('should dispatch TIMED_METADATA_ADDED event on hlsFragParsingMetadata', (done) => {
     hlsAdapterInstance = HlsAdapter.createAdapter(video, vodSource, config);
     const metadataTrack = video.addTextTrack(TextTrack.KIND.METADATA, 'id3');
     const cue = {
@@ -1327,7 +1327,7 @@ xdescribe('HlsAdapter Instance - _onFragParsingMetadata', function () {
     };
     const textTrackCue = createTextTrackCue(cue);
     metadataTrack.addCue(textTrackCue);
-    hlsAdapterInstance.addEventListener(EventType.TIMED_METADATA_ADDED, event => {
+    hlsAdapterInstance.addEventListener(EventType.TIMED_METADATA_ADDED, (event) => {
       try {
         event.payload.cues[0].should.deep.equal(createTimedMetadata(video.textTracks[0].cues[0]));
         done();
@@ -1336,7 +1336,7 @@ xdescribe('HlsAdapter Instance - _onFragParsingMetadata', function () {
       }
     });
     hlsAdapterInstance._onFragParsingMetadata({
-      samples: [{pts: 20}]
+      samples: [{ pts: 20 }]
     });
   });
 });

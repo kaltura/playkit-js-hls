@@ -1,7 +1,7 @@
 import Hls from 'hls.js';
 import Hlsjs, { HlsListeners, Level, MediaPlaylist } from 'hls.js';
 import DefaultConfig from './default-config.json';
-import {ErrorDetailsType, HlsJsErrorMap} from './errors';
+import { ErrorDetailsType, HlsJsErrorMap } from './errors';
 import {
   AudioTrack,
   BaseMediaSourceAdapter,
@@ -16,11 +16,15 @@ import {
   filterTracksByRestriction,
   PKABRRestrictionObject,
   TimedMetadata,
-  createTimedMetadata, PKMediaSourceObject, PKResponseObject, PKRequestObject, IMediaSourceAdapter
+  createTimedMetadata,
+  PKMediaSourceObject,
+  PKResponseObject,
+  PKRequestObject,
+  IMediaSourceAdapter
 } from '@playkit-js/playkit-js';
 import pLoader from './jsonp-ploader';
 import loader from './loader';
-import {ILogger } from 'js-logger'
+import { ILogger } from 'js-logger';
 
 /**
  * Adapter of hls.js lib for hls content.
@@ -97,7 +101,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    * @type {{resolve: (result: Promise<R> | R) => void, reject: (error: any) => void}}
    * @private
    */
-  private _loadPromiseHandlers!: {resolve: (result: any) => void, reject: (error: any) => void} | null;
+  private _loadPromiseHandlers!: { resolve: (result: any) => void; reject: (error: any) => void } | null;
 
   /**
    * Reference to the player tracks.
@@ -289,7 +293,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
         loader,
         xhrSetup: (xhr, url, context) => {
           let requestFilterPromise;
-          const pkRequest: PKRequestObject = {url, body: null, headers: {}};
+          const pkRequest: PKRequestObject = { url, body: null, headers: {} };
           try {
             if (context.type === 'manifest') {
               requestFilterPromise = this._config.network.requestFilter(RequestType.MANIFEST, pkRequest);
@@ -302,17 +306,17 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
           }
           requestFilterPromise = requestFilterPromise || Promise.resolve(pkRequest);
           return requestFilterPromise
-            .then(updatedRequest => {
+            .then((updatedRequest) => {
               context.url = updatedRequest.url;
               xhr.open('GET', updatedRequest.url, true);
-              Object.entries(updatedRequest.headers).forEach(entry => {
+              Object.entries(updatedRequest.headers).forEach((entry) => {
                 xhr.setRequestHeader(...entry);
               });
               if (typeof updatedRequest.withCredentials === 'boolean') {
                 xhr.withCredentials = updatedRequest.withCredentials;
               }
             })
-            .catch(error => {
+            .catch((error) => {
               this._requestFilterError = true;
               throw error;
             });
@@ -342,7 +346,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
           if (readyState >= 2) {
             // clear xhr timeout and rearm it if readyState less than 4
             window.clearTimeout(this.requestTimeout);
-            const {loading} = stats;
+            const { loading } = stats;
             if (loading.first === 0) {
               loading.first = Math.max(performance.now(), loading.start);
             }
@@ -381,18 +385,18 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
                 }
                 responseFilterPromise = responseFilterPromise || Promise.resolve(pkResponse);
                 return responseFilterPromise
-                  .then(updatedResponse => {
+                  .then((updatedResponse) => {
                     this.callbacks.onSuccess(updatedResponse, stats, context, xhr);
                   })
-                  .catch(error => {
+                  .catch((error) => {
                     self._responseFilterError = true;
-                    this.callbacks.onError({code: status, text: error.message}, context, xhr);
+                    this.callbacks.onError({ code: status, text: error.message }, context, xhr);
                   });
               } else {
                 // if max nb of retries reached or if http status between 400 and 499 (such error cannot be recovered, retrying is useless), return error
                 if (stats.retry >= config.maxRetry || (status >= 400 && status < 499)) {
                   HlsAdapter._logger.error(`${status} while loading ${context.url}`);
-                  this.callbacks.onError({code: status, text: xhr.statusText}, context, xhr);
+                  this.callbacks.onError({ code: status, text: xhr.statusText }, context, xhr);
                 } else {
                   // retry
                   HlsAdapter._logger.warn(`${status} while loading ${context.url}, retrying in ${this.retryDelay}...`);
@@ -422,7 +426,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    * @returns {void}
    */
   private _addBindings(): void {
-    this._mediaAttachedPromise = new Promise(resolve => (this._onMediaAttached = resolve));
+    this._mediaAttachedPromise = new Promise((resolve) => (this._onMediaAttached = resolve));
     for (const [event, callback] of Object.entries<(...parms: any) => any>(this._adapterEventsBindings)) {
       this._hls.on(event as keyof HlsListeners, callback);
     }
@@ -438,18 +442,18 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
 
   private _onFragParsingMetadata(data: any): void {
     this._trigger('hlsFragParsingMetadata', data);
-    const id3Track = Array.from(this._videoElement?.textTracks).find(track => track.label === 'id3');
+    const id3Track = Array.from(this._videoElement?.textTracks).find((track) => track.label === 'id3');
     const id3Cues = Array.from(id3Track?.cues || []);
     const newCues: TimedMetadata[] = [];
-    data?.samples.forEach(sample => {
-      const cue = Utils.binarySearch(id3Cues, cue => cue.startTime - sample.pts);
+    data?.samples.forEach((sample) => {
+      const cue = Utils.binarySearch(id3Cues, (cue) => cue.startTime - sample.pts);
       if (cue) {
         const timedMetadata: TimedMetadata = createTimedMetadata(cue)!;
         newCues.push(timedMetadata);
       }
     });
     if (newCues.length) {
-      this._trigger(EventType.TIMED_METADATA_ADDED, {cues: newCues});
+      this._trigger(EventType.TIMED_METADATA_ADDED, { cues: newCues });
     }
   }
 
@@ -460,7 +464,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
       if (CEATextTrack) {
         HlsAdapter._logger.debug('A CEA 608/708 caption has been found', CEATextTrack);
         this._playerTracks.push(CEATextTrack);
-        this._trigger(EventType.TRACKS_CHANGED, {tracks: this._playerTracks});
+        this._trigger(EventType.TRACKS_CHANGED, { tracks: this._playerTracks });
       }
     }
   }
@@ -533,7 +537,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     if (!this._loadPromise) {
       this._startTime = startTime;
       this._loadPromise = new Promise((resolve, reject) => {
-        this._loadPromiseHandlers = {resolve, reject};
+        this._loadPromiseHandlers = { resolve, reject };
         this._loadInternal();
       });
     }
@@ -550,7 +554,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     if (this._hls && this._sourceObj && this._sourceObj.url) {
       this._hls.loadSource(this._sourceObj.url);
       this._hls.attachMedia(this._videoElement);
-      this._trigger(EventType.ABR_MODE_CHANGED, {mode: this.isAdaptiveBitrateEnabled() ? 'auto' : 'manual'});
+      this._trigger(EventType.ABR_MODE_CHANGED, { mode: this.isAdaptiveBitrateEnabled() ? 'auto' : 'manual' });
     } else {
       this._loadPromiseHandlers?.reject(
         new PKError(PKError.Severity.CRITICAL, PKError.Category.PLAYER, PKError.Code.HLS_FATAL_MEDIA_ERROR, 'no url provided')
@@ -709,7 +713,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    * @private
    */
   private _parseCEATextTrack(CEATextTrack: any): TextTrack | null {
-    let textTrack:TextTrack | null = null;
+    let textTrack: TextTrack | null = null;
     if (CEATextTrack.kind === 'captions') {
       const settings = {
         id: CEATextTrack.id,
@@ -747,7 +751,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
   public selectVideoTrack(videoTrack: VideoTrack): void {
     if (videoTrack instanceof VideoTrack && (!videoTrack.active || this.isAdaptiveBitrateEnabled()) && this._hls.levels) {
       if (this.isAdaptiveBitrateEnabled()) {
-        this._trigger(EventType.ABR_MODE_CHANGED, {mode: 'manual'});
+        this._trigger(EventType.ABR_MODE_CHANGED, { mode: 'manual' });
       }
       this._hls.currentLevel = videoTrack.index;
     }
@@ -814,7 +818,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    */
   public enableAdaptiveBitrate(): void {
     if (!this.isAdaptiveBitrateEnabled()) {
-      this._trigger(EventType.ABR_MODE_CHANGED, {mode: 'auto'});
+      this._trigger(EventType.ABR_MODE_CHANGED, { mode: 'auto' });
       this._hls.nextLevel = -1;
     }
   }
@@ -947,12 +951,12 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
       this._hls.currentLevel = 0;
     }
     this._mediaAttachedPromise.then(() => {
-      this._loadPromiseHandlers?.resolve({tracks: this._playerTracks});
+      this._loadPromiseHandlers?.resolve({ tracks: this._playerTracks });
       this._loadPromiseHandlers = null;
     });
-    const {loading} = data.stats;
+    const { loading } = data.stats;
     const manifestDownloadTime = loading.end - loading.start;
-    this._trigger(EventType.MANIFEST_LOADED, {miliSeconds: manifestDownloadTime});
+    this._trigger(EventType.MANIFEST_LOADED, { miliSeconds: manifestDownloadTime });
   }
 
   /**
@@ -962,7 +966,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    * @returns {void}
    */
   private _maybeApplyAbrRestrictions(restrictions: PKABRRestrictionObject): void {
-    const videoTracks = this._playerTracks.filter(track => track instanceof VideoTrack) as VideoTrack[];
+    const videoTracks = this._playerTracks.filter((track) => track instanceof VideoTrack) as VideoTrack[];
     const availableTracks = filterTracksByRestriction(videoTracks, restrictions);
     if (availableTracks.length) {
       const minLevel = availableTracks[0];
@@ -970,7 +974,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
       this._hls.config.minAutoBitrate = minLevel.bandwidth;
       this._hls.autoLevelCapping = maxLevel!.index;
 
-      const activeTrackInRange = availableTracks.some(track => track.active);
+      const activeTrackInRange = availableTracks.some((track) => track.active);
       if (!this.isAdaptiveBitrateEnabled() && !activeTrackInRange) {
         this.selectVideoTrack(minLevel);
       }
@@ -988,7 +992,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    * @returns {void}
    */
   private _onLevelSwitched(event: string, data: any): void {
-    const videoTrack = this._playerTracks.find(track => {
+    const videoTrack = this._playerTracks.find((track) => {
       return track instanceof VideoTrack && track.index === data.level;
     })!;
     this._onTrackChanged(videoTrack);
@@ -1003,7 +1007,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    * @returns {void}
    */
   private _onAudioTrackSwitched(event: string, data: any): void {
-    const audioTrack = this._playerTracks.find(track => {
+    const audioTrack = this._playerTracks.find((track) => {
       return track instanceof AudioTrack && track.id === data.id;
     })!;
     this._onTrackChanged(audioTrack);
@@ -1037,50 +1041,50 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     const errorDataObject: any = {};
     errorDataObject.name = data.details;
     switch (errorDataObject.name) {
-    case Hlsjs.ErrorDetails.MANIFEST_LOAD_ERROR:
-    case Hlsjs.ErrorDetails.LEVEL_LOAD_ERROR:
-    case Hlsjs.ErrorDetails.AUDIO_TRACK_LOAD_ERROR:
-      errorDataObject.url = data.url;
-      errorDataObject.responseCode = data.response ? data.response.code : null;
-      break;
-    case Hlsjs.ErrorDetails.MANIFEST_LOAD_TIMEOUT:
-    case Hlsjs.ErrorDetails.LEVEL_LOAD_TIMEOUT:
-    case Hlsjs.ErrorDetails.AUDIO_TRACK_LOAD_TIMEOUT:
-      errorDataObject.url = data.url;
-      break;
-    case Hlsjs.ErrorDetails.MANIFEST_PARSING_ERROR:
-      errorDataObject.url = data.url;
-      errorDataObject.reason = data.reason;
-      break;
-    case Hlsjs.ErrorDetails.LEVEL_SWITCH_ERROR:
-      errorDataObject.level = data.level;
-      errorDataObject.reason = data.reason;
-      break;
-    case Hlsjs.ErrorDetails.FRAG_LOAD_ERROR:
-      errorDataObject.fragUrl = data.frag ? data.frag.url : null;
-      errorDataObject.responseCode = data.response ? data.response.code : null;
-      break;
-    case Hlsjs.ErrorDetails.FRAG_LOAD_TIMEOUT:
-      errorDataObject.fragUrl = data.frag ? data.frag.url : null;
-      break;
-    case Hlsjs.ErrorDetails.FRAG_DECRYPT_ERROR:
-    case Hlsjs.ErrorDetails.FRAG_PARSING_ERROR:
-      errorDataObject.reason = data.reason;
-      break;
-    case Hlsjs.ErrorDetails.KEY_LOAD_ERROR:
-      errorDataObject.fragDecryptedDataUri = data.frag && data.frag.decryptdata ? data.frag.decryptdata.uri : null;
-      errorDataObject.responseCode = data.response ? data.response.code : null;
-      break;
-    case Hlsjs.ErrorDetails.KEY_LOAD_TIMEOUT:
-      errorDataObject.fragDecryptedDataUri = data.frag && data.frag.decryptdata ? data.frag.decryptdata.uri : null;
-      break;
-    case Hlsjs.ErrorDetails.BUFFER_ADD_CODEC_ERROR:
-      errorDataObject.mimeType = data.mimeType;
-      errorDataObject.errorMsg = data.err ? data.err.message : null;
-      break;
-    case Hlsjs.ErrorDetails.BUFFER_STALLED_ERROR:
-      errorDataObject.buffer = data.buffer;
-      break;
+      case Hlsjs.ErrorDetails.MANIFEST_LOAD_ERROR:
+      case Hlsjs.ErrorDetails.LEVEL_LOAD_ERROR:
+      case Hlsjs.ErrorDetails.AUDIO_TRACK_LOAD_ERROR:
+        errorDataObject.url = data.url;
+        errorDataObject.responseCode = data.response ? data.response.code : null;
+        break;
+      case Hlsjs.ErrorDetails.MANIFEST_LOAD_TIMEOUT:
+      case Hlsjs.ErrorDetails.LEVEL_LOAD_TIMEOUT:
+      case Hlsjs.ErrorDetails.AUDIO_TRACK_LOAD_TIMEOUT:
+        errorDataObject.url = data.url;
+        break;
+      case Hlsjs.ErrorDetails.MANIFEST_PARSING_ERROR:
+        errorDataObject.url = data.url;
+        errorDataObject.reason = data.reason;
+        break;
+      case Hlsjs.ErrorDetails.LEVEL_SWITCH_ERROR:
+        errorDataObject.level = data.level;
+        errorDataObject.reason = data.reason;
+        break;
+      case Hlsjs.ErrorDetails.FRAG_LOAD_ERROR:
+        errorDataObject.fragUrl = data.frag ? data.frag.url : null;
+        errorDataObject.responseCode = data.response ? data.response.code : null;
+        break;
+      case Hlsjs.ErrorDetails.FRAG_LOAD_TIMEOUT:
+        errorDataObject.fragUrl = data.frag ? data.frag.url : null;
+        break;
+      case Hlsjs.ErrorDetails.FRAG_DECRYPT_ERROR:
+      case Hlsjs.ErrorDetails.FRAG_PARSING_ERROR:
+        errorDataObject.reason = data.reason;
+        break;
+      case Hlsjs.ErrorDetails.KEY_LOAD_ERROR:
+        errorDataObject.fragDecryptedDataUri = data.frag && data.frag.decryptdata ? data.frag.decryptdata.uri : null;
+        errorDataObject.responseCode = data.response ? data.response.code : null;
+        break;
+      case Hlsjs.ErrorDetails.KEY_LOAD_TIMEOUT:
+        errorDataObject.fragDecryptedDataUri = data.frag && data.frag.decryptdata ? data.frag.decryptdata.uri : null;
+        break;
+      case Hlsjs.ErrorDetails.BUFFER_ADD_CODEC_ERROR:
+        errorDataObject.mimeType = data.mimeType;
+        errorDataObject.errorMsg = data.err ? data.err.message : null;
+        break;
+      case Hlsjs.ErrorDetails.BUFFER_STALLED_ERROR:
+        errorDataObject.buffer = data.buffer;
+        break;
     }
     if (this._requestFilterError || this._responseFilterError) {
       errorDataObject.reason = data.response.text;
@@ -1102,40 +1106,40 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     if (errorFatal) {
       let error: PKError;
       switch (errorType) {
-      case Hlsjs.ErrorTypes.NETWORK_ERROR:
-        {
-          let code;
-          if (this._requestFilterError) {
-            code = PKError.Code.REQUEST_FILTER_ERROR;
-          } else if (this._responseFilterError) {
-            code = PKError.Code.RESPONSE_FILTER_ERROR;
-          } else {
-            code = PKError.Code.HTTP_ERROR;
-          }
-          if (
-            [Hlsjs.ErrorDetails.MANIFEST_LOAD_ERROR, Hlsjs.ErrorDetails.MANIFEST_LOAD_TIMEOUT].includes(errorName) &&
+        case Hlsjs.ErrorTypes.NETWORK_ERROR:
+          {
+            let code;
+            if (this._requestFilterError) {
+              code = PKError.Code.REQUEST_FILTER_ERROR;
+            } else if (this._responseFilterError) {
+              code = PKError.Code.RESPONSE_FILTER_ERROR;
+            } else {
+              code = PKError.Code.HTTP_ERROR;
+            }
+            if (
+              [Hlsjs.ErrorDetails.MANIFEST_LOAD_ERROR, Hlsjs.ErrorDetails.MANIFEST_LOAD_TIMEOUT].includes(errorName) &&
               !this._triedReloadWithRedirect &&
               !this._config.forceRedirectExternalStreams &&
               !this._requestFilterError &&
               !this._responseFilterError
-          ) {
-            error = new PKError(PKError.Severity.RECOVERABLE, PKError.Category.NETWORK, code, errorDataObject);
-            this._reloadWithDirectManifest();
-          } else {
-            error = new PKError(PKError.Severity.CRITICAL, PKError.Category.NETWORK, code, errorDataObject);
+            ) {
+              error = new PKError(PKError.Severity.RECOVERABLE, PKError.Category.NETWORK, code, errorDataObject);
+              this._reloadWithDirectManifest();
+            } else {
+              error = new PKError(PKError.Severity.CRITICAL, PKError.Category.NETWORK, code, errorDataObject);
+            }
           }
-        }
-        break;
-      case Hlsjs.ErrorTypes.MEDIA_ERROR:
-        if (this._handleMediaError(errorName)) {
-          error = new PKError(PKError.Severity.RECOVERABLE, PKError.Category.MEDIA, PKError.Code.HLS_FATAL_MEDIA_ERROR, errorDataObject);
-        } else {
-          error = new PKError(PKError.Severity.CRITICAL, PKError.Category.MEDIA, PKError.Code.HLS_FATAL_MEDIA_ERROR, errorDataObject);
-        }
-        break;
-      default:
-        error = new PKError(PKError.Severity.CRITICAL, PKError.Category.PLAYER, PKError.Code.HLS_FATAL_MEDIA_ERROR, errorDataObject);
-        break;
+          break;
+        case Hlsjs.ErrorTypes.MEDIA_ERROR:
+          if (this._handleMediaError(errorName)) {
+            error = new PKError(PKError.Severity.RECOVERABLE, PKError.Category.MEDIA, PKError.Code.HLS_FATAL_MEDIA_ERROR, errorDataObject);
+          } else {
+            error = new PKError(PKError.Severity.CRITICAL, PKError.Category.MEDIA, PKError.Code.HLS_FATAL_MEDIA_ERROR, errorDataObject);
+          }
+          break;
+        default:
+          error = new PKError(PKError.Severity.CRITICAL, PKError.Category.PLAYER, PKError.Code.HLS_FATAL_MEDIA_ERROR, errorDataObject);
+          break;
       }
       this._trigger(EventType.ERROR, error);
       if (error && error.severity === PKError.Severity.CRITICAL) {
@@ -1147,13 +1151,13 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
         this.destroy();
       }
     } else {
-      const {category, code}: ErrorDetailsType =
+      const { category, code }: ErrorDetailsType =
         this._requestFilterError || this._responseFilterError
           ? {
-            category: PKError.Category.NETWORK,
-            code: this._requestFilterError ? PKError.Code.REQUEST_FILTER_ERROR : PKError.Code.RESPONSE_FILTER_ERROR
-          }
-          : HlsJsErrorMap[errorName] || {category: 0, code: 0};
+              category: PKError.Category.NETWORK,
+              code: this._requestFilterError ? PKError.Code.REQUEST_FILTER_ERROR : PKError.Code.RESPONSE_FILTER_ERROR
+            }
+          : HlsJsErrorMap[errorName] || { category: 0, code: 0 };
       HlsAdapter._logger.warn(new PKError(PKError.Severity.RECOVERABLE, category, code, errorDataObject));
     }
     this._requestFilterError = false;
@@ -1290,7 +1294,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
   private _onLevelLoaded = (e: any, data: any): Promise<void> | undefined => {
     if (this.isLive()) {
       const {
-        details: {endSN}
+        details: { endSN }
       } = data;
       if (this._lastLoadedFragSN === endSN) {
         this._sameFragSNLoadedCount++;
@@ -1319,7 +1323,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    */
   private _onFragLoaded(data: any): void {
     if (Utils.Object.hasPropertyPath(data, 'frag.stats.loading')) {
-      const {stats} = data.frag;
+      const { stats } = data.frag;
       const fragmentDownloadTime = stats.loading.end - stats.loading.start;
       this._trigger(EventType.FRAG_LOADED, {
         miliSeconds: fragmentDownloadTime,
