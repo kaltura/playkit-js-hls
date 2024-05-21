@@ -8,7 +8,7 @@
   "hlsConfig": {
     "fragLoadingMaxRetry": 4,
     "maxMaxBufferLength": 60,
-    "enableWorker": false
+    "workerPath": "/hls.worker.js"
   },
   "network": {}
 }
