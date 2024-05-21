@@ -7,8 +7,7 @@
   },
   "hlsConfig": {
     "fragLoadingMaxRetry": 4,
-    "maxMaxBufferLength": 60,
-    "enableWorker": false
+    "maxMaxBufferLength": 60
   },
   "network": {}
 }
