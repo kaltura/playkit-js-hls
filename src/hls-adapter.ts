@@ -126,6 +126,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
   private _nativeTextTracksMap: any = {};
   private _lastLoadedFragSN: number = -1;
   private _sameFragSNLoadedCount: number = 0;
+  private _firstHideTextTrack: boolean = true;
   /**
    * an object containing all the events we bind and unbind to.
    * @member {Object} - _adapterEventsBindings
@@ -791,6 +792,12 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     this._onTrackChanged(textTrack);
   }
 
+  private _onSubtitleFragProcessed(): void {
+    this._hls.subtitleTrack = -1;
+    this._firstHideTextTrack = false;
+    this._hls.off(Hlsjs.Events.SUBTITLE_FRAG_PROCESSED, this._onSubtitleFragProcessed, this._hls);
+  }
+
   /** Hide the text track
    * @function hideTextTrack
    * @returns {void}
@@ -799,7 +806,11 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
   public hideTextTrack(): void {
     if (this._hls) {
       if (this._hls.subtitleTracks.length) {
-        this._hls.subtitleTrack = -1;
+        if (this._firstHideTextTrack){
+          this._hls.on(Hlsjs.Events.SUBTITLE_FRAG_PROCESSED, this. _onSubtitleFragProcessed, this._hls)
+        } else {
+          this._hls.subtitleTrack = -1;
+        }
       } else {
         this.disableNativeTextTracks();
       }
