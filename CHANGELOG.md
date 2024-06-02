@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### 1.32.12 (2024-06-02)
+
+
+### Bug Fixes
+
+* **FEC-13878:** enable hls worker ([#218](https://github.com/kaltura/playkit-js-hls/issues/218)) ([601c667](https://github.com/kaltura/playkit-js-hls/commit/601c667))
+
+
+
 ### 1.32.11 (2024-02-04)
 
 
