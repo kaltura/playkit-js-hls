@@ -126,7 +126,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
   private _nativeTextTracksMap: any = {};
   private _lastLoadedFragSN: number = -1;
   private _sameFragSNLoadedCount: number = 0;
-  private _isFirstSubtitleHide: boolean = true;
+  private _waitForSubtitleLoad: boolean = true;
   /**
    * an object containing all the events we bind and unbind to.
    * @member {Object} - _adapterEventsBindings
@@ -794,7 +794,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
 
   private _onSubtitleFragProcessed(): void {
     this._hls.subtitleTrack = -1;
-    this._isFirstSubtitleHide = false;
+    this._waitForSubtitleLoad = false;
     this._hls.off(Hlsjs.Events.SUBTITLE_FRAG_PROCESSED, this._onSubtitleFragProcessed, this._hls);
   }
 
@@ -809,7 +809,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     }
     if (!this._hls.subtitleTracks.length) {
       this.disableNativeTextTracks();
-    } else if (this._isFirstSubtitleHide){
+    } else if (this._waitForSubtitleLoad){
       this._hls.on(Hlsjs.Events.SUBTITLE_FRAG_PROCESSED, this. _onSubtitleFragProcessed, this._hls)
     } else {
       this._hls.subtitleTrack = -1;
