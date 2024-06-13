@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### 1.32.13 (2024-06-13)
+
+
+### Bug Fixes
+
+* **SUP-42730:** Captions not showing after enabling ([#219](https://github.com/kaltura/playkit-js-hls/issues/219)) ([d080c4f](https://github.com/kaltura/playkit-js-hls/commit/d080c4f))
+
+
+
 ### 1.32.12 (2024-06-02)
 
 
