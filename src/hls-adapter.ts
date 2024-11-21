@@ -126,6 +126,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
   private _nativeTextTracksMap: any = {};
   private _lastLoadedFragSN: number = -1;
   private _sameFragSNLoadedCount: number = 0;
+  private _waitForSubtitleLoad: boolean = true;
   /**
    * an object containing all the events we bind and unbind to.
    * @member {Object} - _adapterEventsBindings
@@ -791,6 +792,12 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     this._onTrackChanged(textTrack);
   }
 
+  private _onSubtitleFragProcessed(): void {
+    this._hls.subtitleTrack = -1;
+    this._waitForSubtitleLoad = false;
+    this._hls.off(Hlsjs.Events.SUBTITLE_FRAG_PROCESSED, this._onSubtitleFragProcessed, this);
+  }
+
   /** Hide the text track
    * @function hideTextTrack
    * @returns {void}
@@ -802,6 +809,8 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     }
     if (!this._hls.subtitleTracks.length) {
       this.disableNativeTextTracks();
+    } else if (this._waitForSubtitleLoad && this._hls.subtitleTracks.length > 1){
+      this._hls.on(Hlsjs.Events.SUBTITLE_FRAG_PROCESSED, this. _onSubtitleFragProcessed, this)
     } else {
       this._hls.subtitleTrack = -1;
     }
@@ -1038,50 +1047,50 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     const errorDataObject: any = {};
     errorDataObject.name = data.details;
     switch (errorDataObject.name) {
-    case Hlsjs.ErrorDetails.MANIFEST_LOAD_ERROR:
-    case Hlsjs.ErrorDetails.LEVEL_LOAD_ERROR:
-    case Hlsjs.ErrorDetails.AUDIO_TRACK_LOAD_ERROR:
-      errorDataObject.url = data.url;
-      errorDataObject.responseCode = data.response ? data.response.code : null;
-      break;
-    case Hlsjs.ErrorDetails.MANIFEST_LOAD_TIMEOUT:
-    case Hlsjs.ErrorDetails.LEVEL_LOAD_TIMEOUT:
-    case Hlsjs.ErrorDetails.AUDIO_TRACK_LOAD_TIMEOUT:
-      errorDataObject.url = data.url;
-      break;
-    case Hlsjs.ErrorDetails.MANIFEST_PARSING_ERROR:
-      errorDataObject.url = data.url;
-      errorDataObject.reason = data.reason;
-      break;
-    case Hlsjs.ErrorDetails.LEVEL_SWITCH_ERROR:
-      errorDataObject.level = data.level;
-      errorDataObject.reason = data.reason;
-      break;
-    case Hlsjs.ErrorDetails.FRAG_LOAD_ERROR:
-      errorDataObject.fragUrl = data.frag ? data.frag.url : null;
-      errorDataObject.responseCode = data.response ? data.response.code : null;
-      break;
-    case Hlsjs.ErrorDetails.FRAG_LOAD_TIMEOUT:
-      errorDataObject.fragUrl = data.frag ? data.frag.url : null;
-      break;
-    case Hlsjs.ErrorDetails.FRAG_DECRYPT_ERROR:
-    case Hlsjs.ErrorDetails.FRAG_PARSING_ERROR:
-      errorDataObject.reason = data.reason;
-      break;
-    case Hlsjs.ErrorDetails.KEY_LOAD_ERROR:
-      errorDataObject.fragDecryptedDataUri = data.frag && data.frag.decryptdata ? data.frag.decryptdata.uri : null;
-      errorDataObject.responseCode = data.response ? data.response.code : null;
-      break;
-    case Hlsjs.ErrorDetails.KEY_LOAD_TIMEOUT:
-      errorDataObject.fragDecryptedDataUri = data.frag && data.frag.decryptdata ? data.frag.decryptdata.uri : null;
-      break;
-    case Hlsjs.ErrorDetails.BUFFER_ADD_CODEC_ERROR:
-      errorDataObject.mimeType = data.mimeType;
-      errorDataObject.errorMsg = data.err ? data.err.message : null;
-      break;
-    case Hlsjs.ErrorDetails.BUFFER_STALLED_ERROR:
-      errorDataObject.buffer = data.buffer;
-      break;
+      case Hlsjs.ErrorDetails.MANIFEST_LOAD_ERROR:
+      case Hlsjs.ErrorDetails.LEVEL_LOAD_ERROR:
+      case Hlsjs.ErrorDetails.AUDIO_TRACK_LOAD_ERROR:
+        errorDataObject.url = data.url;
+        errorDataObject.responseCode = data.response ? data.response.code : null;
+        break;
+      case Hlsjs.ErrorDetails.MANIFEST_LOAD_TIMEOUT:
+      case Hlsjs.ErrorDetails.LEVEL_LOAD_TIMEOUT:
+      case Hlsjs.ErrorDetails.AUDIO_TRACK_LOAD_TIMEOUT:
+        errorDataObject.url = data.url;
+        break;
+      case Hlsjs.ErrorDetails.MANIFEST_PARSING_ERROR:
+        errorDataObject.url = data.url;
+        errorDataObject.reason = data.reason;
+        break;
+      case Hlsjs.ErrorDetails.LEVEL_SWITCH_ERROR:
+        errorDataObject.level = data.level;
+        errorDataObject.reason = data.reason;
+        break;
+      case Hlsjs.ErrorDetails.FRAG_LOAD_ERROR:
+        errorDataObject.fragUrl = data.frag ? data.frag.url : null;
+        errorDataObject.responseCode = data.response ? data.response.code : null;
+        break;
+      case Hlsjs.ErrorDetails.FRAG_LOAD_TIMEOUT:
+        errorDataObject.fragUrl = data.frag ? data.frag.url : null;
+        break;
+      case Hlsjs.ErrorDetails.FRAG_DECRYPT_ERROR:
+      case Hlsjs.ErrorDetails.FRAG_PARSING_ERROR:
+        errorDataObject.reason = data.reason;
+        break;
+      case Hlsjs.ErrorDetails.KEY_LOAD_ERROR:
+        errorDataObject.fragDecryptedDataUri = data.frag && data.frag.decryptdata ? data.frag.decryptdata.uri : null;
+        errorDataObject.responseCode = data.response ? data.response.code : null;
+        break;
+      case Hlsjs.ErrorDetails.KEY_LOAD_TIMEOUT:
+        errorDataObject.fragDecryptedDataUri = data.frag && data.frag.decryptdata ? data.frag.decryptdata.uri : null;
+        break;
+      case Hlsjs.ErrorDetails.BUFFER_ADD_CODEC_ERROR:
+        errorDataObject.mimeType = data.mimeType;
+        errorDataObject.errorMsg = data.err ? data.err.message : null;
+        break;
+      case Hlsjs.ErrorDetails.BUFFER_STALLED_ERROR:
+        errorDataObject.buffer = data.buffer;
+        break;
     }
     if (this._requestFilterError || this._responseFilterError) {
       errorDataObject.reason = data.response.text;
@@ -1103,7 +1112,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     if (errorFatal) {
       let error: PKError;
       switch (errorType) {
-      case Hlsjs.ErrorTypes.NETWORK_ERROR:
+        case Hlsjs.ErrorTypes.NETWORK_ERROR:
         {
           let code;
           if (this._requestFilterError) {
@@ -1115,10 +1124,10 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
           }
           if (
             [Hlsjs.ErrorDetails.MANIFEST_LOAD_ERROR, Hlsjs.ErrorDetails.MANIFEST_LOAD_TIMEOUT].includes(errorName) &&
-              !this._triedReloadWithRedirect &&
-              !this._config.forceRedirectExternalStreams &&
-              !this._requestFilterError &&
-              !this._responseFilterError
+            !this._triedReloadWithRedirect &&
+            !this._config.forceRedirectExternalStreams &&
+            !this._requestFilterError &&
+            !this._responseFilterError
           ) {
             error = new PKError(PKError.Severity.RECOVERABLE, PKError.Category.NETWORK, code, errorDataObject);
             this._reloadWithDirectManifest();
@@ -1126,17 +1135,17 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
             error = new PKError(PKError.Severity.CRITICAL, PKError.Category.NETWORK, code, errorDataObject);
           }
         }
-        break;
-      case Hlsjs.ErrorTypes.MEDIA_ERROR:
-        if (this._handleMediaError(errorName)) {
-          error = new PKError(PKError.Severity.RECOVERABLE, PKError.Category.MEDIA, PKError.Code.HLS_FATAL_MEDIA_ERROR, errorDataObject);
-        } else {
-          error = new PKError(PKError.Severity.CRITICAL, PKError.Category.MEDIA, PKError.Code.HLS_FATAL_MEDIA_ERROR, errorDataObject);
-        }
-        break;
-      default:
-        error = new PKError(PKError.Severity.CRITICAL, PKError.Category.PLAYER, PKError.Code.HLS_FATAL_MEDIA_ERROR, errorDataObject);
-        break;
+          break;
+        case Hlsjs.ErrorTypes.MEDIA_ERROR:
+          if (this._handleMediaError(errorName)) {
+            error = new PKError(PKError.Severity.RECOVERABLE, PKError.Category.MEDIA, PKError.Code.HLS_FATAL_MEDIA_ERROR, errorDataObject);
+          } else {
+            error = new PKError(PKError.Severity.CRITICAL, PKError.Category.MEDIA, PKError.Code.HLS_FATAL_MEDIA_ERROR, errorDataObject);
+          }
+          break;
+        default:
+          error = new PKError(PKError.Severity.CRITICAL, PKError.Category.PLAYER, PKError.Code.HLS_FATAL_MEDIA_ERROR, errorDataObject);
+          break;
       }
       this._trigger(EventType.ERROR, error);
       if (error && error.severity === PKError.Severity.CRITICAL) {
@@ -1245,6 +1254,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     for (const [event, callback] of Object.entries<(...parms: any) => any>(this._adapterEventsBindings)) {
       this._hls.off(event as keyof HlsListeners, callback);
     }
+    this._hls.off(Hlsjs.Events.SUBTITLE_FRAG_PROCESSED, this._onSubtitleFragProcessed, this);
     this._videoElement.textTracks.onaddtrack = null;
     this._onRecoveredCallback = null;
     if (this._eventManager) {
