@@ -126,7 +126,6 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
   private _nativeTextTracksMap: any = {};
   private _lastLoadedFragSN: number = -1;
   private _sameFragSNLoadedCount: number = 0;
-  private _waitForSubtitleLoad: boolean = true;
   /**
    * an object containing all the events we bind and unbind to.
    * @member {Object} - _adapterEventsBindings
@@ -792,12 +791,6 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     this._onTrackChanged(textTrack);
   }
 
-  private _onSubtitleFragProcessed(): void {
-    this._hls.subtitleTrack = -1;
-    this._waitForSubtitleLoad = false;
-    this._hls.off(Hlsjs.Events.SUBTITLE_FRAG_PROCESSED, this._onSubtitleFragProcessed, this._hls);
-  }
-
   /** Hide the text track
    * @function hideTextTrack
    * @returns {void}
@@ -809,8 +802,6 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     }
     if (!this._hls.subtitleTracks.length) {
       this.disableNativeTextTracks();
-    } else if (this._waitForSubtitleLoad){
-      this._hls.on(Hlsjs.Events.SUBTITLE_FRAG_PROCESSED, this. _onSubtitleFragProcessed, this._hls)
     } else {
       this._hls.subtitleTrack = -1;
     }
@@ -1254,7 +1245,6 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     for (const [event, callback] of Object.entries<(...parms: any) => any>(this._adapterEventsBindings)) {
       this._hls.off(event as keyof HlsListeners, callback);
     }
-    this._hls.off(Hlsjs.Events.SUBTITLE_FRAG_PROCESSED, this._onSubtitleFragProcessed, this._hls);
     this._videoElement.textTracks.onaddtrack = null;
     this._onRecoveredCallback = null;
     if (this._eventManager) {
