@@ -795,7 +795,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
   private _onSubtitleFragProcessed(): void {
     this._hls.subtitleTrack = -1;
     this._waitForSubtitleLoad = false;
-    this._hls.off(Hlsjs.Events.SUBTITLE_FRAG_PROCESSED, this._onSubtitleFragProcessed, this._hls);
+    this._hls.off(Hlsjs.Events.SUBTITLE_FRAG_PROCESSED, this._onSubtitleFragProcessed, this);
   }
 
   /** Hide the text track
@@ -809,8 +809,8 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     }
     if (!this._hls.subtitleTracks.length) {
       this.disableNativeTextTracks();
-    } else if (this._waitForSubtitleLoad){
-      this._hls.on(Hlsjs.Events.SUBTITLE_FRAG_PROCESSED, this. _onSubtitleFragProcessed, this._hls)
+    } else if (this._waitForSubtitleLoad && this._hls.subtitleTracks.length > 1){
+      this._hls.on(Hlsjs.Events.SUBTITLE_FRAG_PROCESSED, this. _onSubtitleFragProcessed, this)
     } else {
       this._hls.subtitleTrack = -1;
     }
@@ -1124,10 +1124,10 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
           }
           if (
             [Hlsjs.ErrorDetails.MANIFEST_LOAD_ERROR, Hlsjs.ErrorDetails.MANIFEST_LOAD_TIMEOUT].includes(errorName) &&
-              !this._triedReloadWithRedirect &&
-              !this._config.forceRedirectExternalStreams &&
-              !this._requestFilterError &&
-              !this._responseFilterError
+            !this._triedReloadWithRedirect &&
+            !this._config.forceRedirectExternalStreams &&
+            !this._requestFilterError &&
+            !this._responseFilterError
           ) {
             error = new PKError(PKError.Severity.RECOVERABLE, PKError.Category.NETWORK, code, errorDataObject);
             this._reloadWithDirectManifest();
@@ -1254,7 +1254,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     for (const [event, callback] of Object.entries<(...parms: any) => any>(this._adapterEventsBindings)) {
       this._hls.off(event as keyof HlsListeners, callback);
     }
-    this._hls.off(Hlsjs.Events.SUBTITLE_FRAG_PROCESSED, this._onSubtitleFragProcessed, this._hls);
+    this._hls.off(Hlsjs.Events.SUBTITLE_FRAG_PROCESSED, this._onSubtitleFragProcessed, this);
     this._videoElement.textTracks.onaddtrack = null;
     this._onRecoveredCallback = null;
     if (this._eventManager) {
