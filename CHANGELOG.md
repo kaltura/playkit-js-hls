@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### 1.32.14 (2024-12-19)
+
+
+### Bug Fixes
+
+* **SUP-44638:** [Vanguard] Media Stream Error in EP ([#221](https://github.com/kaltura/playkit-js-hls/issues/221)) ([976a05f](https://github.com/kaltura/playkit-js-hls/commit/976a05f))
+
+
+
 ### 1.32.13 (2024-06-13)
 
 
