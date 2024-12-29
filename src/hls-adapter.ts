@@ -809,7 +809,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     }
     if (!this._hls.subtitleTracks.length) {
       this.disableNativeTextTracks();
-    } else if (this._waitForSubtitleLoad && this._hls.subtitleTracks.length > 1){
+    } else if (this._waitForSubtitleLoad && this._hls.subtitleTracks.some(track => track.default === true)){
       this._hls.on(Hlsjs.Events.SUBTITLE_FRAG_PROCESSED, this. _onSubtitleFragProcessed, this)
     } else {
       this._hls.subtitleTrack = -1;
