@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### 1.32.16 (2025-01-09)
+
+
+### Bug Fixes
+
+* **SUP-46270:** [MultiCustomer] Captions Not Showing After Enabling Them ([#222](https://github.com/kaltura/playkit-js-hls/issues/222)) ([2ad3ff0](https://github.com/kaltura/playkit-js-hls/commit/2ad3ff0)), closes [#219](https://github.com/kaltura/playkit-js-hls/issues/219) [#221](https://github.com/kaltura/playkit-js-hls/issues/221)
+
+
+
 ### 1.32.15 (2024-12-19)
 
 
