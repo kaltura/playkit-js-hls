@@ -1137,7 +1137,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
         }
         break;
       case Hlsjs.ErrorTypes.MEDIA_ERROR:
-        if (this._handleMediaError(errorName)) {
+        if (this._handleMediaError(errorName, errorDataObject.reason)) {
           error = new PKError(PKError.Severity.RECOVERABLE, PKError.Category.MEDIA, PKError.Code.HLS_FATAL_MEDIA_ERROR, errorDataObject);
         } else {
           error = new PKError(PKError.Severity.CRITICAL, PKError.Category.MEDIA, PKError.Code.HLS_FATAL_MEDIA_ERROR, errorDataObject);
@@ -1154,7 +1154,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
           this._loadPromiseHandlers = null;
           this._loadPromise = undefined;
         }
-        this.destroy();
+       this.destroy();
       }
     } else {
       const {category, code}: ErrorDetailsType =
@@ -1176,7 +1176,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    * @returns {boolean} - if media error is handled or not
    * @private
    */
-  private _handleMediaError(mediaErrorName: string): boolean {
+  private _handleMediaError(mediaErrorName: string, reasonError?: string): boolean {
     HlsAdapter._logger.error('_handleMediaError mediaErrorName:', mediaErrorName);
     const now: number = performance.now();
     let recover = true;
@@ -1184,6 +1184,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
       HlsAdapter._logger.error('recover aborted due to: MANIFEST_INCOMPATIBLE_CODECS_ERROR');
       recover = false;
     } else if (this._checkTimeDeltaHasPassed(now, this._recoverDecodingErrorDate, this._config.recoverDecodingErrorDelay)) {
+      if(reasonError && reasonError.includes('Found no media')) return recover;
       this._eventManager.listen(this._videoElement, EventType.LOADED_METADATA, this._onRecoveredCallback!);
       HlsAdapter._logger.debug('try to recover using: _recoverDecodingError()');
       this._recoverDecodingError();
