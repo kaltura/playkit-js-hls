@@ -1154,7 +1154,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
           this._loadPromiseHandlers = null;
           this._loadPromise = undefined;
         }
-       this.destroy();
+      this.destroy();
       }
     } else {
       const {category, code}: ErrorDetailsType =
