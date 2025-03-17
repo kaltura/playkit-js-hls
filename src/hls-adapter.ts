@@ -1137,7 +1137,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
         }
         break;
       case Hlsjs.ErrorTypes.MEDIA_ERROR:
-        if (this._handleMediaError(errorName, errorDataObject.reason)) {
+        if (this._handleMediaError(errorName)) {
           error = new PKError(PKError.Severity.RECOVERABLE, PKError.Category.MEDIA, PKError.Code.HLS_FATAL_MEDIA_ERROR, errorDataObject);
         } else {
           error = new PKError(PKError.Severity.CRITICAL, PKError.Category.MEDIA, PKError.Code.HLS_FATAL_MEDIA_ERROR, errorDataObject);
@@ -1176,7 +1176,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    * @returns {boolean} - if media error is handled or not
    * @private
    */
-  private _handleMediaError(mediaErrorName: string, reasonError?: string): boolean {
+  private _handleMediaError(mediaErrorName: string): boolean {
     HlsAdapter._logger.error('_handleMediaError mediaErrorName:', mediaErrorName);
     const now: number = performance.now();
     let recover = true;
