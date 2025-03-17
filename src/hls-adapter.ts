@@ -1184,6 +1184,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
       HlsAdapter._logger.error('recover aborted due to: MANIFEST_INCOMPATIBLE_CODECS_ERROR');
       recover = false;
     } else if (this._checkTimeDeltaHasPassed(now, this._recoverDecodingErrorDate, this._config.recoverDecodingErrorDelay)) {
+      if(mediaErrorName ===  Hlsjs.ErrorDetails.FRAG_PARSING_ERROR) return recover;
       this._eventManager.listen(this._videoElement, EventType.LOADED_METADATA, this._onRecoveredCallback!);
       HlsAdapter._logger.debug('try to recover using: _recoverDecodingError()');
       this._recoverDecodingError();
