@@ -793,7 +793,6 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
   }
 
   private _onSubtitleFragProcessed(): void {
-    this._hls.subtitleTrack = -1;
     this._waitForSubtitleLoad = false;
     this._hls.off(Hlsjs.Events.SUBTITLE_FRAG_PROCESSED, this._onSubtitleFragProcessed, this);
   }
