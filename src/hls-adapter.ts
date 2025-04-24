@@ -1,26 +1,31 @@
 import Hls from 'hls.js';
-import Hlsjs, { HlsListeners, Level, MediaPlaylist } from 'hls.js';
+import Hlsjs, {HlsListeners, Level, MediaPlaylist} from 'hls.js';
 import DefaultConfig from './default-config.json';
 import {ErrorDetailsType, HlsJsErrorMap} from './errors';
 import {
   AudioTrack,
   BaseMediaSourceAdapter,
+  createTimedMetadata,
   Env,
   Error as PKError,
   EventType,
+  filterTracksByRestriction,
+  IMediaSourceAdapter,
+  PKABRRestrictionObject,
+  PKMediaSourceObject,
+  PKRequestObject,
+  PKResponseObject,
+  RequestType,
   TextTrack,
+  TimedMetadata,
   Track,
   Utils,
   VideoTrack,
-  RequestType,
-  filterTracksByRestriction,
-  PKABRRestrictionObject,
-  TimedMetadata,
-  createTimedMetadata, PKMediaSourceObject, PKResponseObject, PKRequestObject, IMediaSourceAdapter
+  AudioTrackKind
 } from '@playkit-js/playkit-js';
 import pLoader from './jsonp-ploader';
 import loader from './loader';
-import {ILogger } from 'js-logger'
+import {ILogger} from 'js-logger';
 
 /**
  * Adapter of hls.js lib for hls content.
@@ -650,7 +655,9 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
         active: this._hls.audioTrack === hlsAudioTracks[i].id,
         label: hlsAudioTracks[i].name,
         language: hlsAudioTracks[i].lang,
-        index: i
+        index: i,
+        // @ts-expect-error - hlsjs types are not up to date
+        kind: hlsAudioTracks[i].characteristics ? AudioTrackKind.DESCRIPTION : AudioTrackKind.MAIN
       };
       audioTracks.push(new AudioTrack(settings));
     }
@@ -695,12 +702,29 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
         active: false,
         default: hlsTextTrack.default,
         label: hlsTextTrack.name,
-        kind: hlsTextTrack.type.toLowerCase(),
+        kind: this._captionsOrSubtitlesFromCharacteristics(hlsTextTrack),
         language: hlsTextTrack.lang
       };
       textTracks.push(new TextTrack(settings));
     }
     return textTracks;
+  }
+
+  private _captionsOrSubtitlesFromCharacteristics(
+    track: MediaPlaylist,
+  ): TextTrackKind {
+    // @ts-expect-error - hlsjs types are not up to date
+    const characteristics = track.characteristics;
+    if (characteristics) {
+      if (
+        /transcribes-spoken-dialog/gi.test(characteristics) &&
+        /describes-music-and-sound/gi.test(characteristics)
+      ) {
+        return 'captions';
+      }
+    }
+
+    return 'subtitles';
   }
 
   /**
