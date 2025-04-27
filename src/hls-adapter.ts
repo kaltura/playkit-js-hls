@@ -720,11 +720,11 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
         /transcribes-spoken-dialog/gi.test(characteristics) &&
         /describes-music-and-sound/gi.test(characteristics)
       ) {
-        return 'captions';
+        return TextTrack.KIND.CAPTIONS;
       }
     }
 
-    return 'subtitles';
+    return TextTrack.KIND.SUBTITLES;
   }
 
   /**
