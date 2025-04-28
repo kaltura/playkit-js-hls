@@ -634,7 +634,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    * @private
    */
   private _parseTracks(): Array<Track> {
-    const audioTracks = this._parseAudioTracks(this._hls.audioTracks || []);
+    const audioTracks: Track[] = this._parseAudioTracks(this._hls.audioTracks || []);
     const videoTracks = this._parseVideoTracks(this._hls.levels || []);
     const textTracks = this._parseTextTracks(this._hls.subtitleTracks || []);
     return audioTracks.concat(videoTracks).concat(textTracks);
@@ -1025,7 +1025,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     const videoTrack = this._playerTracks.find(track => {
       return track instanceof VideoTrack && track.index === data.level;
     })!;
-    this._onTrackChanged(videoTrack);
+    this._onTrackChanged(videoTrack as VideoTrack);
   }
 
   /**
@@ -1040,7 +1040,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     const audioTrack = this._playerTracks.find(track => {
       return track instanceof AudioTrack && track.id === data.id;
     })!;
-    this._onTrackChanged(audioTrack);
+    this._onTrackChanged(audioTrack as AudioTrack);
     this._handleWaitingUponAudioTrackSwitch();
   }
 
