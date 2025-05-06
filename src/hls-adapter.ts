@@ -816,27 +816,14 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     this._onTrackChanged(textTrack);
   }
 
-  private _onSubtitleFragProcessed(): void {
-    this._hls.subtitleTrack = -1;
-    this._waitForSubtitleLoad = false;
-    this._hls.off(Hlsjs.Events.SUBTITLE_FRAG_PROCESSED, this._onSubtitleFragProcessed, this);
-  }
-
   /** Hide the text track
    * @function hideTextTrack
    * @returns {void}
    * @public
    */
   public hideTextTrack(): void {
-    if (!this._hls){
-      return;
-    }
-    if (!this._hls.subtitleTracks.length) {
+    if (this._hls && !this._hls.subtitleTracks.length) {
       this.disableNativeTextTracks();
-    } else if (this._waitForSubtitleLoad && this._hls.subtitleTracks.some(track => track.default === true)){
-      this._hls.on(Hlsjs.Events.SUBTITLE_FRAG_PROCESSED, this. _onSubtitleFragProcessed, this)
-    } else {
-      this._hls.subtitleTrack = -1;
     }
   }
 
@@ -1282,7 +1269,6 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     for (const [event, callback] of Object.entries<(...parms: any) => any>(this._adapterEventsBindings)) {
       this._hls.off(event as keyof HlsListeners, callback);
     }
-    this._hls.off(Hlsjs.Events.SUBTITLE_FRAG_PROCESSED, this._onSubtitleFragProcessed, this);
     this._videoElement.textTracks.onaddtrack = null;
     this._onRecoveredCallback = null;
     if (this._eventManager) {
