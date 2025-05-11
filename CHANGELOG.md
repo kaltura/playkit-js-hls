@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### 1.32.17 (2025-05-11)
+
+
+### Bug Fixes
+
+* **FEC-14472:** part of the caption isn't shown on playback on VOD entry ([#227](https://github.com/kaltura/playkit-js-hls/issues/227)) ([43ccd88](https://github.com/kaltura/playkit-js-hls/commit/43ccd88))
+
+
+
 ### 1.32.16 (2025-01-09)
 
 
