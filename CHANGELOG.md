@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### 1.32.18 (2025-07-03)
+
+
+### Bug Fixes
+
+* **SUP-47527:** [Regents of Minnesota] Video Playback Issue in V7 Players ([#228](https://github.com/kaltura/playkit-js-hls/issues/228)) ([4cd21ea](https://github.com/kaltura/playkit-js-hls/commit/4cd21ea))
+
+
+
 ### 1.32.17 (2025-05-11)
 
 
