@@ -656,7 +656,6 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
         label: hlsAudioTracks[i].name,
         language: hlsAudioTracks[i].lang,
         index: i,
-        // @ts-expect-error - hlsjs types are not up to date
         kind: hlsAudioTracks[i].characteristics ? AudioTrackKind.DESCRIPTION : AudioTrackKind.MAIN
       };
       audioTracks.push(new AudioTrack(settings));
@@ -713,7 +712,6 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
   private _captionsOrSubtitlesFromCharacteristics(
     track: MediaPlaylist,
   ): TextTrackKind {
-    // @ts-expect-error - hlsjs types are not up to date
     const characteristics = track.characteristics;
     if (characteristics) {
       if (
