@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### 1.32.19 (2025-08-28)
+
+
+### Bug Fixes
+
+* **SUP-49180:** [Vanguard] VOD entries distorted ([#229](https://github.com/kaltura/playkit-js-hls/issues/229)) ([79b1fd0](https://github.com/kaltura/playkit-js-hls/commit/79b1fd0))
+
+
+
 ### 1.32.18 (2025-07-03)
 
 
