@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### 1.32.22 (2026-02-12)
+
+
+### Bug Fixes
+
+* **SUP-50171:** Video Playback Issue in V7 Players ([#235](https://github.com/kaltura/playkit-js-hls/issues/235)) ([58a2e09](https://github.com/kaltura/playkit-js-hls/commit/58a2e09))
+
+
+
 ### 1.32.21 (2025-11-27)
 
 
