@@ -641,6 +641,20 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
   }
 
   /**
+   * Extract flavorId from URL.
+   * @param {string} url - The URL to extract flavorId from.
+   * @returns {string} - The extracted flavorId or empty string if not found.
+   * @private
+   */
+  private _extractFlavorId(url?: string): string {
+    if (!url) {
+      return '';
+    }
+    const id = url.match(/flavorId\/([^/]+)/);
+    return id ? id[1] : '';
+  }
+
+  /**
    * Parse hls audio tracks into player audio tracks.
    * @param {Array<Object>} hlsAudioTracks - The hls audio tracks.
    * @returns {Array<AudioTrack>} - The parsed audio tracks.
@@ -656,7 +670,8 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
         label: hlsAudioTracks[i].name,
         language: hlsAudioTracks[i].lang,
         index: i,
-        kind: hlsAudioTracks[i].characteristics ? AudioTrackKind.DESCRIPTION : AudioTrackKind.MAIN
+        kind: hlsAudioTracks[i].characteristics ? AudioTrackKind.DESCRIPTION : AudioTrackKind.MAIN,
+        flavorId: this._extractFlavorId(hlsAudioTracks[i].url)
       };
       audioTracks.push(new AudioTrack(settings));
     }
