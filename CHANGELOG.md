@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### 1.32.23 (2026-03-26)
+
+
+### Bug Fixes
+
+* **SUP-51539:** Audio Descriptions enable and disable are reversed ([#236](https://github.com/kaltura/playkit-js-hls/issues/236)) ([f034a48](https://github.com/kaltura/playkit-js-hls/commit/f034a48)), closes [kaltura/playkit-js#862](https://github.com/kaltura/playkit-js-hls/issues/862)
+
+
+
 ### 1.32.22 (2026-02-12)
 
 
