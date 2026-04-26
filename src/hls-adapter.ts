@@ -1181,6 +1181,12 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
         this.destroy();
       }
     } else {
+      if (errorType === Hlsjs.ErrorTypes.MEDIA_ERROR && errorName === Hlsjs.ErrorDetails.BUFFER_STALLED_ERROR && this._videoElement) {
+        const recovered = this._handleBufferStalledErrorAtEnd();
+        if (recovered) {
+          return;
+        }
+      }
       const {category, code}: ErrorDetailsType =
         this._requestFilterError || this._responseFilterError
           ? {
@@ -1226,6 +1232,25 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
       }
     }
     return recover;
+  }
+
+  /**
+   * if buffer stalled and video is close to end, end the video
+   * @returns {boolean} - if error is handled or not
+   * @private
+   */
+  private _handleBufferStalledErrorAtEnd() {
+    const currentTime = this._videoElement.currentTime;
+    const duration = this._videoElement.duration;
+    let recovered = false;
+    if (duration && duration - currentTime <= 0.2) {
+      // End the video
+      this._videoElement.currentTime = duration;
+      this._trigger(EventType.ENDED);
+      HlsAdapter._logger.info('Video ended due to buffer stall near end.');
+      recovered = true;
+    }
+    return recovered;
   }
 
   /**
