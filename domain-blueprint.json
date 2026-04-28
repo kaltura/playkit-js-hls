@@ -1,0 +1,91 @@
+{
+  "repositoryName": "@playkit-js/playkit-js-hls",
+  "coreResponsibility": {
+    "purpose": "Media Source Adapter (middleware layer) that integrates the HLS.js library with the PlayKit JS Player to enable HLS (HTTP Live Streaming) playback via Media Source Extensions (MSE)."
+  },
+  "domainAndLogicOwnership": {
+    "featureOwnership": [
+      "HLS manifest parsing and loading (m3u8 files)",
+      "Adaptive Bitrate (ABR) streaming and quality switching",
+      "Multi-audio track selection and switching",
+      "Text track (subtitle/caption) management including CEA-608/708 captions",
+      "Fragment loading and buffering strategies",
+      "Media error recovery mechanisms (decoding errors, codec swaps)",
+      "Live streaming DVR window management and live edge calculation",
+      "Network request/response filtering and custom loaders",
+      "External stream redirection via JSONP fallback",
+      "Timed metadata (ID3 tags) extraction and dispatch",
+      "FPS drop detection and ABR restrictions",
+      "Low latency HLS mode support"
+    ],
+    "dataHandling": [
+      "HLS manifest data (master and media playlists)",
+      "Video/audio/text track metadata and state",
+      "Fragment/segment data loading and buffering",
+      "Playback state synchronization between HLS.js and video element",
+      "ABR configuration and bandwidth estimation",
+      "Stream start time and DVR window boundaries",
+      "Error recovery state (timestamps for decoding/codec swap attempts)",
+      "Network request/response objects for filtering",
+      "CEA-608/708 caption cue data",
+      "ID3 timed metadata frames"
+    ]
+  },
+  "integrationPoints": {
+    "upstream": [
+      "HLS.js library (v1.2.0+) - Third-party HLS streaming engine",
+      "PlayKit JS Core (@playkit-js/playkit-js) - Base player framework providing BaseMediaSourceAdapter, Track classes, Event system, and utility functions",
+      "HLS manifests (m3u8 files) from CDN/streaming servers",
+      "DRM key servers (passed through, not directly handled)",
+      "External redirect endpoints via JSONP (optional)"
+    ],
+    "downstream": [
+      "PlayKit JS Player (consumes this adapter via registerMediaSourceAdapter)",
+      "PlayKit JS UI components (receives track metadata, events)",
+      "PlayKit JS Plugins (analytics, ads, etc. consume events)"
+    ],
+    "externalAPIs": [
+      "HLS.js JavaScript library API (events, configuration, methods)",
+      "Browser Media Source Extensions (MSE) API",
+      "Browser HTMLMediaElement API (video element)",
+      "JSONP protocol for external stream redirection"
+    ]
+  },
+  "technicalStack": {
+    "languages": ["TypeScript", "JavaScript (ES6+)"],
+    "frameworks": ["HLS.js 1.6.15"],
+    "buildTools": ["Webpack", "Babel", "TypeScript Compiler"],
+    "testingTools": ["Karma", "Mocha", "Chai", "Sinon"],
+    "entryPoints": [
+      "src/index.ts - Main module entry point and adapter registration",
+      "src/hls-adapter.ts - Core HLS adapter class (1396 lines, primary logic)",
+      "src/loader.ts - Custom XMLHttpRequest loader with context passing",
+      "src/jsonp-ploader.ts - JSONP playlist loader for external stream redirection",
+      "src/errors.ts - HLS.js error mapping to PlayKit error system",
+      "src/default-config.json - Default HLS configuration values"
+    ]
+  },
+  "triageKeywords": [
+    "HLS playback failure",
+    "m3u8 manifest error",
+    "MANIFEST_LOAD_ERROR",
+    "MANIFEST_PARSING_ERROR",
+    "FRAG_LOAD_ERROR",
+    "adaptive bitrate not switching",
+    "ABR stuck on quality",
+    "audio track switch",
+    "subtitle/caption not displaying",
+    "CEA-608 CEA-708 captions",
+    "buffer stalled",
+    "BUFFER_APPEND_ERROR",
+    "fragment loading timeout",
+    "media decode error recovery",
+    "live stream DVR",
+    "seekToLiveEdge",
+    "HLS.js integration",
+    "codec incompatible",
+    "MANIFEST_INCOMPATIBLE_CODECS_ERROR",
+    "ID3 timed metadata",
+    "low latency HLS"
+  ]
+}
