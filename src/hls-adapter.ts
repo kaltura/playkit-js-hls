@@ -1405,6 +1405,9 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     } else {
       // consideration of the end of the playback in the target buffer calc
       targetBufferVal = this._videoElement.duration - this._videoElement.currentTime;
+      if (targetBufferVal <= 0.2) {
+        targetBufferVal = 0;
+      }
     }
     targetBufferVal = Math.min(targetBufferVal, this._hls.config.maxMaxBufferLength + this._getLevelDetails().targetduration);
     return targetBufferVal;
