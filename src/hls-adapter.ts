@@ -1405,6 +1405,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     } else {
       // consideration of the end of the playback in the target buffer calc
       targetBufferVal = this._videoElement.duration - this._videoElement.currentTime;
+
       //for firefox on macOS if stream is near the end so end the stream
       if (targetBufferVal <= 0.2 && Env.isMacOS && Env.isFirefox) {
         targetBufferVal = 0;
