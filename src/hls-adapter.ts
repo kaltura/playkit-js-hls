@@ -1239,7 +1239,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    * @returns {boolean} - if error is handled or not
    * @private
    */
-  private _handleBufferStalledErrorAtEnd() {
+  private _handleBufferStalledErrorAtEnd(): boolean {
     const currentTime = this._videoElement.currentTime;
     const duration = this._videoElement.duration;
     let recovered = false;
@@ -1405,6 +1405,12 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     } else {
       // consideration of the end of the playback in the target buffer calc
       targetBufferVal = this._videoElement.duration - this._videoElement.currentTime;
+
+      //for firefox on macOS if stream is near the end so end the stream
+      //@ts-expect-error todo:remove this comment when type is updated
+      if (targetBufferVal <= 0.2 && Env.isMacOS && Env.isFirefox) {
+        targetBufferVal = 0;
+      }
     }
     targetBufferVal = Math.min(targetBufferVal, this._hls.config.maxMaxBufferLength + this._getLevelDetails().targetduration);
     return targetBufferVal;
