@@ -10,6 +10,7 @@ import {
   Error as PKError,
   EventType,
   filterTracksByRestriction,
+  getNativeLanguageName,
   IMediaSourceAdapter,
   PKABRRestrictionObject,
   PKMediaSourceObject,
@@ -663,12 +664,18 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
   private _parseAudioTracks(hlsAudioTracks: Array<MediaPlaylist>): AudioTrack[] {
     const audioTracks: AudioTrack[] = [];
     for (let i = 0; i < hlsAudioTracks.length; i++) {
-      // Create audio tracks
+      // Use the ISO language code to derive the native display name (e.g. "es" → "español").
+      // This ensures parity with the DASH adapter, which receives ISO codes from Shaka and
+      // displays them as native names. The HLS manifest NAME= attribute is typically an English
+      // word (e.g. "Spanish"), so we use it only as a fallback when the language code is absent.
+      const lang = hlsAudioTracks[i].lang;
+      const manifestName = hlsAudioTracks[i].name;
+      const label = getNativeLanguageName(lang, manifestName);
       const settings = {
         id: hlsAudioTracks[i].id,
         active: this._hls.audioTrack === hlsAudioTracks[i].id,
-        label: hlsAudioTracks[i].name,
-        language: hlsAudioTracks[i].lang,
+        label,
+        language: lang,
         index: i,
         kind: hlsAudioTracks[i].characteristics ? AudioTrackKind.DESCRIPTION : AudioTrackKind.MAIN,
         flavorId: this._extractFlavorId(hlsAudioTracks[i].url)
