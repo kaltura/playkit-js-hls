@@ -10,6 +10,7 @@ import {
   Error as PKError,
   EventType,
   filterTracksByRestriction,
+  getNativeLanguageName,
   IMediaSourceAdapter,
   PKABRRestrictionObject,
   PKMediaSourceObject,
@@ -667,7 +668,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
       const settings = {
         id: hlsAudioTracks[i].id,
         active: this._hls.audioTrack === hlsAudioTracks[i].id,
-        label: hlsAudioTracks[i].name,
+        label: getNativeLanguageName(hlsAudioTracks[i].lang, hlsAudioTracks[i].name),
         language: hlsAudioTracks[i].lang,
         index: i,
         kind: hlsAudioTracks[i].characteristics ? AudioTrackKind.DESCRIPTION : AudioTrackKind.MAIN,
