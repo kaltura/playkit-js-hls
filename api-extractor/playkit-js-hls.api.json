@@ -238,10 +238,6 @@
                   "text": "protected static _logger: "
                 },
                 {
-                  "kind": "Content",
-                  "text": "import('js-logger')."
-                },
-                {
                   "kind": "Reference",
                   "text": "ILogger",
                   "canonicalReference": "js-logger!ILogger:interface"
@@ -257,7 +253,7 @@
               "name": "_logger",
               "propertyTypeTokenRange": {
                 "startIndex": 1,
-                "endIndex": 3
+                "endIndex": 2
               },
               "isStatic": true,
               "isProtected": true,
