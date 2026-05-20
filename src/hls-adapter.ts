@@ -437,6 +437,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     this._onAddTrack = this._onAddTrack.bind(this);
     this._eventManager.listen(this._videoElement, 'addtrack', this._onAddTrack);
     this._videoElement.textTracks.onaddtrack = this._onAddTrack;
+    this._eventManager.listen(this._videoElement, EventType.WAITING, () => this._onVideoWaiting());
   }
 
   private _onFpsDrop(data: any): void {
@@ -1052,6 +1053,21 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    * @returns {void}
    * @private
    */
+  /**
+   * Handles the video element `waiting` event for Firefox on macOS.
+   * On this platform the media pipeline can stall at end-of-stream by firing
+   * `waiting` without a preceding bufferStalledError, bypassing the normal
+   * error-path guard. Calling `_handleBufferStalledErrorAtEnd()` here closes
+   * that gap — the method's own `duration - currentTime <= 0.2` check prevents
+   * false triggers earlier in playback.
+   * @private
+   */
+  private _onVideoWaiting(): void {
+    if (Env.browser.name === 'Firefox' && Env.isMacOS) {
+      this._handleBufferStalledErrorAtEnd();
+    }
+  }
+
   private _handleWaitingUponAudioTrackSwitch(): void {
     const affectedBrowsers = ['IE', 'Edge'];
     if (affectedBrowsers.includes(Env.browser.name!)) {
