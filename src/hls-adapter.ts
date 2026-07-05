@@ -676,6 +676,23 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
       };
       audioTracks.push(new AudioTrack(settings));
     }
+    // When two tracks share the same language code but one is an Audio Description track
+    // (identified by HLS EXT-X-MEDIA CHARACTERISTICS attribute), set the AD track's
+    // language to "ad-<lang>". This prevents the active-track comparison in the UI from
+    // marking both tracks as active simultaneously (dual checkmark), and mirrors what
+    // audioDescriptionTrackHandler does in player.ts but at parse time so the initial
+    // track state is already correct before _updateTracks is called.
+    const langCounts = new Map<string, number>();
+    for (const track of audioTracks) {
+      if (track.language) {
+        langCounts.set(track.language, (langCounts.get(track.language) || 0) + 1);
+      }
+    }
+    for (const track of audioTracks) {
+      if ((langCounts.get(track.language) || 0) > 1 && track.kind === AudioTrackKind.DESCRIPTION) {
+        track.language = `ad-${track.language}`;
+      }
+    }
     return audioTracks;
   }
 
