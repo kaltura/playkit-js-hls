@@ -664,7 +664,6 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
   private _parseAudioTracks(hlsAudioTracks: Array<MediaPlaylist>): AudioTrack[] {
     const audioTracks: AudioTrack[] = [];
     for (let i = 0; i < hlsAudioTracks.length; i++) {
-      // Create audio tracks
       const settings = {
         id: hlsAudioTracks[i].id,
         active: this._hls.audioTrack === hlsAudioTracks[i].id,
@@ -672,7 +671,10 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
         language: hlsAudioTracks[i].lang,
         index: i,
         kind: hlsAudioTracks[i].characteristics ? AudioTrackKind.DESCRIPTION : AudioTrackKind.MAIN,
-        flavorId: this._extractFlavorId(hlsAudioTracks[i].url)
+        flavorId: this._extractFlavorId(hlsAudioTracks[i].url),
+        // Raw manifest NAME — used downstream to deduplicate labels when two tracks share the
+        // same ISO language code (e.g. English + English Audio Description, both lang="en").
+        manifestName: hlsAudioTracks[i].name || ''
       };
       audioTracks.push(new AudioTrack(settings));
     }
