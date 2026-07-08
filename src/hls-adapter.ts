@@ -976,6 +976,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     if (!this._hls.config.autoStartLoad) {
       this._hls.startLoad(this._startTime);
     }
+    this._maybeDisableStretchForLowFps();
     this._playerTracks = this._parseTracks();
     // set current level to disable the auto selection in hls
     if (!this._config.abr.enabled) {
@@ -1233,6 +1234,24 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
       }
     }
     return recover;
+  }
+
+  /**
+   * Disables stretchShortVideoTrack for low-framerate content (SUP-52838).
+   * stretchShortVideoTrack=true (our default) causes hls.js to insert a synthetic
+   * video frame to cover an audio/video PTS offset, creating a gap in the MSE
+   * SourceBuffer that Firefox cannot cross on 1fps content.
+   * We detect this at manifest load time and disable it only when needed.
+   * @private
+   */
+  private _maybeDisableStretchForLowFps(): void {
+    const levels = this._hls.levels;
+    if (!levels || !levels.length) return;
+    const hasLowFps = levels.some(l => l.frameRate > 0 && l.frameRate <= 1);
+    if (hasLowFps && this._hls.config.stretchShortVideoTrack) {
+      this._hls.config.stretchShortVideoTrack = false;
+      HlsAdapter._logger.info('SUP-52838: disabled stretchShortVideoTrack for low-framerate content');
+    }
   }
 
   /**
