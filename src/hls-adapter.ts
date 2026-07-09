@@ -437,6 +437,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     this._onAddTrack = this._onAddTrack.bind(this);
     this._eventManager.listen(this._videoElement, 'addtrack', this._onAddTrack);
     this._videoElement.textTracks.onaddtrack = this._onAddTrack;
+    this._eventManager.listen(this._videoElement, EventType.WAITING, () => this._onVideoWaiting());
   }
 
   private _onFpsDrop(data: any): void {
@@ -677,6 +678,35 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
         manifestName: hlsAudioTracks[i].name || ''
       };
       audioTracks.push(new AudioTrack(settings));
+    }
+    // When two tracks share the same language code but one is an Audio Description track,
+    // set the AD track's language to "ad-<lang>". This prevents the active-track comparison
+    // in the UI from marking both tracks as active simultaneously (dual checkmark), and
+    // mirrors what audioDescriptionTrackHandler does in player.ts but at parse time so the
+    // initial track state is already correct before _updateTracks is called.
+    //
+    // Detection order (first match wins):
+    //   1. HLS EXT-X-MEDIA CHARACTERISTICS attribute (hls.js sets kind=DESCRIPTION)
+    //   2. Track name contains "description" (case-insensitive) — covers manifests that
+    //      omit the CHARACTERISTICS attribute but use a descriptive NAME value
+    //
+    // Guard: skip tracks whose language already starts with "ad-" to prevent double
+    // application when this method is called more than once.
+    const langCounts = new Map<string, number>();
+    for (const track of audioTracks) {
+      if (track.language) {
+        langCounts.set(track.language, (langCounts.get(track.language) || 0) + 1);
+      }
+    }
+    for (let i = 0; i < audioTracks.length; i++) {
+      const track = audioTracks[i];
+      if ((langCounts.get(track.language) || 0) > 1 && !track.language.startsWith('ad-')) {
+        const isAdByCharacteristics = track.kind === AudioTrackKind.DESCRIPTION;
+        const isAdByName = hlsAudioTracks[i].name?.toLowerCase().includes('description');
+        if (isAdByCharacteristics || isAdByName) {
+          track.language = `ad-${track.language}`;
+        }
+      }
     }
     return audioTracks;
   }
@@ -1054,6 +1084,21 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    * @returns {void}
    * @private
    */
+  /**
+   * Handles the video element `waiting` event for Firefox on macOS.
+   * On this platform the media pipeline can stall at end-of-stream by firing
+   * `waiting` without a preceding bufferStalledError, bypassing the normal
+   * error-path guard. Calling `_handleBufferStalledErrorAtEnd()` here closes
+   * that gap — the method's own `duration - currentTime <= 0.2` check prevents
+   * false triggers earlier in playback.
+   * @private
+   */
+  private _onVideoWaiting(): void {
+    if (Env.browser.name === 'Firefox' && Env.isMacOS) {
+      this._handleBufferStalledErrorAtEnd();
+    }
+  }
+
   private _handleWaitingUponAudioTrackSwitch(): void {
     const affectedBrowsers = ['IE', 'Edge'];
     if (affectedBrowsers.includes(Env.browser.name!)) {
