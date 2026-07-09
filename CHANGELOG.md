@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### 1.32.26 (2026-07-09)
+
+
+### Bug Fixes
+
+* **hls-adapter:** preserve manifest NAME for audio track label dedup (SUP-52840) ([#246](https://github.com/kaltura/playkit-js-hls/issues/246)) ([36ed70b](https://github.com/kaltura/playkit-js-hls/commit/36ed70b))
+
+
+
 ### 1.32.25 (2026-05-20)
 
 
