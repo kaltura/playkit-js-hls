@@ -133,6 +133,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
   private _lastLoadedFragSN: number = -1;
   private _sameFragSNLoadedCount: number = 0;
   private _waitForSubtitleLoad: boolean = true;
+  private _liveEntryStValue: string  = '';
   /**
    * an object containing all the events we bind and unbind to.
    * @member {Object} - _adapterEventsBindings
@@ -656,6 +657,30 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
   }
 
   /**
+   * Extract st value from URL path (/st/{value}/...).
+   * @param {string} url - The URL to parse.
+   * @returns {?string} - The extracted st value or null if not found.
+   * @private
+   */
+  private _extractStValue(url?: string): string {
+    if (!url) {
+      return '';
+    }
+    const match = url.match(/(?:^|\/)st\/([^/?#]+)/);
+    return match ? decodeURIComponent(match[1]) : '';
+  }
+
+  /**
+   * Update extracted st value from manifest level URL.
+   * @returns {void}
+   * @private
+   */
+  private _updateLiveEntryStValue(): void {
+    const levelUrl = this._hls.levels?.[0]?.url?.[0] || '';
+    this._liveEntryStValue = this._extractStValue(levelUrl);
+  }
+
+  /**
    * Parse hls audio tracks into player audio tracks.
    * @param {Array<Object>} hlsAudioTracks - The hls audio tracks.
    * @returns {Array<AudioTrack>} - The parsed audio tracks.
@@ -967,6 +992,15 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
   }
 
   /**
+   * Returns extracted st value only for live entries.
+   * @returns {string} - st value for live entry, otherwise empty string.
+   * @public
+   */
+  public getLiveEntryStValue(): string {
+    return this._liveEntryStValue;
+  }
+
+  /**
    * Fired after manifest has been loaded.
    * @function _onManifestLoaded
    * @param {any} data - the data of the manifest load event
@@ -978,6 +1012,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     if (!this._hls.config.autoStartLoad) {
       this._hls.startLoad(this._startTime);
     }
+    this._updateLiveEntryStValue();
     this._playerTracks = this._parseTracks();
     // set current level to disable the auto selection in hls
     if (!this._config.abr.enabled) {
