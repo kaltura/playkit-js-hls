@@ -660,7 +660,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
   /**
    * Extract st value from URL path (/st/{value}/...).
    * @param {string} url - The URL to parse.
-   * @returns {?string} - The extracted st value or null if not found.
+   * @returns {string} - The extracted st value or empty string if not found.
    * @private
    */
   private _extractStValue(url: string): string {
