@@ -664,8 +664,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    * @private
    */
   private _extractStValue(url: string): string {
-    const match = url.match(/(?:^|\/)st\/([^/?#]+)/);
-    return match ? decodeURIComponent(match[1]) : '';
+    return url.match(/\/st\/([01])\//)?.[1] ?? '';
   }
 
   /**
