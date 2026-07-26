@@ -133,7 +133,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
   private _lastLoadedFragSN: number = -1;
   private _sameFragSNLoadedCount: number = 0;
   private _waitForSubtitleLoad: boolean = true;
-  private _liveEntryStValue: string  = '';
+  private _liveEntryStValue: string = '';
   /**
    * an object containing all the events we bind and unbind to.
    * @member {Object} - _adapterEventsBindings
@@ -663,10 +663,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    * @returns {?string} - The extracted st value or null if not found.
    * @private
    */
-  private _extractStValue(url?: string): string {
-    if (!url) {
-      return '';
-    }
+  private _extractStValue(url: string): string {
     const match = url.match(/(?:^|\/)st\/([^/?#]+)/);
     return match ? decodeURIComponent(match[1]) : '';
   }
