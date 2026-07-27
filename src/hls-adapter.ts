@@ -133,6 +133,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
   private _lastLoadedFragSN: number = -1;
   private _sameFragSNLoadedCount: number = 0;
   private _waitForSubtitleLoad: boolean = true;
+  private _liveEntryStValue: string = '';
   /**
    * an object containing all the events we bind and unbind to.
    * @member {Object} - _adapterEventsBindings
@@ -625,6 +626,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     this._removeBindings();
     this._requestFilterError = false;
     this._responseFilterError = false;
+    this._liveEntryStValue = '';
     this._hls.detachMedia();
     this._hls.destroy();
   }
@@ -653,6 +655,26 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     }
     const id = url.match(/flavorId\/([^/]+)/);
     return id ? id[1] : '';
+  }
+
+  /**
+   * Extract st value from URL path (/st/{value}/...).
+   * @param {string} url - The URL to parse.
+   * @returns {string} - The extracted st value or empty string if not found.
+   * @private
+   */
+  private _extractStValue(url: string): string {
+    return url.match(/\/st\/([01])\//)?.[1] ?? '';
+  }
+
+  /**
+   * Update extracted st value from a media URL.
+   * @param {string} levelM3u8Url - The loaded media playlist URL.
+   * @returns {void}
+   * @private
+   */
+  private _updateLiveEntryStValue(levelM3u8Url: string): void {
+    this._liveEntryStValue = this._extractStValue(levelM3u8Url);
   }
 
   /**
@@ -964,6 +986,15 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
     } catch (e) {
       return false;
     }
+  }
+
+  /**
+   * Returns extracted st value only for live entries.
+   * @returns {string} - st value for live entry, otherwise empty string.
+   * @public
+   */
+  public getLiveEntryStValue(): string {
+    return this._liveEntryStValue;
   }
 
   /**
@@ -1355,6 +1386,10 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    */
   private _onLevelLoaded = (e: any, data: any): Promise<void> | undefined => {
     if (this.isLive()) {
+      if (!this._liveEntryStValue) {
+        const levelM3u8Url = data?.details?.url || data?.url || '';
+        this._updateLiveEntryStValue(levelM3u8Url);
+      }
       const {
         details: {endSN}
       } = data;
