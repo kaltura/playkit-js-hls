@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## 1.33.0 (2026-07-30)
+
+
+### Features
+
+* **FEC-15007:** Live streaming: report primary vs secondary stream dimension to Kava on live playback events ([#247](https://github.com/kaltura/playkit-js-hls/issues/247)) ([c403f25](https://github.com/kaltura/playkit-js-hls/commit/c403f25)), closes [kaltura/kaltura-player-js#1247](https://github.com/kaltura/playkit-js-hls/issues/1247) [kaltura/playkit-js-kava#224](https://github.com/kaltura/playkit-js-hls/issues/224) [kaltura/playkit-js#889](https://github.com/kaltura/playkit-js-hls/issues/889) [kaltura/playkit-js-dash#274](https://github.com/kaltura/playkit-js-hls/issues/274)
+
+
+
 ### 1.32.26 (2026-07-09)
 
 
