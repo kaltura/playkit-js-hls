@@ -1390,7 +1390,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
   private _onLevelLoaded = (e: any, data: any): Promise<void> | undefined => {
     if (this.isLive()) {
       const levelM3u8Url = data?.details?.url || data?.url || '';
-      this._updateLiveEntryStValue(levelM3u8Url);      
+      this._updateLiveEntryStValue(levelM3u8Url);
       const {
         details: {endSN}
       } = data;
