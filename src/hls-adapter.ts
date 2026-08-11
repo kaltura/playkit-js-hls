@@ -674,7 +674,10 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    * @private
    */
   private _updateLiveEntryStValue(levelM3u8Url: string): void {
-    this._liveEntryStValue = this._extractStValue(levelM3u8Url);
+    const newStValue = this._extractStValue(levelM3u8Url);
+    if (newStValue !== this._liveEntryStValue) {
+      this._liveEntryStValue = newStValue;
+    }
   }
 
   /**
@@ -1386,10 +1389,9 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
    */
   private _onLevelLoaded = (e: any, data: any): Promise<void> | undefined => {
     if (this.isLive()) {
-      if (!this._liveEntryStValue) {
-        const levelM3u8Url = data?.details?.url || data?.url || '';
-        this._updateLiveEntryStValue(levelM3u8Url);
-      }
+      const levelM3u8Url = data?.details?.url || data?.url || '';
+      this._updateLiveEntryStValue(levelM3u8Url);
+      
       const {
         details: {endSN}
       } = data;
