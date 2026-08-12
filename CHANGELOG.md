@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### 1.33.1 (2026-08-12)
+
+
+### Bug Fixes
+
+* **FEC-15069:** Live seamless failover| streamType reports incorrect stream ([#248](https://github.com/kaltura/playkit-js-hls/issues/248)) ([65464f3](https://github.com/kaltura/playkit-js-hls/commit/65464f3))
+
+
+
 ## 1.33.0 (2026-07-30)
 
 
