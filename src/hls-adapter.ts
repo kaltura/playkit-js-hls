@@ -743,7 +743,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
         id: hlsTextTrack.id,
         active: false,
         default: hlsTextTrack.default,
-        label: hlsTextTrack.name,
+        label: getNativeLanguageName(hlsTextTrack.lang || hlsTextTrack.name, hlsTextTrack.name),
         kind: this._captionsOrSubtitlesFromCharacteristics(hlsTextTrack),
         language: hlsTextTrack.lang
       };
