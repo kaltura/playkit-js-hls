@@ -11,6 +11,7 @@ import {
   EventType,
   filterTracksByRestriction,
   getNativeLanguageName,
+  asLangCode,
   IMediaSourceAdapter,
   PKABRRestrictionObject,
   PKMediaSourceObject,
@@ -743,7 +744,7 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
         id: hlsTextTrack.id,
         active: false,
         default: hlsTextTrack.default,
-        label: getNativeLanguageName(hlsTextTrack.lang || hlsTextTrack.name, hlsTextTrack.name),
+        label: getNativeLanguageName(hlsTextTrack.lang || asLangCode(hlsTextTrack.name), hlsTextTrack.name),
         kind: this._captionsOrSubtitlesFromCharacteristics(hlsTextTrack),
         language: hlsTextTrack.lang
       };
