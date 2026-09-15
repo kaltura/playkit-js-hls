@@ -1340,3 +1340,105 @@ xdescribe('HlsAdapter Instance - _onFragParsingMetadata', function () {
     });
   });
 });
+
+describe('HlsAdapter Instance - stale live playlist (SUP-53187)', function () {
+  let hlsAdapterInstance;
+  let video;
+  let sandbox;
+  let triggerSpy;
+  const MAX_STALE_RELOADS = 3;
+  const TARGET_DURATION = 6;
+
+  const setCurrentTime = time => {
+    Object.defineProperty(video, 'currentTime', {value: time, configurable: true, writable: true});
+  };
+
+  const buildLevelDetails = ({endSN, edge}) => ({
+    url: 'https://example.com/index-s32.m3u8',
+    live: true,
+    endSN,
+    edge,
+    fragmentEnd: edge,
+    targetduration: TARGET_DURATION
+  });
+
+  const loadLevelTimes = (times, details) => {
+    for (let i = 0; i < times; i++) {
+      hlsAdapterInstance._onLevelLoaded(null, {details});
+    }
+  };
+
+  const liveManifestRefreshErrors = () =>
+    triggerSpy
+      .getCalls()
+      .filter(call => call.args[0] === EventType.ERROR && call.args[1] && call.args[1].code === Error.Code.LIVE_MANIFEST_REFRESH_ERROR);
+
+  beforeEach(function () {
+    sandbox = sinon.createSandbox();
+    video = document.createElement('video');
+    const config = {
+      playback: {options: {html5: {hls: {}}}},
+      network: {maxStaleLevelReloads: MAX_STALE_RELOADS}
+    };
+    hlsAdapterInstance = HlsAdapter.createAdapter(video, hls_sources.Live, config);
+    sandbox.stub(hlsAdapterInstance, 'isLive').returns(true);
+    sandbox.stub(hlsAdapterInstance, 'destroy').resolves();
+    triggerSpy = sandbox.spy(hlsAdapterInstance, '_trigger');
+  });
+
+  afterEach(function () {
+    sandbox.restore();
+    hlsAdapterInstance.destroy();
+    hlsAdapterInstance = null;
+    video = null;
+  });
+
+  it('should raise LIVE_MANIFEST_REFRESH_ERROR when the playlist is stale and the playhead is at the live edge', () => {
+    const details = buildLevelDetails({endSN: 100, edge: 600});
+    setCurrentTime(598);
+    // first load sets the last SN, the following MAX_STALE_RELOADS loads are the stale ones
+    loadLevelTimes(1 + MAX_STALE_RELOADS, details);
+    liveManifestRefreshErrors().length.should.equal(1);
+    hlsAdapterInstance.destroy.calledOnce.should.be.true;
+  });
+
+  it('should not raise LIVE_MANIFEST_REFRESH_ERROR while a DVR viewer still has unplayed content ahead', () => {
+    const details = buildLevelDetails({endSN: 100, edge: 600});
+    // 3 minutes behind the end of the playlist, like the viewer in the ticket
+    setCurrentTime(420);
+    loadLevelTimes(1 + MAX_STALE_RELOADS * 5, details);
+    liveManifestRefreshErrors().length.should.equal(0);
+    hlsAdapterInstance.destroy.called.should.be.false;
+  });
+
+  it('should raise LIVE_MANIFEST_REFRESH_ERROR once the DVR viewer reaches the end of the stale playlist', () => {
+    const details = buildLevelDetails({endSN: 100, edge: 600});
+    setCurrentTime(420);
+    loadLevelTimes(1 + MAX_STALE_RELOADS * 2, details);
+    liveManifestRefreshErrors().length.should.equal(0);
+    // playhead reached the stale edge (within one target duration)
+    setCurrentTime(600 - TARGET_DURATION);
+    loadLevelTimes(1, details);
+    liveManifestRefreshErrors().length.should.equal(1);
+    hlsAdapterInstance.destroy.calledOnce.should.be.true;
+  });
+
+  it('should reset the stale counter when the playlist advances', () => {
+    setCurrentTime(598);
+    loadLevelTimes(MAX_STALE_RELOADS, buildLevelDetails({endSN: 100, edge: 600}));
+    // playlist advanced by one segment and the playhead followed the live edge
+    setCurrentTime(604);
+    loadLevelTimes(MAX_STALE_RELOADS, buildLevelDetails({endSN: 101, edge: 606}));
+    liveManifestRefreshErrors().length.should.equal(0);
+    loadLevelTimes(1, buildLevelDetails({endSN: 101, edge: 606}));
+    liveManifestRefreshErrors().length.should.equal(1);
+  });
+
+  it('should not defer the error when the playlist end cannot be determined', () => {
+    setCurrentTime(0);
+    const details = buildLevelDetails({endSN: 100, edge: undefined});
+    details.fragmentEnd = undefined;
+    loadLevelTimes(1 + MAX_STALE_RELOADS, details);
+    liveManifestRefreshErrors().length.should.equal(1);
+  });
+});

@@ -29,6 +29,14 @@ import loader from './loader';
 import {ILogger} from 'js-logger';
 
 /**
+ * Fallback threshold (in seconds) used to decide whether the playhead reached the end of a stale live playlist,
+ * when the playlist has no target duration.
+ * @type {number}
+ * @const
+ */
+const STALE_PLAYLIST_EDGE_THRESHOLD: number = 1;
+
+/**
  * Adapter of hls.js lib for hls content.
  * @classdesc
  */
@@ -1398,6 +1406,15 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
         this._sameFragSNLoadedCount++;
         HlsAdapter._logger.debug(`Same frag SN. Count is: ${this._sameFragSNLoadedCount}, Max is: ${this._config.network.maxStaleLevelReloads}`);
         if (this._sameFragSNLoadedCount >= this._config.network.maxStaleLevelReloads) {
+          if (this._hasUnplayedContentAhead(data.details)) {
+            // The live playlist stopped advancing (e.g. the encoder stopped and EXT-X-ENDLIST was not appended yet),
+            // but the playhead is still behind the end of the playlist (a DVR viewer). Keep playing the remaining
+            // content instead of failing. The error is raised only once the playhead reaches the stale edge.
+            HlsAdapter._logger.debug(
+              `Live playlist is stale but there is unplayed content ahead of the playhead - deferring LIVE_MANIFEST_REFRESH_ERROR (frag SN: ${endSN})`
+            );
+            return;
+          }
           HlsAdapter._logger.error('Same frag loading reached max count');
           const error = new PKError(PKError.Severity.CRITICAL, PKError.Category.NETWORK, PKError.Code.LIVE_MANIFEST_REFRESH_ERROR, {
             fragSN: endSN
@@ -1412,6 +1429,23 @@ export default class HlsAdapter extends BaseMediaSourceAdapter {
       this._lastLoadedFragSN = endSN;
     }
   };
+
+  /**
+   * Checks whether there is still unplayed content between the playhead and the end of the loaded live playlist.
+   * Used to avoid failing playback on a stale live playlist while a DVR viewer still has content to play.
+   * @param {any} details - The hls.js level details of the loaded playlist.
+   * @returns {boolean} - Whether the playhead is more than one target duration behind the end of the playlist.
+   * @private
+   */
+  private _hasUnplayedContentAhead(details: any): boolean {
+    const currentTime = this._videoElement?.currentTime;
+    const playlistEnd = typeof details?.edge === 'number' ? details.edge : details?.fragmentEnd;
+    if (typeof currentTime !== 'number' || typeof playlistEnd !== 'number' || !Number.isFinite(playlistEnd)) {
+      return false;
+    }
+    const threshold = details.targetduration > 0 ? details.targetduration : STALE_PLAYLIST_EDGE_THRESHOLD;
+    return playlistEnd - currentTime > threshold;
+  }
 
   /**
    * called when a fragment is loaded
